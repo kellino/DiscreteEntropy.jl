@@ -1,0 +1,23 @@
+name = "DiscreteEntropy"
+uuid = "940648b6-1797-4129-9403-35667d1f6004"
+authors = ["David Kelly"]
+version = "0.1.0"
+
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+FNVHash = "5207ad80-27db-4d23-8732-fa0bd339ea89"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Loess = "4345ca2d-374a-55d4-8d30-97f9976e7612"
+Match = "7eb4fadd-790c-5f42-8a69-bfa0b872bfbf"
+QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

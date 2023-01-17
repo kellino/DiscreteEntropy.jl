@@ -1,0 +1,27 @@
+#+title: Entropy
+
+* Estimators to Implement in Julia (DJENTT) and Rust (Rentt)
+
+* DONE Maximum Likelihood
+* DONE Miller Madow
+* DONE jackknife
+* TODO Best Upper Bound
+* DONE Grassberger
+* DONE Schurmann
+* DONE Chao-Shen
+* DONE James-Stein
+* DONE Bonachela
+* DONE Zhang
+** implementation is very slow (quadratic complexity?)
+* TODO Chao-Wang-Jost
+* DONE Jeffrey
+* DONE Laplace
+* DONE Schurmann-Grassberger
+* DONE Minimax
+* DONE NSB
+** check that it is correct
+* TODO ANSB
+* TODO CDM
+* TODO Unseen
+* TODO PYM
+* TODO KNN (mutual information)
