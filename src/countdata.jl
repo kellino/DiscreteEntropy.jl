@@ -1,5 +1,6 @@
 using CSV;
 using StatsBase;
+using Printf;
 
 mutable struct CountData
     histogram::Dict{Int64,Int64}
@@ -60,10 +61,15 @@ function from_samples(file::String, field)
     from_samples(csv[field])
 end
 
-function update_from_sample!(data::CountData, sample::Integer)
-    # todo
-end
-
 function to_probs(data::CountData)::Vector{Float64}
     return [y * mm / data.N for (y, mm) in data.histogram]
+end
+
+function to_csv_string(data::CountData)::String
+    dict = []
+    for (y, mm) in data.histogram
+        push!(dict, y, mm)
+    end
+
+    return @sprintf("%s,%d,%d,%d,%d", join(dict, ','), data.N, data.K, data.f1, data.f2)
 end
