@@ -11,17 +11,17 @@ function generate(samplesize, dist)
         return abs(DiscreteEntropy.schurmann(data, ξ)) - entropy(dist)
     end
 
-    res = Optim.optimize(loss, 0.1, 10.0)
-    return (data, Optim.minimizer(res))
+    res = Optim.optimize(loss, 0.1, 20.0)
+    return (data, Optim.minimizer(res), Optim.minimum(res))
 end
 
 
 function make_data(file::String, lines::Int, samplesize::Int, distribution)
     out = open(file, "a")
 
-    for i in 1:lines
-        data, min = generate(samplesize, distribution)
-        write(out, @sprintf("%s,%f\n", DiscreteEntropy.to_csv_string(data), min))
+    for _ in 1:lines
+        data, xi, min = generate(samplesize, distribution)
+        write(out, @sprintf("%s,%.10f%.10f\n", DiscreteEntropy.to_csv_string(data), xi, min))
     end
 
     close(out)
