@@ -77,7 +77,7 @@ end
 [schurmann](https://arxiv.org/pdf/cond-mat/0403192.pdf)
 
 ```math
-\hat{H}_{SHU} = \psi(n) - \frac{1}{n} \sum_{k=1}^{K} \, h_k \big( \psi(h_k) + (-1)^{h_k} ∫_0^{1/ζ - 1} \frac{t^{h_k}-1}{1+t}dt \big)
+\hat{H}_{SHU} = \psi(n) - \frac{1}{n} \sum_{k=1}^{K} \, y_x \big( \psi(y_x) + (-1)^{y_x} ∫_0^{\frac{1}{\xi} - 1} \frac{t^{y_x}-1}{1+t}dt \big)
 
 ```
 This is no one ideal value for ``\xi``, however the paper suggests ``e^{(-1/2)} \approx 0.6``
@@ -87,11 +87,11 @@ function schurmann(data::CountData, ξ::Float64=exp(-1 / 2))::Float64
     @assert ξ > 0.0
     return digamma(data.N) -
            (1.0 / data.N) *
-           sum([(digamma(y) + (-1.0)^y * quadgk(t -> t^(y - 1) / (1 + t), 0, (1 / ξ) - 1.0)[1]) * y * mm for (y, mm) in data.histogram])
+           sum([(digamma(yₓ) + (-1.0)^yₓ * quadgk(t -> t^(yₓ - 1) / (1 + t), 0, (1 / ξ) - 1.0)[1]) * yₓ * mm for (yₓ, mm) in data.histogram])
 
 end
 
-function schurmann(counts::AbstractVector{Int64}, ξ::Float64)::Float64
+function schurmann(counts::AbstractVector{Int64}, ξ::Real)::Float64
     schurmann(from_counts(counts), ξ)
 end
 

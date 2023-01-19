@@ -19,4 +19,5 @@ include("bayesian.jl")
 include("nsb.jl")
 include("pym.jl")
 
+include("script.jl")
 end
