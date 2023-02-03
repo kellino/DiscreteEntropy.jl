@@ -1,5 +1,3 @@
-using Match
-
 function kl_divergence(counts1::AbstractVector{Int64}, counts2::AbstractVector{Int64})::Float64
     c1 = sum(counts1)
     c2 = sum(counts2)

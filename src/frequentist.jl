@@ -91,9 +91,27 @@ function schurmann(data::CountData, ξ::Float64=exp(-1 / 2))::Float64
 
 end
 
-function schurmann(counts::AbstractVector{Int64}, ξ::Real)::Float64
-    schurmann(from_counts(counts), ξ)
+@doc raw"""
+    schurmann_generalised(data::CountData, xis::Vector{Float64})::Float64
+
+[schurmann_generalised](https://arxiv.org/pdf/2111.11175.pdf)
+
+```math
+\hat{H}_{SHU} = \psi(n) - \frac{1}{n} \sum_{k=1}^{K} \, y_x \big( \psi(y_x) + (-1)^{y_x} ∫_0^{\frac{1}{\xi_x} - 1} \frac{t^{y_x}-1}{1+t}dt \big)
+
+```
+Accepts a vector is $ξ$ values, rather than just one.
+
+"""
+function schurmann_generalised(data::CountData, xis::Vector{Float64})::Float64
+    @assert length(data.histogram) == length(xis)
+
+    return digamma(data.N) -
+           (1.0 / data.N) *
+           sum([(digamma(yₓ) + (-1.0)^yₓ * quadgk(t -> t^(yₓ - 1) / (1 + t), 0, (1 / ξ) - 1.0)[1]) * yₓ * mm
+                for ((yₓ, mm), ξ) in collect(zip(data.histogram, xis))])
 end
+
 
 # TODO this is not yet correct, suffers from overflow on big samples
 function chao_shen(data::CountData)::Float64

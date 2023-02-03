@@ -1,5 +1,6 @@
 using SpecialFunctions;
 using LinearAlgebra;
+using Optim;
 
 mm = [1, 2, 3]
 icts = [2, 2, 3]
@@ -58,23 +59,30 @@ function logliPyOccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vec
 end
 
 function pymPrior(param::Float64, α::Float64, δ::Float64)
-    prior = 0
+    prior = 1
     dprior = 0
     ddprior = 0
 
     return (prior, dprior, ddprior)
 end
-# ndlogp = -dlogp - dprior ./ prior;
-# 	nddlogp = -ddlogp - (prior*ddprior - dprior'*dprior) ./prior^2;
-function nlogPostPyoccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vector{Int64}, param::Float64)
-    (logp, dlogp, ddlogp) = logliPyOccupancy(α, δ, mm, icts)
-    (prior, dprior, ddprior) = pymPrior(param, α, δ)
-    ndlogp = -dlogp - dprior ./ prior
-    nddlogp = -ddlogp - (prior * ddprior - dprior * dprior)
 
+function nlogPostPyoccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vector{Int64}, param::Float64)
+    # check for negatives
+    (logp, dlogp, ddlogp) = logliPyOccupancy(α, δ, mm, icts)
+    println(logp, dlogp, ddlogp)
+    (prior, dprior, ddprior) = pymPrior(param, α, δ)
+    println(prior)
+    nlogp = -logp - log(prior)
+    ndlogp = -dlogp .- dprior ./ prior
+
+    # println(ndlogp)
+    nddlogp = -ddlogp .- (prior * ddprior - dprior * dprior) ./ prior^2
+
+
+    # return nlogp
+    return (nlogp, ndlogp, nddlogp)
 
 end
-
 
 function h_pym(mm::Vector{Int64}, icts::Vector{Int64})
     Hbls = 0.0

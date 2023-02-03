@@ -12,6 +12,7 @@ maximum_likelihood
 miller_madow
 grassberger
 schurmann
+schurmann_generalised
 zhang
 chao_shen
 bonachela

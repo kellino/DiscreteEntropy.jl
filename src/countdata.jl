@@ -1,9 +1,10 @@
 using CSV;
 using StatsBase;
 using Printf;
+using OrderedCollections;
 
 mutable struct CountData
-    histogram::Dict{Int64,Int64}
+    histogram::OrderedDict{Int64,Int64}
     N::Int64
     K::Int64
     f1::Int64
