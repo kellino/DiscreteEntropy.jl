@@ -40,13 +40,12 @@ function ρ(β::Float64, k::Int64, data::CountData)
 end
 
 @doc raw"""
-    nsb(k, data::CountData)
-    nsb(data::CountData)
+    nsb(data::CountData; k=K)
     nsb(samples::AbstractVector)
 
     Bayesian estimator
 """
-function nsb(k::Int64, data::CountData)::Float64
+function nsb(data::CountData; k=data.K)::Float64
 
     if data.N <= 1
         error("Too few samples")
@@ -56,14 +55,6 @@ function nsb(k::Int64, data::CountData)::Float64
            quadgk(β -> ρ(β, k, data), 1e-10, log(k))[1]
 end
 
-function nsb(data::CountData)::Float64
-    nsb(data.K, data)
-end
-
 function nsb(samples::AbstractVector)::Float64
     nsb(from_samples(samples))
-end
-
-function guess_k()
-    # todo
 end
