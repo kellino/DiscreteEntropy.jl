@@ -23,6 +23,7 @@ bonachela
 ```@docs
 bayes
 nsb
+ansb
 pym
 ```
 

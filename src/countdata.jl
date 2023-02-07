@@ -11,6 +11,14 @@ mutable struct CountData
     f2::Int64
 end
 
+function coincidences(data::CountData)::Int64
+    return data.N - sum([m for (_, m) in data.histogram])
+end
+
+function ratio(data::CountData)::Float64
+    return coincidences(data) / data.N
+end
+
 function singles_and_doubles(histogram::Dict{Int64,Int64})::Tuple{Int64,Int64}
     singletons = 0
     doubletons = 0
@@ -62,7 +70,7 @@ function from_samples(file::String, field)
     from_samples(csv[field])
 end
 
-function to_probs(data::CountData)::Vector{Float64}
+function to_pmf(data::CountData)::Vector{Float64}
     return [y * mm / data.N for (y, mm) in data.histogram]
 end
 

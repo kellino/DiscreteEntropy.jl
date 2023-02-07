@@ -8,6 +8,10 @@ function kl_divergence(counts1::AbstractVector{Int64}, counts2::AbstractVector{I
 
 end
 
+function shannon_jensen_divergence()
+    # todo
+end
+
 function mi(counts::Matrix{Int64})::Float64
     #   TODO think about how to do this
 end
