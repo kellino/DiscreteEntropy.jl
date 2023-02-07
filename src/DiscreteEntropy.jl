@@ -1,10 +1,11 @@
 module DiscreteEntropy
 
+using SpecialFunctions: gamma_inc_inv_psmall
 const estimators = Set([
     :maximum_likelihood, :miller_madow, :grassberger, :schurmann, :chao_shen, :zhang
 ])
 
-export to_bits, to_bans, basic_jack, to_probs
+export to_bits, to_bans, basic_jack, to_probs, gammalndiff, logx, xlogx
 export maximum_likelihood, miller_madow, grassberger,
     schurmann, chao_shen, zhang, bonachela, schurmann_generalised
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb
@@ -15,8 +16,8 @@ include("utils.jl")
 include("countdata.jl")
 include("divergence.jl")
 include("frequentist.jl")
-include("bayesian.jl")
-include("nsb.jl")
-include("pym.jl")
+include("Bayesian/bayesian.jl")
+include("Bayesian/nsb.jl")
+include("Bayesian/pym.jl")
 
 end

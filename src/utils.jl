@@ -1,10 +1,22 @@
+using SpecialFunctions: loggamma
+
+@doc raw"""
+    logx(x)::Float64
+Returns natural logarithm of x, or 0.0 if x is zero
+"""
+function logx(x)::Float64
+    if iszero(x)
+        return zero(x)
+    end
+    return log(x)
+end
+
 @doc raw"""
     xlogx(x::Float64)
-Return `x * log(x)` for `x ≥ 0`, handling `x == 0` by return 0.
+Returns `x * log(x)` for `x ≥ 0`, or 0.0 if x is zero
 """
 function xlogx(x)
-    result = x * log(x)
-    iszero(result) || isnan(result) ? zero(result) : result
+    return x * logx(x)
 end
 
 @doc raw"""
@@ -32,4 +44,8 @@ function basic_jack(xs::Vector{Int64})
     end
 
     return res
+end
+
+function gammalndiff(x::Float64, dx::Float64)
+    return loggamma(x + dx) - loggamma(x)
 end
