@@ -86,6 +86,26 @@ function logliPyOccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vec
     dlogp[:1] = sum(Z) - digamma(α + N) + digamma(α + 1.0)
     dlogp[:2] = dot(KK, Z) - dot(mm, digamma.(icts .- δ) .- digamma.(1.0 - δ))
 
+    # ddlogp = zeros(2, 2)
+    # Z2 = Z .^ 2.0
+    # ddlogp[1, 1] = trigamma(1.0 + α) - trigamma(α + N) - sum(Z2)
+    # diag = -sum(KK .* Z2)
+    # ddlogp[1, :2] = diag
+    # ddlogp[2, :1] = diag
+    # ddlogp[2, :2] = -sum((KK .^ 2.0) .* Z2) + dot(mm, trigamma.(icts .- δ) .- trigamma.(1.0 - δ))
+
+    return (logp, dlogp)
+
+end
+
+function hessian(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vector{Int64})
+    N = dot(mm, icts)
+    K = sum(mm)
+    KK = 1:K-1
+    Z = 1.0 ./ (α .+ KK .* δ)
+
+    prior = pymPrior(α, δ)
+
     ddlogp = zeros(2, 2)
     Z2 = Z .^ 2.0
     ddlogp[1, 1] = trigamma(1.0 + α) - trigamma(α + N) - sum(Z2)
@@ -94,8 +114,8 @@ function logliPyOccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vec
     ddlogp[2, :1] = diag
     ddlogp[2, :2] = -sum((KK .^ 2.0) .* Z2) + dot(mm, trigamma.(icts .- δ) .- trigamma.(1.0 - δ))
 
-    return (logp, dlogp, ddlogp)
-
+    return -ddlogp - (prior.prior * prior.ddprior .- prior.dprior' .* prior.dprior) ./ prior.prior^2
+    # return ddlogp
 end
 
 function nlogPostPyoccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vector{Int64})
@@ -105,14 +125,17 @@ function nlogPostPyoccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::
     end
 
 
-    (logp, dlogp, ddlogp) = logliPyOccupancy(α, δ, mm, icts)
+    (logp, dlogp) = logliPyOccupancy(α, δ, mm, icts)
     prior = pymPrior(α, δ)
+
     nlogp = -logp - logx(prior.prior)
+
     ndlogp = -dlogp - prior.dprior' ./ prior.prior
 
-    nddlogp = -ddlogp - (prior.prior * prior.ddprior .- prior.dprior' * prior.dprior) ./ prior.prior^2
+    # nddlogp = -ddlogp - (prior.prior * prior.ddprior .- prior.dprior' .* prior.dprior) ./ prior.prior^2
 
-    return (nlogp, ndlogp, nddlogp)
+    # return nlogp
+    return (nlogp, ndlogp)
 end
 
 @doc raw"""
@@ -129,7 +152,8 @@ function pym(mm::Vector{Int64}, icts::Vector{Int64})
         return Inf64
     end
 
-    # min_alpha = 10 * eps
+    eps = 2.2204e-16
+    min_alpha = 10 * eps
 
     N = dot(mm, icts)
     K = sum(mm)
@@ -139,8 +163,40 @@ function pym(mm::Vector{Int64}, icts::Vector{Int64})
         Hvar = Inf64
     end
 
+    mpt = [1.0, 0.01]
+    nlpy(x) = nlogPostPyoccupancy(x[1], x[2], mm, icts)[1]
+    res = optimize(nlpy, mpt)
+
+    params = Optim.minimizer(res)
+
+    hess = hessian(params[1], params[2], mm, icts)
+
+    if params[1] < min_alpha
+        @warn("MAP α is very small, this might be unstable")
+    end
 
 
-    Hbls, Hvar
+    p::Bool = false
+    if any(i -> isnan(i) || isinf(i), hess)
+        @warn("Hessian contains nan or inf")
+        p = true
+    else
+        p = isposdef(hess)
+    end
+
+    if !p || rank(hess) < 2
+        @warn("Hessian is not positive definite, computing integral on full semi-infinite interval")
+        dl = eps
+        du = 1 - eps
+    else
+        invHessian = 6.0 * sqrt(inv(hess))
+        al = max(params[1] - invHessian[1, 1], eps)
+        au = params[1] + invHessian[1, 1]
+        dl = max(params[2] - invHessian[2, 2], eps)
+        du = min(1 - eps, max(params[2] + invHessian[2, 2], eps))
+    end
+
+
+    return (al, au, dl, du)
 
 end

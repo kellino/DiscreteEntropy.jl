@@ -133,7 +133,7 @@ end
 
 
 function helper(v::Int64, data::CountData)::Float64
-    sum([p_k * prod([1 - p_k - (j / data.N) for j in 0:v-1]) for p_k in to_probs(data)])
+    sum([p_k * prod([1 - p_k - (j / data.N) for j in 0:v-1]) for p_k in to_pmf(data)])
 end
 
 function Z(v::Int64, data::CountData)::Float64

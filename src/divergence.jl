@@ -1,8 +1,8 @@
 function kl_divergence(counts1::AbstractVector{Int64}, counts2::AbstractVector{Int64})::Float64
     @assert length(counts1) == length(counts2)
 
-    freqs1 = to_probs(counts1)
-    freqs2 = to_probs(counts2)
+    freqs1 = to_pmf(counts1)
+    freqs2 = to_pmf(counts2)
 
     return sum(freqs1 .* logx.(freqs1 ./ freqs2))
 
