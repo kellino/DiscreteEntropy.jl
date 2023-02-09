@@ -2,6 +2,7 @@ using SpecialFunctions
 using QuadGK: quadgk
 
 γ = Base.MathConstants.eulergamma
+Γ = gamma
 
 @doc raw"""
     ansb(data::CountData; undersampled::Float64=0.1)::Float64
@@ -29,16 +30,23 @@ function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64
     return ((γ / logx(2)) - 1 + 2 * logx(data.N) - digamma(Δ), sqrt(Δ))
 end
 
-@inline function ξ(β::Float64, k::Int64)::BigFloat
+function rho(β, k, data::CountData)
+    return exp(- lagrange(data, β, k))
+end
+
+function lagrange(data, β, k)
+    return -sum([(loggamma(β + nx) + k * loggamma(β) - loggamma(k * β) + loggamma(k * β + data.N )) * kx for (nx, kx) in data.histogram])
+end
+
+@inline function ξ(β::BigFloat, k::Int64)::BigFloat
     return digamma(k * β + 1) - digamma(β + 1)
 end
 
 function ρ(β::Float64, k::Int64, data::CountData)
-    βb = BigFloat(β)
-    return gamma(k * βb) / gamma((data.N + k) * βb) *
-           # return gamma(k * ξ(β, k)) / gamma(data.N + k * ξ(β, k)) *
-           prod([gamma(nx + βb) / gamma(βb) * kx for (nx, kx) in data.histogram])
-
+    kb = k * β
+    xi = ξ(BigFloat(β), k)
+    return Γ(kb * xi) / Γ(data.N + kb * xi) *
+           prod([Γ(nx + xi) / Γ(xi) * kx for (nx, kx) in data.histogram])
 end
 
 @doc raw"""
@@ -54,8 +62,11 @@ function nsb(data::CountData; k=data.K)::Float64
         return NaN
     end
 
-    return quadgk(β -> ρ(β, k, data) * bayes(β, data), 1e-8, log(k))[1] /
-           quadgk(β -> ρ(β, k, data), 1e-8, log(k))[1]
+    @info("using k = $k")
+    return quadgk(β -> rho(β, k, data) * bayes(β, data), 1e-8, log(k))[1] /
+           quadgk(β -> rho(β, k, data), 1e-8, log(k))[1]
+    # return quadgk(β -> ρ(β, k, data) * bayes(β, data), 1e-8, log(k))[1] /
+    #        quadgk(β -> ρ(β, k, data), 1e-8, log(k))[1]
 end
 
 function nsb(samples::AbstractVector; k=length(unique(samples)))::Float64
