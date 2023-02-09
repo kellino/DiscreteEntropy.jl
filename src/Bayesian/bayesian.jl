@@ -31,7 +31,7 @@ In addition to setting your own α, we have the following suggested choices
 function bayes(α::Float64, data::CountData)::Float64
     weight = α * data.K + data.N
 
-    return log(weight) - (1.0 / weight) * sum([(k + α) * log(k + α) * v for (k, v) in data.histogram])
+    return logx(weight) - (1.0 / weight) * sum([(kx + α) * logx(kx + α) * nx for (kx, nx) in data.histogram])
 end
 
 function jeffrey(data::CountData)::Float64

@@ -34,8 +34,10 @@ end
 end
 
 function ρ(β::Float64, k::Int64, data::CountData)
-    return gamma(k * ξ(β, k)) / gamma(data.N + k * ξ(β, k)) *
-           prod([gamma(y + BigFloat(β)) / gamma(β) * c for (y, c) in data.histogram])
+    βb = BigFloat(β)
+    return gamma(k * βb) / gamma((data.N + k) * βb) *
+           # return gamma(k * ξ(β, k)) / gamma(data.N + k * ξ(β, k)) *
+           prod([gamma(nx + βb) / gamma(βb) * kx for (nx, kx) in data.histogram])
 
 end
 
@@ -52,8 +54,8 @@ function nsb(data::CountData; k=data.K)::Float64
         return NaN
     end
 
-    return quadgk(β -> ρ(β, k, data) * bayes(β, data), 1e-10, log(k))[1] /
-           quadgk(β -> ρ(β, k, data), 1e-10, log(k))[1]
+    return quadgk(β -> ρ(β, k, data) * bayes(β, data), 1e-8, log(k))[1] /
+           quadgk(β -> ρ(β, k, data), 1e-8, log(k))[1]
 end
 
 function nsb(samples::AbstractVector; k=length(unique(samples)))::Float64
