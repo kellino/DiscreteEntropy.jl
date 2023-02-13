@@ -12,7 +12,7 @@ mutable struct CountData
 end
 
 function coincidences(data::CountData)::Int64
-    return data.N - sum([nᵢ > 1 ? kᵢ : 0 for (nᵢ, kᵢ) in data.histogram])
+    return data.N - sum([kᵢ for (_, kᵢ) in data.histogram])
 end
 
 function ratio(data::CountData)::Float64
@@ -51,7 +51,6 @@ function from_samples(samples::AbstractVector)::CountData
     end
 
     K = length(unique(samples))
-
 
     if K == 1
         return CountData(Dict(1 => length(samples)), length(samples), K, 1, 0)
