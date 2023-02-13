@@ -12,7 +12,7 @@ mutable struct CountData
 end
 
 function coincidences(data::CountData)::Int64
-    return data.N - sum([m for (_, m) in data.histogram])
+    return data.N - sum([nᵢ > 1 ? kᵢ : 0 for (nᵢ, kᵢ) in data.histogram])
 end
 
 function ratio(data::CountData)::Float64

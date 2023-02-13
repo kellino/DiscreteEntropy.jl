@@ -1,6 +1,5 @@
 module DiscreteEntropy
 
-using SpecialFunctions: gamma_inc_inv_psmall
 const estimators = Set([
     :maximum_likelihood, :miller_madow, :grassberger, :schurmann, :chao_shen, :zhang
 ])

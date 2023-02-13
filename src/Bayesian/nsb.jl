@@ -32,11 +32,9 @@ function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64
 end
 
 
-"""
-equation 15 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
-rearranged to make solving for 0 easier
-"""
 function dlogrho(K0, K1, N)
+    # equation 15 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
+    # rearranged to make solving for 0 easier
 
     return K1 / K0 - digamma(K0 + N) + digamma(K0)
 end
@@ -47,15 +45,13 @@ function find_extremum_log_rho(K::Int64, N::Int64)::Float64
     return find_zero(func, 1)
 end
 
-"""
-equation 8 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities, rearranged to take
-logarithm (to avoid overflow), and with P(β(ξ)) = 1 (and therefore ignored)
-"""
 function neg_log_rho(β::BigFloat, data::CountData)::BigFloat
-    kappa = data.K * β
+    # equation 8 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
+    # rearranged to take logarithm (to avoid overflow), and with P(β(ξ)) = 1 (and therefore ignored)
+    κ = data.K * β
 
     return -(
-        (loggamma(kappa) - loggamma(data.N + kappa)) +
+        (loggamma(κ) - loggamma(data.N + κ)) +
         (sum([kᵢ * (loggamma(nᵢ + β) - loggamma(β)) for (nᵢ, kᵢ) in data.histogram])))
 
 end
@@ -64,19 +60,15 @@ function find_l0(data::CountData)::Float64
     return neg_log_rho(find_extremum_log_rho(data.K, data.N) / data.K, data)
 end
 
-"""
-
-The derivative of ξ = ψ(kappa + 1) - ψ(β + 1)
-
-"""
 function dxi(β, k)::Float64
+    # The derivative of ξ = ψ(kappa + 1) - ψ(β + 1)
     return k * polygamma(1, 1 + k * β) - polygamma(1, 1 + β)
 end
 
 @doc raw"""
     nsb(data; k=data.K)
 
-Return Bayesian estimate of Shannon entropy of data, using the Nemenmann, --- Bialek algorithm
+Returns the Bayesian estimate of Shannon entropy of data, using the Nemenman, Shafee, Bialek algorithm
 
 ```math
 \hat{H}^{\text{NSB}} = \frac{ \int_0^{\ln(K)} d\xi \, \rho(\xi, \textbf{n}) \langle H^m \rangle_{\beta (\xi)}  }
@@ -85,17 +77,18 @@ Return Bayesian estimate of Shannon entropy of data, using the Nemenmann, --- Bi
 where
 
 ```math
-\rho(\xi \mid \textbf{n}) = \mathcal{P}(\beta (\xi)) \frac{ \Gamma(\kappa(\xi))}{\Gamma(N + \kappa(\xi))}
+\rho(\xi \mid \textbf{n}) =
+    \mathcal{P}(\beta (\xi)) \frac{ \Gamma(\kappa(\xi))}{\Gamma(N + \kappa(\xi))}
+    \prod_{i=1}^K \frac{\Gamma(n_i + \beta(\xi))}{\Gamma(\beta(\xi))}
 ```
-
 
 """
 function nsb(data::CountData; k=data.K)
 
     l0 = find_l0(data)
 
-    # in addition to rearranging equation 8 to avoid over/underflow, we also need to wrap \beta in a big
-    # to handle the exponential correctly
+    # in addition to rearranging equation 8 to avoid over/underflow, it's also
+    # helpful to wrap \beta in a "big" to handle the exponential correctly
     top = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K) * bayes(x, data), 0, log(k))[1]
     bot = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K), 0, log(k))[1]
 
