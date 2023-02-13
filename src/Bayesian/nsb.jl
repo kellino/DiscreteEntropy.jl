@@ -1,5 +1,6 @@
 using SpecialFunctions
 using QuadGK: quadgk
+using Roots: find_zero
 
 γ = Base.MathConstants.eulergamma
 Γ = gamma
@@ -30,45 +31,73 @@ function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64
     return ((γ / logx(2)) - 1 + 2 * logx(data.N) - digamma(Δ), sqrt(Δ))
 end
 
-function rho(β, k, data::CountData)
-    return exp(- lagrange(data, β, k))
+
+"""
+equation 15 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
+rearranged to make solving for 0 easier
+"""
+function dlogrho(K0, K1, N)
+
+    return K1 / K0 - digamma(K0 + N) + digamma(K0)
 end
 
-function lagrange(data, β, k)
-    return -sum([(loggamma(β + nx) + k * loggamma(β) - loggamma(k * β) + loggamma(k * β + data.N )) * kx for (nx, kx) in data.histogram])
+function find_extremum_log_rho(K::Int64, N::Int64)::Float64
+    func(x) = dlogrho(x, K, N)
+
+    return find_zero(func, 1)
 end
 
-@inline function ξ(β::BigFloat, k::Int64)::BigFloat
-    return digamma(k * β + 1) - digamma(β + 1)
+"""
+equation 8 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities, rearranged to take
+logarithm (to avoid overflow), and with P(β(ξ)) = 1 (and therefore ignored)
+"""
+function neg_log_rho(β::BigFloat, data::CountData)::BigFloat
+    kappa = data.K * β
+
+    return -(
+        (loggamma(kappa) - loggamma(data.N + kappa)) +
+        (sum([kᵢ * (loggamma(nᵢ + β) - loggamma(β)) for (nᵢ, kᵢ) in data.histogram])))
+
 end
 
-function ρ(β::Float64, k::Int64, data::CountData)
-    kb = k * β
-    xi = ξ(BigFloat(β), k)
-    return Γ(kb * xi) / Γ(data.N + kb * xi) *
-           prod([Γ(nx + xi) / Γ(xi) * kx for (nx, kx) in data.histogram])
+function find_l0(data::CountData)::Float64
+    return neg_log_rho(find_extremum_log_rho(data.K, data.N) / data.K, data)
+end
+
+"""
+
+The derivative of ξ = ψ(kappa + 1) - ψ(β + 1)
+
+"""
+function dxi(β, k)::Float64
+    return k * polygamma(1, 1 + k * β) - polygamma(1, 1 + β)
 end
 
 @doc raw"""
-    nsb(data::CountData; k=data.K)
-    nsb(samples::AbstractVector; k=length(unique(samples)))
+    nsb(data; k=data.K)
 
-    Bayesian estimator
+Return Bayesian estimate of Shannon entropy of data, using the Nemenmann, --- Bialek algorithm
+
+```math
+\hat{H}^{\text{NSB}} = \frac{ \int_0^{\ln(K)} d\xi \, \rho(\xi, \textbf{n}) \langle H^m \rangle_{\beta (\xi)}  }
+                            { \int_0^{\ln(K)} d\xi \, \rho(\xi\mid n)}
+```
+where
+
+```math
+\rho(\xi \mid \textbf{n}) = \mathcal{P}(\beta (\xi)) \frac{ \Gamma(\kappa(\xi))}{\Gamma(N + \kappa(\xi))}
+```
+
+
 """
-function nsb(data::CountData; k=data.K)::Float64
+function nsb(data::CountData; k=data.K)
 
-    if data.N <= 1
-        @warn("Too few samples")
-        return NaN
-    end
+    l0 = find_l0(data)
 
-    @info("using k = $k")
-    return quadgk(β -> rho(β, k, data) * bayes(β, data), 1e-8, log(k))[1] /
-           quadgk(β -> rho(β, k, data), 1e-8, log(k))[1]
-    # return quadgk(β -> ρ(β, k, data) * bayes(β, data), 1e-8, log(k))[1] /
-    #        quadgk(β -> ρ(β, k, data), 1e-8, log(k))[1]
-end
+    # in addition to rearranging equation 8 to avoid over/underflow, we also need to wrap \beta in a big
+    # to handle the exponential correctly
+    top = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K) * bayes(x, data), 0, log(k))[1]
+    bot = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K), 0, log(k))[1]
 
-function nsb(samples::AbstractVector; k=length(unique(samples)))::Float64
-    nsb(from_samples(samples), k=k)
+    return convert(Float64, top / bot)
 end
