@@ -1,6 +1,6 @@
 module DiscreteEntropy
 
-const estimators = Set([
+const estimator = Set([
     :maximum_likelihood, :miller_madow, :grassberger, :schurmann, :chao_shen, :zhang
 ])
 
@@ -9,7 +9,7 @@ export maximum_likelihood, miller_madow, grassberger,
     schurmann, chao_shen, zhang, bonachela, schurmann_generalised
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb
 export from_samples, from_counts, to_csv_string
-export kl_divergence, mi
+export kl_divergence, jeffreys_divergence, jensen_shannon_divergence
 
 include("utils.jl")
 include("countdata.jl")

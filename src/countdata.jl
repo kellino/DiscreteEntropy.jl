@@ -2,13 +2,12 @@ using CSV;
 using StatsBase;
 using Printf;
 using OrderedCollections;
+using LinearAlgebra;
 
 mutable struct CountData
-    histogram::OrderedDict{Int64,Int64}
-    N::Int64
+    histogram::OrderedDict{Float64,Int64}
+    N::Float64
     K::Int64
-    f1::Int64
-    f2::Int64
 end
 
 function coincidences(data::CountData)::Int64
@@ -19,26 +18,9 @@ function ratio(data::CountData)::Float64
     return coincidences(data) / data.N
 end
 
-function singles_and_doubles(histogram::Dict{Int64,Int64})::Tuple{Int64,Int64}
-    singletons = 0
-    doubletons = 0
-
-    for (v, mm) in histogram
-        if v == 1
-            singletons += mm
-        end
-        if v == 2
-            doubletons += mm
-        end
-    end
-
-    return (singletons, doubletons)
-end
-
-function from_counts(counts::AbstractVector{Int64})::CountData
+function from_counts(counts::AbstractVector)::CountData
     map = countmap(counts)
-    s, d = singles_and_doubles(map)
-    return CountData(map, sum(counts), length(counts), s, d)
+    return CountData(map, sum(counts), length(counts))
 end
 
 function from_samples(samples::AbstractVector)::CountData
@@ -53,15 +35,14 @@ function from_samples(samples::AbstractVector)::CountData
     K = length(unique(samples))
 
     if K == 1
-        return CountData(Dict(1 => length(samples)), length(samples), K, 1, 0)
+        return CountData(Dict(1.0 => length(samples)), length(samples), K)
     end
 
     nn = filter(!iszero, fit(Histogram, samples, nbins=K).weights)
 
     # from_counts(nn)
     map = countmap(nn)
-    s, d = singles_and_doubles(map)
-    return CountData(map, length(samples), K, s, d)
+    return CountData(map, length(samples), K)
 end
 
 function from_samples(file::String, field)
@@ -73,11 +54,28 @@ function to_pmf(data::CountData)::Vector{Float64}
     return [y * mm / data.N for (y, mm) in data.histogram]
 end
 
+function to_pmf(counts::AbstractVector{Int64})::Vector{Float64}
+    norm = 1.0 / sum(counts)
+    return map(x -> x * norm, counts)
+end
+
 function to_csv_string(data::CountData)::String
     dict = []
     for (y, mm) in data.histogram
         push!(dict, y, mm)
     end
 
-    return @sprintf("%s,%d,%d,%d,%d", join(dict, ','), data.N, data.K, data.f1, data.f2)
+    return @sprintf("%s,%d,%d", join(dict, ','), data.N, data.K)
+end
+
+function set_k!(data::CountData, K::Int64)
+    data.K = K
+end
+
+function set_N!(data::CountData, N::Float64)
+    data.N = N
+end
+
+function from_pmf(p::AbstractVector, N::Int64)
+    return from_counts(p .* N)
 end

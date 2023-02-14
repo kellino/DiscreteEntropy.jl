@@ -23,7 +23,7 @@ that ``N/K → 0``, which we set to be ``N/K < 0.1`` by default
 function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64}
     rd = ratio(data)
     if rd > undersampled
-        error("data is not sufficiently undersampled $rd")
+        @warn("data is not sufficiently undersampled $rd, so calculation may diverge...")
     end
 
     Δ = coincidences(data)
@@ -39,13 +39,13 @@ function dlogrho(K0, K1, N)
     return K1 / K0 - digamma(K0 + N) + digamma(K0)
 end
 
-function find_extremum_log_rho(K::Int64, N::Int64)::Float64
+function find_extremum_log_rho(K::Int64, N::Float64)::Float64
     func(x) = dlogrho(x, K, N)
 
     return find_zero(func, 1)
 end
 
-function neg_log_rho(β::BigFloat, data::CountData)::BigFloat
+function neg_log_rho(β, data::CountData)::BigFloat
     # equation 8 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
     # rearranged to take logarithm (to avoid overflow), and with P(β(ξ)) = 1 (and therefore ignored)
     κ = data.K * β

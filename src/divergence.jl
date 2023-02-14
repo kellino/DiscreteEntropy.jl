@@ -8,28 +8,48 @@ function kl_divergence(counts1::AbstractVector{Int64}, counts2::AbstractVector{I
 
 end
 
-function shannon_jensen_divergence()
-    # todo
+function kl_divergence(pmf1, pmf2)::Float64
+    @assert length(pmf1) == length(pmf2)
+
+    return sum(pmf1 .* logx.(pmf1 ./ pmf2))
 end
 
-function mi(counts::Matrix{Int64})::Float64
-    #   TODO think about how to do this
+function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector)
+    m = 0.5 .* (p .+ q)
+
+    return 0.5 * kl_divergence(p, m) + 0.5 * kl_divergence(q, m)
 end
 
-# function mi(x_count::CountData, y_count::CountData, joint::CountData; estimator::Symbol=:maximum_likelihood, zeta::Vector{Float64})::Float64
-#     @match estimator begin
-#         :miller_madow =>
-#             return miller_madow(x_count) + miller_madow(y_count) - miller_madow(joint)
-#         :maximum_likelihood =>
-#             return maximum_likelihood(x_count) + maximum_likelihood(y_count) - maximum_likelihood(joint)
-#         :grassberger
-#         return grassberger(x_count) + grassberger(y_count) - grassberger(joint)
-#         :schurmann =>
-#             @assert length(zeta) == 3
-#         return schurmann(x_count, zeta[1]) + schurmann(y_count[2]) - schurmann(joint[3])
-#         _ => error("no match")
-#     end
-# end
+@doc raw"""
+
+```math
+\hat{JS}(p, q) = \hat{H}\frac{p + q}{2} - \frac{H(p) + H(q)}{2}
+
+```
+"""
+function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector, estimator::Function)
+    datap = from_counts(p)
+    dataq = from_counts(q)
+    datapq = from_counts((p .+ q) ./ 2.0)
+    # TODO this does not seem to produce the desired output
+    # set_N!(datapq, 0.5 * datap.N + dataq.N)
+
+    return estimator(datapq) - 0.5 * (estimator(datap) + estimator(dataq))
+
+end
+
+
+@doc raw"""
+    jeffreys_divergence(p, q)
+    (link)[https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7516653/]
+
+```math
+J(p, q) = KL(p, q) + KL(q, p)
+```
+"""
+function jeffreys_divergence(p, q)
+    return kl_divergence(p, q) + kl_divergence(q, p)
+end
 
 """
     uncertainty_coefficient(counts::Matrix)
