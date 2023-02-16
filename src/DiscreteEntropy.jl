@@ -4,7 +4,7 @@ const estimator = Set([
     :maximum_likelihood, :miller_madow, :grassberger, :schurmann, :chao_shen, :zhang
 ])
 
-export to_bits, to_bans, basic_jack, to_pmf, gammalndiff, logx, xlogx
+export to_bits, to_bans, basic_jack, to_pmf, gammalndiff, logx, xlogx, logspace
 export maximum_likelihood, miller_madow, grassberger,
     schurmann, chao_shen, zhang, bonachela, schurmann_generalised
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb
@@ -14,7 +14,8 @@ export kl_divergence, jeffreys_divergence, jensen_shannon_divergence
 include("utils.jl")
 include("countdata.jl")
 include("divergence.jl")
-include("frequentist.jl")
+include("Frequentist/frequentist.jl")
+include("Frequentist/bub.jl")
 include("Bayesian/bayesian.jl")
 include("Bayesian/nsb.jl")
 include("Bayesian/pym.jl")

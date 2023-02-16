@@ -15,7 +15,7 @@ end
     xlogx(x::Float64)
 Returns `x * log(x)` for `x ≥ 0`, or 0.0 if x is zero
 """
-function xlogx(x)
+function xlogx(x)::Float64
     return x * logx(x)
 end
 
@@ -46,6 +46,11 @@ function basic_jack(xs::Vector{Int64})
     return res
 end
 
-function gammalndiff(x::Float64, dx::Float64)
+function gammalndiff(x::Float64, dx::Float64)::Float64
     return loggamma(x + dx) - loggamma(x)
+end
+
+
+function logspace(start::Float64, stop::Float64, steps::Int64)::Vector{Float64}
+    return 10 .^ range(start, stop, length=steps)
 end

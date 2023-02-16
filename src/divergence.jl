@@ -15,6 +15,8 @@ function kl_divergence(pmf1, pmf2)::Float64
 end
 
 function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector)
+    p = p ./ sum(p)
+    q = q ./ sum(q)
     m = 0.5 .* (p .+ q)
 
     return 0.5 * kl_divergence(p, m) + 0.5 * kl_divergence(q, m)
