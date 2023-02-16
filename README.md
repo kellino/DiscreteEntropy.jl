@@ -12,3 +12,7 @@ A collection of discrete entropy estimators and other information theoretic tool
 + implement mi estimators
 + tests
 + lots of other stuff
+
+# Docs
+  To build docs, run ``julia --project=. docs/make.jl`` in root directory of the project.
+  To view docs, open ``docs/build/index.html``
