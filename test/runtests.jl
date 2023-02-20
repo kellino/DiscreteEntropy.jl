@@ -1,6 +1,7 @@
-using DiscreteEntropy
 using Test
 
 @testset "DiscreteEntropy.jl" begin
-    # Write your tests here.
+    @testset "countdata test" begin
+        include("countdata_test.jl")
+    end
 end

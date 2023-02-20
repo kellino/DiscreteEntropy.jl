@@ -10,6 +10,9 @@ mutable struct CountData
     K::Int64
 end
 
+import Base.==
+==(x::CountData, y::CountData) = x.histogram == y.histogram && x.N == y.N && x.K == y.K
+
 function coincidences(data::CountData)::Int64
     return data.N - sum([kᵢ for (_, kᵢ) in data.histogram])
 end
