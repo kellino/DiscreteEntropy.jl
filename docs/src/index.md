@@ -9,6 +9,7 @@ DiscreteEntropy uses the multiplicities representation of data. Given a histogra
 
 ```@docs
 maximum_likelihood
+jackknife_ml
 miller_madow
 grassberger
 schurmann
@@ -27,6 +28,8 @@ ansb
 pym
 ```
 
+## Resampling
+We can also resample data
 
 ## Utilities
 

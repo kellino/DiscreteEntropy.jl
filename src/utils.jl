@@ -54,3 +54,14 @@ end
 function logspace(start::Float64, stop::Float64, steps::Int64)::Vector{Float64}
     return 10 .^ range(start, stop, length=steps)
 end
+
+function update_or!(d::Dict, k, v)
+    if k == 0
+        return d
+    end
+    if haskey(d, k)
+        d[k] += v
+    else
+        d[k] = v
+    end
+end

@@ -1,5 +1,6 @@
 using SpecialFunctions: digamma
 using QuadGK
+using Optim: maximizer
 
 
 @doc raw"""
@@ -20,6 +21,19 @@ end
 
 function maximum_likelihood(counts::AbstractVector{Int64})
     maximum_likelihood(from_counts(counts))
+end
+
+@doc raw"""
+    jackknife_ml(data::CountData; corrected=false)::Tuple{Float64, Float64}
+
+Returns the *jackknifed* estimate of data and the variance of the jackknifing (not the variance of the estimator itself).
+
+If corrected in true, then the variance is scaled with n-1, else it is scaled with n
+
+As found in the [paper](https://academic.oup.com/biomet/article/65/3/625/234287)
+"""
+function jackknife_ml(data::CountData; corrected=false)::Tuple{Float64,Float64}
+    return jackknife(data, maximum_likelihood, corrected)
 end
 
 @doc raw"""
@@ -112,9 +126,13 @@ function schurmann_generalised(data::CountData, xis::Vector{Float64})::Float64
                 for ((yₓ, mm), ξ) in collect(zip(data.histogram, xis))])
 end
 
+@doc raw"""
+    chao_shen(data::CountData)
 
-# TODO this is not yet correct, suffers from overflow on big samples
+    wip
+"""
 function chao_shen(data::CountData)::Float64
+    # TODO this is not yet correct, suffers from overflow on big samples
     p = [k / data.N for (k, _) in data.histogram]
     f1 = sum([v for (k, v) in data.histogram if k == 1])
 

@@ -23,6 +23,10 @@ function from_counts(counts::AbstractVector)::CountData
     return CountData(map, sum(counts), length(counts))
 end
 
+function from_dict(d::Dict)::CountData
+    return CountData(d, sum(x * y for (x, y) in d), sum(y for (_, y) in d))
+end
+
 function from_samples(samples::AbstractVector)::CountData
     if isempty(samples)
         return error("no samples provided")

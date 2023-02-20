@@ -52,26 +52,3 @@ J(p, q) = KL(p, q) + KL(q, p)
 function jeffreys_divergence(p, q)
     return kl_divergence(p, q) + kl_divergence(q, p)
 end
-
-"""
-    uncertainty_coefficient(counts::Matrix)
-
-``math
-C_{XY} = \frac{I(X;Y)}{H(Y)}
-``
-"""
-function uncertainty_coefficient(counts::Matrix)::Float64
-    0.0
-end
-
-"""
-    redundancy(counts::Matrix)
-
-``math
-R = \frac{I(X;Y)}{H(X) + H(Y)}
-``
-"""
-
-function redundancy(counts::Matrix)::Float64
-    0.0
-end
