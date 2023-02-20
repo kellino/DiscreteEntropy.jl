@@ -86,14 +86,6 @@ function logliPyOccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vec
     dlogp[:1] = sum(Z) - digamma(α + N) + digamma(α + 1.0)
     dlogp[:2] = dot(KK, Z) - dot(mm, digamma.(icts .- δ) .- digamma.(1.0 - δ))
 
-    # ddlogp = zeros(2, 2)
-    # Z2 = Z .^ 2.0
-    # ddlogp[1, 1] = trigamma(1.0 + α) - trigamma(α + N) - sum(Z2)
-    # diag = -sum(KK .* Z2)
-    # ddlogp[1, :2] = diag
-    # ddlogp[2, :1] = diag
-    # ddlogp[2, :2] = -sum((KK .^ 2.0) .* Z2) + dot(mm, trigamma.(icts .- δ) .- trigamma.(1.0 - δ))
-
     return (logp, dlogp)
 
 end
@@ -115,7 +107,6 @@ function hessian(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vector{Int64
     ddlogp[2, :2] = -sum((KK .^ 2.0) .* Z2) + dot(mm, trigamma.(icts .- δ) .- trigamma.(1.0 - δ))
 
     return -ddlogp - (prior.prior * prior.ddprior .- prior.dprior' .* prior.dprior) ./ prior.prior^2
-    # return ddlogp
 end
 
 function nlogPostPyoccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::Vector{Int64})
@@ -132,9 +123,6 @@ function nlogPostPyoccupancy(α::Float64, δ::Float64, mm::Vector{Int64}, icts::
 
     ndlogp = -dlogp - prior.dprior' ./ prior.prior
 
-    # nddlogp = -ddlogp - (prior.prior * prior.ddprior .- prior.dprior' .* prior.dprior) ./ prior.prior^2
-
-    # return nlogp
     return (nlogp, ndlogp)
 end
 
@@ -145,7 +133,7 @@ A more or less faithful port of the original [matlab code](https://github.com/pi
 to Julia
 
 """
-function pym(mm::Vector{Int64}, icts::Vector{Int64})
+function pym(mm::Vector{Int64}, icts::Vector{Int64})::Float64
     Hbls = 0.0
     Hvar = 0.0
     if !any(x -> x > 1, icts)
