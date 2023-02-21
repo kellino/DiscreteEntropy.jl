@@ -31,6 +31,32 @@ function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64
     return ((γ / logx(2)) - 1 + 2 * logx(data.N) - digamma(Δ), sqrt(Δ))
 end
 
+function ik(nk, β, Nhat)
+    return (digamma(nk + β + 1) - digamma(Nhat + 2)) * (digamma(nk + β + 1.0) - digamma(Nhat + 2)) - trigamma(Nhat + 2)
+end
+
+function ji(nk, β, Nhat)
+    return (digamma(nk + β + 2) - digamma(Nhat + 2))^2 + trigamma(nk + β + 2) - trigamma(Nhat + 2)
+end
+
+function s2(β, nx, kx, N)
+    # calculate the variance or σ
+    Nhat = N + N * β
+
+    left = 0
+    for i in 1:length(nx)
+        for k in 1:length(nx)
+            if i != k
+                left += (nx[i] * nx[k]) / ((Nhat + 1) * Nhat) * ik(nx[k], β, Nhat)
+            end
+        end
+    end
+
+    right = sum([((nᵢ + 1) * nᵢ) / ((Nhat + 1) * Nhat) * ji(nᵢ, β, Nhat) * kᵢ for (nᵢ, kᵢ) in collect(zip(nx, kx))])
+
+    return left + right
+end
+
 
 function dlogrho(K0, K1, N)
     # equation 15 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
