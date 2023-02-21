@@ -13,7 +13,12 @@ function jk(data::CountData)
     return res
 end
 
-function jackknife(data::CountData, statistic::Function, corrected=false)
+@doc raw"""
+    jackknife(data::CountData, statistic::Function; corrected=false)
+
+Returns the jacknifed estimate of *statistic* on data.
+"""
+function jackknife(data::CountData, statistic::Function; corrected=false)
     entropies = [(statistic(c), mm) for (c, mm) in jk(data)]
     len = sum([mm for (_, mm) in entropies])
 

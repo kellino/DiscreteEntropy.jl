@@ -31,9 +31,21 @@ pym
 ## Resampling
 We can also resample data
 
+```@docs
+jackknife
+```
+
+## Divergence
+```@docs
+kl_divergence
+jeffreys_divergence
+jensen_shannon_divergence
+```
+
 ## Utilities
 
 ```@docs
+logx
 xlogx
 to_bits
 to_bans

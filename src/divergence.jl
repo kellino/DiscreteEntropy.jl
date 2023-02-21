@@ -1,20 +1,31 @@
-function kl_divergence(counts1::AbstractVector{Int64}, counts2::AbstractVector{Int64})::Float64
-    @assert length(counts1) == length(counts2)
+@doc raw"""
+    kl_divergence(p::AbstractVector, q::AbstractVector)::Float64
 
-    freqs1 = to_pmf(counts1)
-    freqs2 = to_pmf(counts2)
+```math
+D_{KL}(P ‖ Q) = \sum_{x \in X} P(x) \log \left( \frac{P(x)}{Q(x)} \right)
+```
+
+Returns the [Kullback-Lebler Divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence#Interpretations)
+between two discrete distributions. Both distributions needs to be defined over the same space,
+so length(p) == length(q). If the distributions are not normalised, they will be.
+"""
+function kl_divergence(p::AbstractVector, q::AbstractVector)::Float64
+    @assert length(p) == length(q)
+
+    # check that both distributions are normalised
+    freqs1 = to_pmf(p)
+    freqs2 = to_pmf(q)
 
     return sum(freqs1 .* logx.(freqs1 ./ freqs2))
 
 end
 
-function kl_divergence(pmf1, pmf2)::Float64
-    @assert length(pmf1) == length(pmf2)
+@doc raw"""
+    jenson_shannon_divergence(p::AbstractVector, q::AbstractVector)::Float64
 
-    return sum(pmf1 .* logx.(pmf1 ./ pmf2))
-end
-
-function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector)
+Returns the Jenson Shannon Divergence between discrete distributions $p$ and $q$.
+"""
+function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector)::Float64
     p = p ./ sum(p)
     q = q ./ sum(q)
     m = 0.5 .* (p .+ q)
@@ -46,7 +57,7 @@ end
     (link)[https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7516653/]
 
 ```math
-J(p, q) = KL(p, q) + KL(q, p)
+J(p, q) = D_{KL}(p \Vert q) + D_{KL}(q \Vert p)
 ```
 """
 function jeffreys_divergence(p, q)
