@@ -9,7 +9,7 @@ export maximum_likelihood, miller_madow, grassberger,
     schurmann, chao_shen, zhang, bonachela, schurmann_generalised, jackknife_ml
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
 export from_samples, from_counts, to_csv_string, from_dict
-export kl_divergence, jeffreys_divergence, jensen_shannon_divergence
+export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
 export jackknife
 
 include("utils.jl")

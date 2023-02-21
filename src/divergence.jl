@@ -36,7 +36,7 @@ end
 @doc raw"""
 
 ```math
-\hat{JS}(p, q) = \hat{H}\frac{p + q}{2} - \frac{H(p) + H(q)}{2}
+\widehat{JS}(p, q) = \hat{H}\left(\frac{p + q}{2} \right) - \left( \frac{H(p) + H(q)}{2} \right)
 
 ```
 """
@@ -51,6 +51,12 @@ function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector, estimat
 
 end
 
+function jensen_shannon_divergence(p::CountData, q::CountData, estimator::Function)
+end
+
+function jensen_shannon_distance(p::AbstractVector, q::AbstractVector, estimator::Function)
+    return sqrt(jensen_shannon_divergence(p, q, estimator))
+end
 
 @doc raw"""
     jeffreys_divergence(p, q)

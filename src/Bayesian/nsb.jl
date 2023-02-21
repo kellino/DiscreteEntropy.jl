@@ -39,20 +39,34 @@ function ji(nk, β, Nhat)
     return (digamma(nk + β + 2) - digamma(Nhat + 2))^2 + trigamma(nk + β + 2) - trigamma(Nhat + 2)
 end
 
-function s2(β, nx, kx, N)
+function s2(β, data::CountData)
     # calculate the variance or σ
-    Nhat = N + N * β
+    ν = data.N + data.K * β
+    nx = collect(keys(data.histogram))
+    kx = collect(values(data.histogram))
+    norm = 1.0 / log(2)^2
 
-    left = 0
+    left = sum([(((nᵢ + β + 1) * (nᵢ + β) / (ν * (ν + 1))) *
+                 (digamma(nᵢ + β + 2) - digamma(ν + 2))^2 +
+                 trigamma(nᵢ + β + 2) -
+                 trigamma(ν + 2)) * kᵢ
+                for (nᵢ, kᵢ) in collect(zip(nx, kx))])
+
+
+    right = 0.0
     for i in 1:length(nx)
+        ni = nx[i] + β
         for k in 1:length(nx)
             if i != k
-                left += (nx[i] * nx[k]) / ((Nhat + 1) * Nhat) * ik(nx[k], β, Nhat)
+                nk = nx[k] + β
+                right += ((ni * nk) / ν * (ν + 1) *
+                          (digamma(nk + 1) - digamma(ν + 2)) *
+                          (digamma(ni + 1) - digamma(ν + 2)) -
+                          trigamma(ν + 2)) * kx[i] * kx[k]
             end
         end
     end
 
-    right = sum([((nᵢ + 1) * nᵢ) / ((Nhat + 1) * Nhat) * ji(nᵢ, β, Nhat) * kᵢ for (nᵢ, kᵢ) in collect(zip(nx, kx))])
 
     return left + right
 end
@@ -116,7 +130,12 @@ function nsb(data::CountData; k=data.K)
     # in addition to rearranging equation 8 to avoid over/underflow, it's also
     # helpful to wrap \beta in a "big" to handle the exponential correctly
     top = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K) * bayes(x, data), 0, log(k))[1]
-    bot = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K), 0, log(k))[1]
 
-    return convert(Float64, top / bot)
+    v = quadgk(x -> s2(x, data) * bayes(x, data), 0, log(k))[1]
+
+    evidence = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K), 0, log(k))[1]
+
+    println(v)
+
+    return convert(Float64, top / evidence)
 end
