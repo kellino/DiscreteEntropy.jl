@@ -10,8 +10,7 @@ mutable struct CountData
     K::Int64
 end
 
-import Base.==
-==(x::CountData, y::CountData) = x.histogram == y.histogram && x.N == y.N && x.K == y.K
+Base.:(==)(x::CountData, y::CountData) = Base.:(==)(x.histogram, y.histogram) && x.N == y.N && x.K == y.K
 
 function coincidences(data::CountData)::Int64
     return data.N - sum([kᵢ for (_, kᵢ) in data.histogram])
@@ -47,7 +46,6 @@ function from_samples(samples::AbstractVector)::CountData
 
     nn = filter(!iszero, fit(Histogram, samples, nbins=K).weights)
 
-    # from_counts(nn)
     map = countmap(nn)
     return CountData(map, length(samples), K)
 end
