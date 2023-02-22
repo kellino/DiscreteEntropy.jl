@@ -66,6 +66,7 @@ end
 # TODO add bootstrap resampling
 
 function bootstrap(samples::AbstractVector, method, statistic; K=1000)
+    # How do we do this directly over multiplicities. It should be much more efficient
     out = zeros(K)
 
     Threads.@threads for i = 1:K
