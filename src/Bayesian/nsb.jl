@@ -131,11 +131,15 @@ function nsb(data::CountData; k=data.K)
     # helpful to wrap \beta in a "big" to handle the exponential correctly
     top = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K) * bayes(x, data), 0, log(k))[1]
 
-    v = quadgk(x -> s2(x, data) * bayes(x, data), 0, log(k))[1]
+    # v = quadgk(x -> s2(x, data) * bayes(x, data), 0, log(k))[1]
 
     evidence = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K), 0, log(k))[1]
 
-    println(v)
+    # println(v)
 
     return convert(Float64, top / evidence)
+end
+
+function nsb(samples::AbstractVector)
+    return nsb(from_samples(samples))
 end

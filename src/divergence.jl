@@ -52,6 +52,7 @@ function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector, estimat
 end
 
 function jensen_shannon_divergence(p::CountData, q::CountData, estimator::Function)
+    # TODO give this some thought
 end
 
 function jensen_shannon_distance(p::AbstractVector, q::AbstractVector, estimator::Function)

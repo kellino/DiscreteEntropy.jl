@@ -1,3 +1,7 @@
+using Distributions;
+using Random;
+using StatsBase;
+
 # TODO this need thorough testing!
 function jk(data::CountData)
     res::Dict{CountData,Int64} = Dict()
@@ -60,3 +64,22 @@ function reduce(i, ks, vs)
 end
 
 # TODO add bootstrap resampling
+
+function bootstrap(samples::AbstractVector, method, statistic; K=1000)
+    out = zeros(K)
+
+    Threads.@threads for i = 1:K
+        out[i] = method(samples, statistic)
+    end
+
+    return mean(out), var(out)
+
+end
+
+function bayesian_bootstrap(samples::AbstractVector, statistic::Function; seed=1, concentration=4)
+    Random.seed!(seed)
+    weights = Weights(rand(Dirichlet(ones(length(samples)) .* concentration)))
+    boot = sample(samples, weights, length(samples))
+
+    return statistic(boot)
+end
