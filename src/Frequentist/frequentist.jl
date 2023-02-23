@@ -33,7 +33,7 @@ If corrected in true, then the variance is scaled with n-1, else it is scaled wi
 As found in the [paper](https://academic.oup.com/biomet/article/65/3/625/234287)
 """
 function jackknife_ml(data::CountData; corrected=false)::Tuple{Float64,Float64}
-    return jackknife(data, maximum_likelihood, corrected)
+    return jackknife(data, maximum_likelihood, corrected=corrected)
 end
 
 @doc raw"""

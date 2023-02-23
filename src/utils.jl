@@ -65,3 +65,9 @@ function update_or!(d::Dict, k, v)
         d[k] = v
     end
 end
+
+@enum Axis x = 1 y = 2
+
+function marginal_counts(joint::Matrix, dim::Union{Axis,Int})
+    return sum(joint, dims=dim)
+end
