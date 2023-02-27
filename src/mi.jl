@@ -109,7 +109,7 @@ function mutual_information(X::CountData, Y::CountData, XY::CountData, ::Type{NS
     return nsb(X) + nsb(Y) - nsb(XY)
 end
 
-function mutual_information(X::CountData, Y::CountData, XY::CountData, ::Type{NSB}; ks=ks::AbstractVector{Float64})::Float64
+function mutual_information(X::CountData, Y::CountData, XY::CountData, ::Type{NSB}, ks::AbstractVector{Float64})::Float64
     @assert length(ks) == 3
     return nsb(X, k=ks[1]) + nsb(Y, k=ks[2]) - nsb(XY, k=ks[3])
 end
@@ -121,4 +121,12 @@ end
 function mutual_information(X::CountData, Y::CountData, XY::CountData, ::Type{PYM})::Float64
     # TODO
     0.0
+end
+
+function mutual_information(counts::Matrix, args...)::Float64
+    X = from_counts(marginal_counts(counts, 1))
+    Y = from_counts(marginal_counts(counts, 2))
+    XY = from_counts([1, 2, 3]) # TODO need to implement this
+
+    return mutual_information(X, Y, XY, args...)
 end
