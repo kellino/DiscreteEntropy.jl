@@ -123,6 +123,11 @@ function mutual_information(X::CountData, Y::CountData, XY::CountData, ::Type{PY
     0.0
 end
 
+function mutual_information(X::CountData, Y::CountData, XY::CountData, e1::Type{T}, e2::Type{T}, e3::Type{T}) where {T<:Estimator}
+    # TODO figure out how to get this to work
+    return e1(X) + e2(Y) - e3(XY)
+end
+
 function mutual_information(counts::Matrix, args...)::Float64
     X = from_counts(marginal_counts(counts, 1))
     Y = from_counts(marginal_counts(counts, 2))

@@ -36,6 +36,8 @@ export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
 
 # Other Discrete Entropy measures, metrics and calculations
 
+struct KNN <: Estimator end
+
 export mutual_information
 export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
 export jackknife, bayesian_bootstrap, bootstrap
