@@ -41,15 +41,11 @@ function f(x)
 end
 
 function get_best(dist, s)
-    # dist = BetaBinomial(100, 1.0, 2.0)
-    # s = samples[1:100]
-    # s = samples[1:100]
     function loss(ξ)
         return abs(schurmann(s, ξ) - entropy(dist))
     end
     res = Optim.optimize(loss, 0.1, 10.0)
     return res
-    # return find_zero(loss, 0.1, 100.0)
 end
 
 # function irf(samples)
