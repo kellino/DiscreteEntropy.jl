@@ -14,13 +14,15 @@ export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, ANSB, PYM
 # estimators
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
 
-# convenience function
+# convenience function to create a unified interface
 export entropy
-
 
 # Other Discrete Entropy measures, metrics and calculations
 export mutual_information
+export conditional_entropy
 export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
+
+# tools for changing the estimators
 export jackknife, bayesian_bootstrap, bootstrap
 
 # utilities
@@ -31,6 +33,7 @@ include("countdata.jl")
 include("estimator.jl")
 include("utils.jl")
 include("mutual_information.jl")
+include("conditional_entropy.jl")
 include("divergence.jl")
 include("resample.jl")
 include("Frequentist/frequentist.jl")
