@@ -1,4 +1,4 @@
-@doc """
+@doc raw"""
      conditional_entropy(pmfX::AbstractVector{AbstractFloat}, pmfXY::AbstractVector{AbstractFloat})
 
  Compute the conditional entropy of Y conditioned on X
