@@ -12,6 +12,8 @@ end
 
 Base.:(==)(x::CountData, y::CountData) = Base.:(==)(x.histogram, y.histogram) && x.N == y.N && x.K == y.K
 
+Base.copy(x::CountData) = CountData(x.histogram, x.N, x.K)
+
 function coincidences(data::CountData)::Int64
     return data.N - sum([kᵢ for (_, kᵢ) in data.histogram])
 end
@@ -73,12 +75,20 @@ function to_csv_string(data::CountData)::String
     return @sprintf("%s,%d,%d", join(dict, ','), data.N, data.K)
 end
 
+function set_K(data::CountData, K::Integer)
+    ret = copy(data)
+    ret.K = K
+    ret
+end
+
 function set_k!(data::CountData, K::Int64)
     data.K = K
+    data
 end
 
 function set_N!(data::CountData, N::Float64)
     data.N = N
+    data
 end
 
 function from_pmf(p::AbstractVector, N::Int64)

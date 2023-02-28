@@ -1,4 +1,4 @@
-using Distributions;
+using Distributions: Dirichlet;
 using Random;
 using StatsBase;
 
@@ -49,14 +49,14 @@ function reduce(i, ks, vs)
         n = ks[i] - 1
         ks[i] = n
         for j in 1:length(ks)
-            update_or!(d, ks[j], vs[j])
+            update_or_insert!(d, ks[j], vs[j])
         end
         ks[i] += 1
     elseif vs[i] > 1
         mm = vs[i]
         vs[i] -= 1
         for j in 1:length(ks)
-            update_or!(d, ks[j], vs[j])
+            update_or_insert!(d, ks[j], vs[j])
         end
         vs[i] = 1
     end

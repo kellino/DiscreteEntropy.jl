@@ -35,17 +35,6 @@ function to_bans(h::Float64)::Float64
     return h / log(10)
 end
 
-function basic_jack(xs::Vector{Int64})
-    res = []
-    push!(res, from_samples(xs))
-    for i in 1:length(xs)
-        out = vcat(xs[1:i-1], xs[i+1:length(xs)])
-        push!(res, from_samples(out))
-    end
-
-    return res
-end
-
 function gammalndiff(x::Float64, dx::Float64)::Float64
     return loggamma(x + dx) - loggamma(x)
 end
@@ -55,7 +44,7 @@ function logspace(start::Float64, stop::Float64, steps::Int64)::Vector{Float64}
     return 10 .^ range(start, stop, length=steps)
 end
 
-function update_or!(d::Dict, k, v)
+function update_or_insert!(d::Dict, k, v)
     if k == 0
         return d
     end
@@ -66,8 +55,7 @@ function update_or!(d::Dict, k, v)
     end
 end
 
-# @enum Axis x = 1 y = 2
-
+# TODO check the efficiency of vec(), it's probably not the best solution
 function marginal_counts(joint::Matrix, dim)
     return vec(sum(joint, dims=dim))
 end

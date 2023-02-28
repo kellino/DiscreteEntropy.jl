@@ -2,7 +2,7 @@ using SpecialFunctions
 using QuadGK
 
 @doc raw"""
-    bayes(α::Float64, data::CountData)::Float64
+    bayes(data::CountData, α::AbstractFloat)
 
 Returns an estimate of Shannon entropy given data and a concentration parameter ``α``.
 
@@ -28,24 +28,24 @@ In addition to setting your own α, we have the following suggested choices
 4) minimax: α = √{n} / K
 
 """
-function bayes(α::Float64, data::CountData)::Float64
+function bayes(data::CountData, α::AbstractFloat)
     weight = α * data.K + data.N
 
     return logx(weight) - (1.0 / weight) * sum([(kx + α) * logx(kx + α) * nx for (kx, nx) in data.histogram])
 end
 
-function jeffrey(data::CountData)::Float64
-    return bayes(0.5, data)
+function jeffrey(data::CountData)
+    return bayes(data, 0.5)
 end
 
-function laplace(data::CountData)::Float64
-    return bayes(1.0, data)
+function laplace(data::CountData)
+    return bayes(data, 1.0)
 end
 
-function schurmann_grassberger(data::CountData)::Float64
-    return bayes(1.0 / data.K, data)
+function schurmann_grassberger(data::CountData)
+    return bayes(data, 1.0 / data.K)
 end
 
-function minimax(data::CountData)::Float64
-    return bayes(sqrt(data.N) / data.K, data)
+function minimax(data::CountData)
+    return bayes(data, sqrt(data.N) / data.K)
 end

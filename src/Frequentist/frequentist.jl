@@ -13,18 +13,18 @@ Returns the maximum likelihood estimation of Shannon entropy.
 
 where n is the number of samples
 """
-function maximum_likelihood(data::CountData)::Float64
+function maximum_likelihood(data::CountData)
     return log(data.N) -
            (1.0 / data.N) *
            sum([xlogx(x) * v for (x, v) in data.histogram])
 end
 
-function maximum_likelihood(counts::AbstractVector{Int64})
+function maximum_likelihood(counts::AbstractVector{AbstractFloat})
     maximum_likelihood(from_counts(counts))
 end
 
 @doc raw"""
-    jackknife_ml(data::CountData; corrected=false)::Tuple{Float64, Float64}
+    jackknife_ml(data::CountData; corrected=false)::Tuple{AbstractFloat, AbstractFloat}
 
 Returns the *jackknifed* estimate of data and the variance of the jackknifing (not the variance of the estimator itself).
 
@@ -32,7 +32,7 @@ If corrected in true, then the variance is scaled with n-1, else it is scaled wi
 
 As found in the [paper](https://academic.oup.com/biomet/article/65/3/625/234287)
 """
-function jackknife_ml(data::CountData; corrected=false)::Tuple{Float64,Float64}
+function jackknife_ml(data::CountData; corrected=false)
     return jackknife(data, maximum_likelihood, corrected=corrected)
 end
 
@@ -46,11 +46,11 @@ on the total number of samples seen (n) and the support size (K).
 \hat{H}_{MM} = \hat{H}_{ML} + \frac{K - 1}{2n}
 ```
 """
-function miller_madow(data::CountData)::Float64
+function miller_madow(data::CountData)
     return maximum_likelihood(data) + ((data.K - 1.0) / (2.0 * data.N))
 end
 
-@inline function g(h::Int64)::Float64
+@inline function g(h::Int64)
     return digamma(h) + 0.5 * -1.0^h * (digamma(h + 1.0 / 2.0) - digamma(h / 2.0))
 end
 
@@ -74,19 +74,19 @@ This is the solution to ``G(h) = \psi(h) + (-1)^h \int_0^1 \frac{x^h - 1}{x+1} d
 as given in the [paper](https://arxiv.org/pdf/physics/0307138v2.pdf)
 
 """
-function grassberger(data::CountData)::Float64
+function grassberger(data::CountData)
     return log(data.N) - (
         1.0 / data.N * sum([k * g(k) * c for (k, c) in data.histogram])
     )
 end
 
-function grassberger(counts::AbstractVector{Int64})::Float64
+function grassberger(counts::AbstractVector{Int64})
     grassberger(from_counts(counts))
 end
 
 
 @doc raw"""
-    schurmann(data::CountData, ξ::Float64 = ℯ^(-1/2))::Float64
+    schurmann(data::CountData, ξ::Float64 = ℯ^(-1/2))
 
 [schurmann](https://arxiv.org/pdf/cond-mat/0403192.pdf)
 
@@ -97,7 +97,7 @@ end
 This is no one ideal value for ``\xi``, however the paper suggests ``e^{(-1/2)} \approx 0.6``
 
 """
-function schurmann(data::CountData, ξ::Float64=exp(-1 / 2))::Float64
+function schurmann(data::CountData, ξ::Float64=exp(-1 / 2))
     @assert ξ > 0.0
     return digamma(data.N) -
            (1.0 / data.N) *

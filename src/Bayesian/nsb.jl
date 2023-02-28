@@ -79,7 +79,7 @@ function dlogrho(K0, K1, N)
     return K1 / K0 - digamma(K0 + N) + digamma(K0)
 end
 
-function find_extremum_log_rho(K::Int64, N::Float64)::Float64
+function find_extremum_log_rho(K::Int64, N::Float64)
     func(x) = dlogrho(x, K, N)
 
     return find_zero(func, 1)
@@ -96,7 +96,7 @@ function neg_log_rho(β, data::CountData)::BigFloat
 
 end
 
-function find_l0(data::CountData)::Float64
+function find_l0(data::CountData)
     return neg_log_rho(find_extremum_log_rho(data.K, data.N) / data.K, data)
 end
 
@@ -106,7 +106,7 @@ function dxi(β, k)::Float64
 end
 
 @doc raw"""
-    nsb(data; k=data.K)
+    nsb(data, K=data.K)
 
 Returns the Bayesian estimate of Shannon entropy of data, using the Nemenman, Shafee, Bialek algorithm
 
@@ -123,23 +123,29 @@ where
 ```
 
 """
-function nsb(data::CountData; k=data.K)
+function nsb(data::CountData, K=nothing)
 
-    l0 = find_l0(data)
-
-    # in addition to rearranging equation 8 to avoid over/underflow, it's also
-    # helpful to wrap \beta in a "big" to handle the exponential correctly
-    top = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K) * bayes(x, data), 0, log(k))[1]
-
-    # v = quadgk(x -> s2(x, data) * bayes(x, data), 0, log(k))[1]
-
-    evidence = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K), 0, log(k))[1]
-
-    # println(v)
-
-    return convert(Float64, top / evidence)
+    if K === nothing
+        find_nsb(data)
+    else
+        new_data = set_K(data, K)
+        find_nsb(new_data)
+    end
 end
 
 function nsb(samples::AbstractVector)
     return nsb(from_samples(samples))
+end
+
+function find_nsb(data::CountData)
+    l0 = find_l0(data)
+
+    # in addition to rearranging equation 8 to avoid over/underflow, it's also
+    # helpful to wrap \beta in a "big" to handle the exponential correctly
+    top = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K) * bayes(data, x), 0, log(data.K))[1]
+
+    evidence = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K), 0, log(data.K))[1]
+
+    convert(Float64, top / evidence)
+
 end
