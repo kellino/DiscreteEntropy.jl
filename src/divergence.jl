@@ -1,3 +1,5 @@
+import Base.Threads.@spawn
+
 @doc raw"""
     kl_divergence(p::AbstractVector, q::AbstractVector)::Float64
 
@@ -21,11 +23,18 @@ function kl_divergence(p::AbstractVector, q::AbstractVector)::Float64
 end
 
 @doc raw"""
-    jenson_shannon_divergence(p::AbstractVector, q::AbstractVector)::Float64
+    jenson_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector)
+    jenson_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector, estimator::Type{T}) where {T<:NonParamterisedEstimator}
 
-Returns the Jenson Shannon Divergence between discrete distributions $p$ and $q$.
+Compute the Jenson Shannon Divergence between discrete distributions $P$ and $q$, as represented by
+their histograms.
+
+```math
+\widehat{JS}(p, q) = \hat{H}\left(\frac{p + q}{2} \right) - \left( \frac{H(p) + H(q)}{2} \right)
+
+```
 """
-function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector)::Float64
+function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector)
     p = p ./ sum(p)
     q = q ./ sum(q)
     m = 0.5 .* (p .+ q)
@@ -33,26 +42,12 @@ function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector)::Float6
     return 0.5 * kl_divergence(p, m) + 0.5 * kl_divergence(q, m)
 end
 
-@doc raw"""
+function jensen_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector, estimator::Type{T}) where {T<:NonParameterisedEstimator}
+    p = @spawn from_counts(countsP)
+    q = @spawn from_counts(countsQ)
+    pq = @spawn from_counts(0.5 .* (countsP .+ countsQ))
 
-```math
-\widehat{JS}(p, q) = \hat{H}\left(\frac{p + q}{2} \right) - \left( \frac{H(p) + H(q)}{2} \right)
-
-```
-"""
-function jensen_shannon_divergence(p::AbstractVector, q::AbstractVector, estimator::Function)
-    datap = from_counts(p)
-    dataq = from_counts(q)
-    datapq = from_counts((p .+ q) ./ 2.0)
-    # TODO this does not seem to produce the desired output
-    # set_N!(datapq, 0.5 * datap.N + dataq.N)
-
-    return estimator(datapq) - 0.5 * (estimator(datap) + estimator(dataq))
-
-end
-
-function jensen_shannon_divergence(p::CountData, q::CountData, estimator::Function)
-    # TODO give this some thought
+    entropy(fetch(pq), estimator) - 0.5 * entropy(fetch(p), estimator) + entropy(fetch(q), estimator)
 end
 
 function jensen_shannon_distance(p::AbstractVector, q::AbstractVector, estimator::Function)
