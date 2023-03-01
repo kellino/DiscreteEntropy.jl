@@ -27,8 +27,6 @@ struct LaPlace <: NonParameterisedEstimator end
 struct SchurmannGrassberger <: NonParameterisedEstimator end
 struct Minimax <: AbstractEstimator end
 
-struct KNN <: NonParameterisedEstimator end
-
 
 function entropy(data::CountData, ::Type{Maximum_Likelihood})
     maximum_likelihood(data)
