@@ -7,7 +7,7 @@ import Base.Threads.@spawn
 D_{KL}(P ‖ Q) = \sum_{x \in X} P(x) \log \left( \frac{P(x)}{Q(x)} \right)
 ```
 
-Returns the [Kullback-Lebler Divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence#Interpretations)
+Compute the [Kullback-Lebler Divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence#Interpretations)
 between two discrete distributions. Both distributions needs to be defined over the same space,
 so length(p) == length(q). If the distributions are not normalised, they will be.
 """
@@ -50,8 +50,14 @@ function jensen_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVec
     entropy(fetch(pq), estimator) - 0.5 * entropy(fetch(p), estimator) + entropy(fetch(q), estimator)
 end
 
-function jensen_shannon_distance(p::AbstractVector, q::AbstractVector, estimator::Function)
-    return sqrt(jensen_shannon_divergence(p, q, estimator))
+@doc raw"""
+    jensen_shannon_distance(P::AbstractVector, Q::AbstractVector, estimator)
+
+Compute the Jensen Shannon Distance
+
+"""
+function jensen_shannon_distance(P::AbstractVector, Q::AbstractVector, estimator::Function)
+    return sqrt(jensen_shannon_divergence(P, Q, estimator))
 end
 
 @doc raw"""

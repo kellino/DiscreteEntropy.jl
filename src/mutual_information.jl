@@ -36,6 +36,8 @@ end
 
 @doc raw"""
     mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Function)::Float64
+    mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Type{T}) where {T<:NonParameterisedEstimator}
+    mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Type{T}, args...) where {T<:ParameterisedEstimator}
 
 Compute the mutual information between X and Y, given their joint countdata $XY$, using
 the specified estimator. Due to bias in the estimators, this might return a negative number.

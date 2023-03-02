@@ -40,6 +40,13 @@ jackknife
 kl_divergence
 jeffreys_divergence
 jensen_shannon_divergence
+jensen_shannon_distance
+```
+
+## Conditional Entropy and Conditional Mutual Information
+[Conditional Entropy](https://en.wikipedia.org/wiki/Conditional_entropy)
+```@docs
+conditional_entropy
 ```
 
 ## Utilities
@@ -50,3 +57,4 @@ xlogx
 to_bits
 to_bans
 ```
+

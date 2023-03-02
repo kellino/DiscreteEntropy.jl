@@ -20,8 +20,7 @@
 * DONE Minimax
 * DONE NSB
 ** check that it is correct
-* TODO ANSB
+* DONE ANSB
 * TODO CDM
 * TODO Unseen
 * TODO PYM
-* TODO KNN (mutual information)
