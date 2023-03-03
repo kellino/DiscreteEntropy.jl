@@ -1,56 +1,52 @@
 using CSV;
 using StatsBase;
 using Printf;
-using OrderedCollections;
-using LinearAlgebra;
+using LinearAlgebra: dot;
 
 mutable struct CountData
-    histogram::OrderedDict{Float64,Int64}
+    multiplicities::Matrix{Float64}
     N::Float64
     K::Int64
 end
 
-Base.:(==)(x::CountData, y::CountData) = Base.:(==)(x.histogram, y.histogram) && x.N == y.N && x.K == y.K
+Base.:(==)(x::CountData, y::CountData) = Base.:(==)(x.multiplicities, y.multiplicities) && x.N == y.N && x.K == y.K
 
-Base.copy(x::CountData) = CountData(x.histogram, x.N, x.K)
+Base.copy(x::CountData) = CountData(x.multiplicities, x.N, x.K)
 
-function coincidences(data::CountData)::Int64
-    return data.N - sum([kᵢ for (_, kᵢ) in data.histogram])
+function coincidences(data::CountData)
+    0.0
+    # return data.N - sum([kᵢ for (_, kᵢ) in data.histogram])
 end
 
 function ratio(data::CountData)::Float64
-    return coincidences(data) / data.N
+    0.0
+    # return coincidences(data) / data.N
 end
 
-function from_counts(counts::AbstractVector)::CountData
+function fc(counts::AbstractVector{T}) where {T<:Real}
     map = countmap(counts)
-    # TODO isn't this wrong?
-    return CountData(map, sum(counts), length(counts))
+    x1 = collect(keys(map))
+    x2 = collect(values(map))
+    mm = [x1 x2]
+
+    return CountData(mm', dot(x1, x2), length(mm[:, 1]))
 end
 
-function from_dict(d::Dict)::CountData
-    return CountData(d, sum(x * y for (x, y) in d), sum(y for (_, y) in d))
+function from_counts(counts::CountVector)
+    fc(counts.values)
 end
 
-function from_samples(samples::AbstractVector)::CountData
-    if isempty(samples)
-        return error("no samples provided")
-    end
-    if typeof(samples[1]) == String
-        println("not yet implemented")
-        return
-    end
-
-    K = length(unique(samples))
+function from_samples(samples::SampleVector)
+    K = length(unique(samples.values))
 
     if K == 1
-        return CountData(Dict(1.0 => length(samples)), length(samples), K)
+        N::Float64 = length(samples.values)
+        return CountData([1.0 N]', N, K)
     end
 
-    nn = filter(!iszero, fit(Histogram, samples, nbins=K).weights)
+    counts = filter(!iszero, fit(Histogram, samples.values, nbins=K).weights)
 
-    map = countmap(nn)
-    return CountData(map, length(samples), K)
+    fc(counts)
 end
 
 function from_samples(file::String, field)
@@ -58,8 +54,10 @@ function from_samples(file::String, field)
     from_samples(csv[field])
 end
 
-function to_pmf(data::CountData)::Vector{Float64}
-    return [y * mm / data.N for (y, mm) in data.histogram]
+function to_pmf(data::CountData)
+    # TODO not correct
+    norm = 1.0 / data.N
+    (x[1] * x[2] * norm for x in eachcol(data.multiplicities))
 end
 
 function to_pmf(counts::AbstractVector{Int64})::Vector{Float64}

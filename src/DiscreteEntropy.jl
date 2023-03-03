@@ -1,45 +1,49 @@
 module DiscreteEntropy
 
+export CountVector, SampleVector, cvector, svector
 
-export Maximum_Likelihood, JackknifeML, MillerMadow, Grassberger, Schurmann,
-    SchurmannGeneralised, ChaoShen, Zhang, Bonachela
+export CountData, from_samples, from_counts, to_pmf
+# export Maximum_Likelihood, JackknifeML, MillerMadow, Grassberger, Schurmann,
+#     SchurmannGeneralised, ChaoShen, Zhang, Bonachela
+
 
 # estimators
-export maximum_likelihood, jackknife_ml, miller_madow, grassberger,
-    schurmann, schurmann_generalised, chao_shen, zhang, bonachela
+# export maximum_likelihood, jackknife_ml, miller_madow, grassberger,
+#     schurmann, schurmann_generalised, chao_shen, zhang, bonachela
 
 
-export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, ANSB, PYM
+# export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, ANSB, PYM
 
 # estimators
-export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
+# export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
 
 # convenience function to create a unified interface
-export entropy
+# export estimate_h
 
 # Other Discrete Entropy measures, metrics and calculations
-export mutual_information
-export conditional_entropy
-export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
+# export mutual_information
+# export conditional_entropy
+# export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
 
 # tools for changing the estimators
-export jackknife, bayesian_bootstrap, bootstrap
+# export jackknife, bayesian_bootstrap, bootstrap
 
 # utilities
-export to_bits, to_bans, to_pmf, gammalndiff, logx, xlogx, logspace, update_or_insert!
-export from_samples, from_counts, to_csv_string, from_dict
+# export to_bits, to_bans, to_pmf, gammalndiff, logx, xlogx, logspace, update_or_insert!
+# export from_samples, from_counts, to_csv_string
 
+include("countvectors.jl")
 include("countdata.jl")
 include("estimator.jl")
-include("utils.jl")
-include("mutual_information.jl")
-include("conditional_entropy.jl")
-include("divergence.jl")
-include("resample.jl")
-include("Frequentist/frequentist.jl")
-include("Frequentist/bub.jl")
-include("Bayesian/bayesian.jl")
-include("Bayesian/nsb.jl")
-include("Bayesian/pym.jl")
+# include("utils.jl")
+# include("mutual_information.jl")
+# include("conditional_entropy.jl")
+# include("divergence.jl")
+# include("resample.jl")
+# include("Frequentist/frequentist.jl")
+# include("Frequentist/bub.jl")
+# include("Bayesian/bayesian.jl")
+# include("Bayesian/nsb.jl")
+# include("Bayesian/pym.jl")
 
 end
