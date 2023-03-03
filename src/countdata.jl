@@ -24,6 +24,7 @@ end
 
 function from_counts(counts::AbstractVector)::CountData
     map = countmap(counts)
+    # TODO isn't this wrong?
     return CountData(map, sum(counts), length(counts))
 end
 

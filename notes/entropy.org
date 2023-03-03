@@ -1,6 +1,6 @@
 #+title: Entropy
 
-* Estimators to Implement in Julia (DJENTT) and Rust (Rentt)
+* Estimators to Implement in Julia (DJENTT)
 
 * DONE Maximum Likelihood
 * DONE Miller Madow
@@ -22,5 +22,5 @@
 ** check that it is correct
 * DONE ANSB
 * TODO CDM
-* TODO Unseen
+* TODO [Unseen](https://theory.stanford.edu/~valiant/papers/VV_stoc11.pdf)
 * TODO PYM
