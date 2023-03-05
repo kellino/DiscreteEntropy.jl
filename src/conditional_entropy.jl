@@ -32,5 +32,5 @@ function conditional_entropy(pmfX::AbstractVector{AbstractFloat}, pmfXY::Abstrac
 end
 
 function conditional_entropy(X::CountData, XY::CountData, estimator::Type{T}) where {T<:NonParameterisedEstimator}
-    entropy(XY, estimator) - entropy(X, estimator)
+    estimate_h(XY, estimator) - estimate_h(X, estimator)
 end

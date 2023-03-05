@@ -14,11 +14,11 @@ macro counts(name)
     end
 end
 
-length(wv::AbstractCounts) = length(wv.values)
-sum(wv::AbstractCounts) = sum(wv.values)
-Base.isempty(wv::AbstractCounts) = Base.isempty(wv.values)
-size(wv::AbstractCounts) = Base.size(wv.values)
-Base.axes(wv::AbstractCounts) = Base.axes(wv.values)
+# length(wv::AbstractCounts) = length(wv.values)
+# sum(wv::AbstractCounts) = sum(wv.values)
+# Base.isempty(wv::AbstractCounts) = Base.isempty(wv.values)
+# size(wv::AbstractCounts) = Base.size(wv.values)
+# Base.axes(wv::AbstractCounts) = Base.axes(wv.values)
 
 Base.IndexStyle(::Type{<:AbstractCounts{T,V}}) where {T,V} = IndexStyle(V)
 

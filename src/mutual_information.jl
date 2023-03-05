@@ -52,7 +52,7 @@ function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator
 end
 
 function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Type{T}) where {T<:NonParameterisedEstimator}
-    entropy(X, estimator) + entropy(Y, estimator) - entropy(XY, estimator)
+    estimate_h(X, estimator) + estimate_h(Y, estimator) - estimate_h(XY, estimator)
 end
 
 function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Type{T}, args...) where {T<:ParameterisedEstimator}
@@ -60,12 +60,12 @@ function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator
     # Schurmann, NSB, Bayes, PYM and SchurmmanGeneralised
     # SchurmannGeneralised is the odd one out, as the others just take a scalar
     # args... is unchecked at the moment. The user must ensure the correct types are passed in
-    entropy(X, args[1], estimator) + entropy(Y, args[2], estimator) - entropy(XY, args[3], estimator)
+    estimate_h(X, args[1], estimator) + estimate_h(Y, args[2], estimator) - estimate_h(XY, args[3], estimator)
 end
 
 function mutual_information(X::CountData, Y::CountData, XY::CountData,
     e1::Type{A}, e2::Type{B}, e3::Type{C}) where {A,B,C<:NonParameterisedEstimator}
-    entropy(X, e1) + entropy(Y, e2) - entropy(XY, e3)
+    estimate_h(X, e1) + estimate_h(Y, e2) - estimate_h(XY, e3)
 end
 
 

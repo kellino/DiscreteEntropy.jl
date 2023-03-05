@@ -11,14 +11,15 @@ Compute the [Kullback-Lebler Divergence](https://en.wikipedia.org/wiki/Kullback%
 between two discrete distributions. Both distributions needs to be defined over the same space,
 so length(p) == length(q). If the distributions are not normalised, they will be.
 """
-function kl_divergence(p::AbstractVector, q::AbstractVector)::Float64
-    @assert length(p) == length(q)
+function kl_divergence(P::CountVector, Q::CountVector)
+    # TODO
+    # @assert length(p) == length(q)
 
     # check that both distributions are normalised
-    freqs1 = to_pmf(p)
-    freqs2 = to_pmf(q)
+    # freqs1 = to_pmf(p)
+    # freqs2 = to_pmf(q)
 
-    return sum(freqs1 .* logx.(freqs1 ./ freqs2))
+    # return sum(freqs1 .* logx.(freqs1 ./ freqs2))
 
 end
 
@@ -47,7 +48,7 @@ function jensen_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVec
     q = @spawn from_counts(countsQ)
     pq = @spawn from_counts(0.5 .* (countsP .+ countsQ))
 
-    entropy(fetch(pq), estimator) - 0.5 * entropy(fetch(p), estimator) + entropy(fetch(q), estimator)
+    estimate_h(fetch(pq), estimator) - 0.5 * estimate_h(fetch(p), estimator) + estimate_h(fetch(q), estimator)
 end
 
 @doc raw"""

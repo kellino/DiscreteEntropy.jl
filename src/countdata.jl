@@ -1,7 +1,14 @@
 using CSV;
-using StatsBase;
+using StatsBase: countmap, Histogram, fit;
 using Printf;
 using LinearAlgebra: dot;
+
+@doc """
+     abstract type EntropyData
+ """
+abstract type EntropyData end
+struct SampleHistogram <: EntropyData end
+struct Samples <: EntropyData end
 
 mutable struct CountData
     multiplicities::Matrix{Float64}
@@ -23,7 +30,7 @@ function ratio(data::CountData)::Float64
     # return coincidences(data) / data.N
 end
 
-function fc(counts::AbstractVector{T}) where {T<:Real}
+function _from_counts(counts::AbstractVector{T}) where {T<:Real}
     map = countmap(counts)
     x1 = collect(keys(map))
     x2 = collect(values(map))
@@ -33,7 +40,7 @@ function fc(counts::AbstractVector{T}) where {T<:Real}
 end
 
 function from_counts(counts::CountVector)
-    fc(counts.values)
+    _from_counts(counts.values)
 end
 
 function from_samples(samples::SampleVector)
@@ -46,9 +53,24 @@ function from_samples(samples::SampleVector)
 
     counts = filter(!iszero, fit(Histogram, samples.values, nbins=K).weights)
 
-    fc(counts)
+    _from_counts(counts)
 end
 
+@doc """
+     from_data(data::AbstractVector, ::Type{Samples})
+     from_data(data::AbstractVector, ::Type{SampleHistogram})
+ """
+function from_data(data::AbstractVector, ::Type{Samples})
+    from_samples(svector(data))
+end
+
+function from_data(data::AbstractVector, ::Type{SampleHistogram})
+    from_counts(cvector(data))
+end
+
+@doc raw"""
+    from_samples
+"""
 function from_samples(file::String, field)
     csv = CSV.File(file)
     from_samples(csv[field])
@@ -60,15 +82,15 @@ function to_pmf(data::CountData)
     (x[1] * x[2] * norm for x in eachcol(data.multiplicities))
 end
 
-function to_pmf(counts::AbstractVector{Int64})::Vector{Float64}
-    norm = 1.0 / sum(counts)
-    return map(x -> x * norm, counts)
+function pmf(histogram::CountVector, x)
+    # TODO bounds checking required
+    return histogram[x]
 end
 
 function to_csv_string(data::CountData)::String
     dict = []
-    for (y, mm) in data.histogram
-        push!(dict, y, mm)
+    for x in eachcol(data.multiplicities)
+        push!(dict, x[1], x[2])
     end
 
     return @sprintf("%s,%d,%d", join(dict, ','), data.N, data.K)
@@ -80,7 +102,7 @@ function set_K(data::CountData, K::Integer)
     ret
 end
 
-function set_k!(data::CountData, K::Int64)
+function set_K!(data::CountData, K::Int64)
     data.K = K
     data
 end
@@ -88,8 +110,4 @@ end
 function set_N!(data::CountData, N::Float64)
     data.N = N
     data
-end
-
-function from_pmf(p::AbstractVector, N::Int64)
-    return from_counts(p .* N)
 end

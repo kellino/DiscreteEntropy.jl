@@ -14,9 +14,9 @@ Returns the maximum likelihood estimation of Shannon entropy.
 where n is the number of samples
 """
 function maximum_likelihood(data::CountData)
-    return log(data.N) -
-           (1.0 / data.N) *
-           sum([xlogx(x) * v for (x, v) in data.histogram])
+    log(data.N) -
+    (1.0 / data.N) *
+    sum(xlogx(x[1]) * x[2] for x in eachcol(data.multiplicities))
 end
 
 function maximum_likelihood(counts::AbstractVector{AbstractFloat})

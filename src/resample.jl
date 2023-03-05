@@ -2,6 +2,8 @@ using Distributions: Dirichlet;
 using Random;
 using StatsBase;
 
+# https://towardsdatascience.com/the-bayesian-bootstrap-6ca4a1d45148
+
 # TODO this need thorough testing!
 function jk(data::CountData)
     res::Dict{CountData,Int64} = Dict()

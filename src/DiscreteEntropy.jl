@@ -2,13 +2,17 @@ module DiscreteEntropy
 
 export CountVector, SampleVector, cvector, svector
 
-export CountData, from_samples, from_counts, to_pmf
-# export Maximum_Likelihood, JackknifeML, MillerMadow, Grassberger, Schurmann,
-#     SchurmannGeneralised, ChaoShen, Zhang, Bonachela
+export CountData, from_samples, from_counts
 
+export Maximum_Likelihood
+# , JackknifeML, MillerMadow, Grassberger, Schurmann, SchurmannGeneralised, ChaoShen, Zhang, Bonachela
+
+
+export estimate_h
 
 # estimators
-# export maximum_likelihood, jackknife_ml, miller_madow, grassberger,
+export maximum_likelihood
+# , jackknife_ml, miller_madohw, grassberger,
 #     schurmann, schurmann_generalised, chao_shen, zhang, bonachela
 
 
@@ -34,13 +38,13 @@ export CountData, from_samples, from_counts, to_pmf
 
 include("countvectors.jl")
 include("countdata.jl")
-include("estimator.jl")
-# include("utils.jl")
+include("estimate.jl")
+include("utils.jl")
 # include("mutual_information.jl")
 # include("conditional_entropy.jl")
 # include("divergence.jl")
 # include("resample.jl")
-# include("Frequentist/frequentist.jl")
+include("Frequentist/frequentist.jl")
 # include("Frequentist/bub.jl")
 # include("Bayesian/bayesian.jl")
 # include("Bayesian/nsb.jl")
