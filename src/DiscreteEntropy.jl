@@ -1,8 +1,9 @@
 module DiscreteEntropy
 
 export CountVector, SampleVector, cvector, svector
+export SampleHistogram, Samples
 
-export CountData, from_samples, from_counts
+export CountData, from_data, from_samples, from_counts
 
 export Maximum_Likelihood
 # , JackknifeML, MillerMadow, Grassberger, Schurmann, SchurmannGeneralised, ChaoShen, Zhang, Bonachela

@@ -10,6 +10,9 @@ abstract type EntropyData end
 struct SampleHistogram <: EntropyData end
 struct Samples <: EntropyData end
 
+@doc """
+    CountData
+"""
 mutable struct CountData
     multiplicities::Matrix{Float64}
     N::Float64
@@ -74,12 +77,6 @@ end
 function from_samples(file::String, field)
     csv = CSV.File(file)
     from_samples(csv[field])
-end
-
-function to_pmf(data::CountData)
-    # TODO not correct
-    norm = 1.0 / data.N
-    (x[1] * x[2] * norm for x in eachcol(data.multiplicities))
 end
 
 function pmf(histogram::CountVector, x)

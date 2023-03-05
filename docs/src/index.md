@@ -11,6 +11,16 @@ AbstractEstimator
 estimate_h
 ```
 
+## Data
+```@docs
+from_data
+from_samples
+from_counts
+
+EntropyData
+CountData
+```
+
 ## Frequentist Estimators
 
 ```@docs
