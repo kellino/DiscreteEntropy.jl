@@ -1,3 +1,5 @@
+using Distributions: Distribution
+
 """
     AbstractEstimator
 
@@ -54,11 +56,19 @@ function estimate_h(data::CountData, ::Type{Grassberger})
     grassberger(data)
 end
 
-function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}; xis::XiVector)
+function estimate_h(data::CountData, ::Type{Schurmann}, xi=nothing)
+    if xi === nothing
+        schurmann(data)
+    else
+        schurmann(data, xi)
+    end
+end
+
+function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::XiVector)
     schurmann_generalised(data, xis)
 end
 
-function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}; xis::Distribution)
+function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::Distribution)
     schurmann_generalised(data, xis)
 end
 

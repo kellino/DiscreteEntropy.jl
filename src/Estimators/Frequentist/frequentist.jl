@@ -20,11 +20,8 @@ Compute the maximum likelihood estimation of Shannon entropy of `data` in nats.
 julia> data = from_data([1,2,3,2,1], Histogram)
 CountData([2.0 3.0 1.0; 2.0 1.0 2.0], 9.0, 6)
 
-julia> h = maximum_likelihood(data)
+julia> maximum_likelihood(data)
 1.522955067
-
-julia> to_bits(h)
-2.19715972342414965313184
 ```
 """
 function maximum_likelihood(data::CountData)

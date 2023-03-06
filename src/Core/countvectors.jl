@@ -7,7 +7,7 @@ macro counts(name)
         mutable struct $name{T<:Real,V<:AbstractVector{T}} <: AbstractCounts{T,V}
             values::V
             function $(esc(name)){T,V}(values) where {T<:Real,V<:AbstractVector{T}}
-                isinf(Base.sum(values)) || any(iszero, values) ? throw(ArgumentError("this vector cannot contain Inf, NaN, or 0 values")) : new{T,V}(values)
+                isinf(Base.sum(values)) ? throw(ArgumentError("this vector cannot contain Inf or NaN")) : new{T,V}(values)
             end
         end
         $(esc(name))(values::AbstractVector{T}) where {T<:Real} = $(esc(name)){T,typeof(values)}(values)
