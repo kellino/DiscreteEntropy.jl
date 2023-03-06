@@ -16,6 +16,7 @@ struct Grassberger <: NonParameterisedEstimator end
 struct ChaoShen <: NonParameterisedEstimator end
 struct Zhang <: NonParameterisedEstimator end
 struct Bonachela <: NonParameterisedEstimator end
+struct Shrink <: NonParameterisedEstimator end
 
 # Frequentist with Parameter(s)
 struct Schurmann <: ParameterisedEstimator end
@@ -57,6 +58,10 @@ function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}; xis::XiVect
     schurmann_generalised(data, xis)
 end
 
+function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}; xis::Distribution)
+    schurmann_generalised(data, xis)
+end
+
 # function estimate_h(data::CountData, ::Type{ChaoShen})
 #     chao_shen(data)
 # end
@@ -65,6 +70,10 @@ end
 #     zhang(data)
 # end
 
+# function estimate_h(data::CountData, ::Type{Shrink})
+#     shrink(data)
+# end
+#
 # function estimate_h(data::CountData, ::Type{Bonachela})
 #     bonachela(data)
 # end
