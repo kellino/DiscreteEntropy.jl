@@ -122,7 +122,7 @@ function _schurmann(y, m, ξ=exp(-1 / 2))
 end
 
 @doc raw"""
-    schurmann_generalised(data::CountVector, xis::Vector{Float64})
+    schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
 
 [schurmann_generalised](https://arxiv.org/pdf/2111.11175.pdf)
 
@@ -133,12 +133,12 @@ end
 Accepts a vector is $ξ$ values, rather than just one.
 
 """
-function schurmann_generalised(data::CountVector, xis::AbstractVector{T}) where {T<:Real}
-    @assert length(data) == length(xis)
+function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
+    @assert Base.length(data) == Base.length(xis)
 
     digamma(data.N) -
     (1.0 / data.N) *
-    sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data))
+    sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data.values))
 end
 
 @doc raw"""

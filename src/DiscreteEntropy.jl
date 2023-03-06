@@ -5,7 +5,7 @@ export Histogram, Samples
 
 export CountData, from_data, from_samples, from_counts
 
-export Maximum_Likelihood, MillerMadow, Grassberger, Schurmann
+export Maximum_Likelihood, MillerMadow, Grassberger, Schurmann, SchurmannGeneralised
 # , JackknifeML, SchurmannGeneralised, ChaoShen, Zhang, Bonachela
 
 
@@ -13,7 +13,7 @@ export Maximum_Likelihood, MillerMadow, Grassberger, Schurmann
 export estimate_h
 
 # estimators
-export maximum_likelihood, miller_madow, grassberger, schurmann
+export maximum_likelihood, miller_madow, grassberger, schurmann, schurmann_generalised
 # , jackknife_ml, miller_madohw, grassberger,
 #     schurmann, schurmann_generalised, chao_shen, zhang, bonachela
 

@@ -53,9 +53,9 @@ function estimate_h(data::CountData, ::Type{Grassberger})
     grassberger(data)
 end
 
-# function estimate_h(data::CountData, ::Type{SchurmannGeneralised}; xis::AbstractVector{AbstractFloat})
-#     schurmann(data, xis)
-# end
+function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}; xis::XiVector)
+    schurmann_generalised(data, xis)
+end
 
 # function estimate_h(data::CountData, ::Type{ChaoShen})
 #     chao_shen(data)
