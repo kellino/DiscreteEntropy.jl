@@ -1,18 +1,31 @@
 using SpecialFunctions: digamma
 using QuadGK
 using Optim: maximizer
+using Distributions: Distribution
 
 # Maximum Likelihood
 
 @doc raw"""
     maximum_likelihood(data::CountData)::Float64
-Returns the maximum likelihood estimation of Shannon entropy.
+
+Compute the maximum likelihood estimation of Shannon entropy of `data` in nats.
 
 ```math
 \hat{H}_{ML} = \log(N) - \frac{1}{N} \sum_{i=1}^{K}h_i \log(h_i)
 ```
 
-where n is the number of samples
+# Examples
+```jldoctest
+
+julia> data = from_data([1,2,3,2,1], Histogram)
+CountData([2.0 3.0 1.0; 2.0 1.0 2.0], 9.0, 6)
+
+julia> h = maximum_likelihood(data)
+1.522955067
+
+julia> to_bits(h)
+2.19715972342414965313184
+```
 """
 function maximum_likelihood(data::CountData)
     log(data.N) -
@@ -127,11 +140,17 @@ end
 [schurmann_generalised](https://arxiv.org/pdf/2111.11175.pdf)
 
 ```math
-\hat{H}_{SHU} = \psi(n) - \frac{1}{n} \sum_{k=1}^{K} \, y_x \big( \psi(y_x) + (-1)^{y_x} ∫_0^{\frac{1}{\xi_x} - 1} \frac{t^{y_x}-1}{1+t}dt \big)
+\hat{H}_{SHU} = \psi(N) - \frac{1}{N} \sum_{i=1}^{K} \, h_i \big( \psi(h_i) + (-1)^{h_i} ∫_0^{\frac{1}{\xi_i} - 1} \frac{t^{h_i}-1}{1+t}dt \big)
 
 ```
-Accepts a vector is $ξ$ values, rather than just one.
 
+Computes the generalised Schurmann entropy estimation, given a countvector *data* and a xivector *xis*, which must both
+be the same length.
+
+
+    schurmann_generalised(data::CountVector, xis::Distribution, scalar=false)
+
+Computes the generalised Schurmann entropy estimation, given a countvector *data* and a distribution *xis*.
 """
 function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
     @assert Base.length(data) == Base.length(xis)
@@ -142,27 +161,42 @@ function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Re
     sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data))
 end
 
+function schurmann_generalised(data::CountVector, xis::T, scalar::Bool=false) where {T<:Distribution}
+    if scalar
+        # TODO this doesn't work for some reason.
+        # if rand(xis) is a scalar, then we sample from it length(data) times
+        xi_vec = rand(xis, length(data))
+    else
+        # some distributions, such as Dirichlet, return a vector when sampled, we
+        # take this as the default case is it seems more likely to occur
+        xi_vec = xivector(rand(xis))
+    end
+
+    schurmann_generalised(data, xi_vec)
+end
+
 @doc raw"""
     chao_shen(data::CountData)
 
     wip
 """
-function chao_shen(data::CountData)::Float64
+function chao_shen(data::CountData)
     # TODO this is not yet correct, suffers from overflow on big samples
-    p = [k / data.N for (k, _) in data.histogram]
-    f1 = sum([v for (k, v) in data.histogram if k == 1])
+    0.0
+    # p = [k / data.N for (k, _) in data.histogram]
+    # f1 = sum([v for (k, v) in data.histogram if k == 1])
 
-    C = 1 - f1 / data.N
-    pa = C .* p
-    n = BigFloat(data.N)
-    la = (1 .- (1 .- pa) .^ n)
+    # C = 1 - f1 / data.N
+    # pa = C .* p
+    # n = BigFloat(data.N)
+    # la = (1 .- (1 .- pa) .^ n)
 
-    s = 0
-    for i in 1:length(p)
-        s += pa[i] * log(pa[i]) / la[i] * get!(data.histogram, i, 0.0)
-    end
+    # s = 0
+    # for i in 1:length(p)
+    #     s += pa[i] * log(pa[i]) / la[i] * get!(data.histogram, i, 0.0)
+    # end
 
-    return -s
+    # return -s
 end
 
 
@@ -188,4 +222,9 @@ end
 """
 function bonachela(data::CountData)::Float64
     return 1 / data.N * sum([(y + 1) * sum([1 / j for j in y+2:data.N+2]) * mm for (y, mm) in data.histogram])
+end
+
+function shrink(data::CountData)
+    # TODO
+    0.0
 end
