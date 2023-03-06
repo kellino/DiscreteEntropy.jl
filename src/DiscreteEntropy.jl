@@ -1,5 +1,8 @@
 module DiscreteEntropy
 
+import Base: length, size, sum, show
+using Base: @propagate_inbounds
+
 export CountVector, SampleVector, XiVector, cvector, svector, xivector
 export Histogram, Samples
 

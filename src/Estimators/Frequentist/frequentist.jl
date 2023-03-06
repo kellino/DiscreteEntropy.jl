@@ -135,10 +135,11 @@ Accepts a vector is $ξ$ values, rather than just one.
 """
 function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
     @assert Base.length(data) == Base.length(xis)
+    N = sum(data)
 
-    digamma(data.N) -
-    (1.0 / data.N) *
-    sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data.values))
+    digamma(N) -
+    (1.0 / N) *
+    sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data))
 end
 
 @doc raw"""
