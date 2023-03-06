@@ -45,13 +45,13 @@ end
 #     jackknife_ml(data)[1]
 # end
 
-# function estimate_h(data::CountData, ::Type{MillerMadow})
-#     miller_madow(data)
-# end
+function estimate_h(data::CountData, ::Type{MillerMadow})
+    miller_madow(data)
+end
 
-# function estimate_h(data::CountData, ::Type{Grassberger})
-#     grassberger(data)
-# end
+function estimate_h(data::CountData, ::Type{Grassberger})
+    grassberger(data)
+end
 
 # function estimate_h(data::CountData, ::Type{SchurmannGeneralised}; xis::AbstractVector{AbstractFloat})
 #     schurmann(data, xis)

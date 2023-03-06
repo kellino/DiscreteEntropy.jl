@@ -1,18 +1,19 @@
 module DiscreteEntropy
 
 export CountVector, SampleVector, cvector, svector
-export SampleHistogram, Samples
+export Histogram, Samples
 
 export CountData, from_data, from_samples, from_counts
 
-export Maximum_Likelihood
-# , JackknifeML, MillerMadow, Grassberger, Schurmann, SchurmannGeneralised, ChaoShen, Zhang, Bonachela
+export Maximum_Likelihood, MillerMadow, Grassberger, Schurmann
+# , JackknifeML, SchurmannGeneralised, ChaoShen, Zhang, Bonachela
 
 
+# convenience function to create a unified interface
 export estimate_h
 
 # estimators
-export maximum_likelihood
+export maximum_likelihood, miller_madow, grassberger, schurmann
 # , jackknife_ml, miller_madohw, grassberger,
 #     schurmann, schurmann_generalised, chao_shen, zhang, bonachela
 
@@ -22,8 +23,7 @@ export maximum_likelihood
 # estimators
 # export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
 
-# convenience function to create a unified interface
-# export estimate_h
+
 
 # Other Discrete Entropy measures, metrics and calculations
 # export mutual_information
@@ -34,18 +34,20 @@ export maximum_likelihood
 # export jackknife, bayesian_bootstrap, bootstrap
 
 # utilities
-# export to_bits, to_bans, to_pmf, gammalndiff, logx, xlogx, logspace, update_or_insert!
-# export from_samples, from_counts, to_csv_string
+export to_bits, to_bans
 
-include("countvectors.jl")
-include("countdata.jl")
-include("estimate.jl")
-include("utils.jl")
+include("Core/countvectors.jl")
+include("Core/countdata.jl")
+include("Core/utils.jl")
+
+include("Estimators/estimate.jl")
+include("Estimators/Frequentist/frequentist.jl")
+
+
 # include("mutual_information.jl")
 # include("conditional_entropy.jl")
 # include("divergence.jl")
 # include("resample.jl")
-include("Frequentist/frequentist.jl")
 # include("Frequentist/bub.jl")
 # include("Bayesian/bayesian.jl")
 # include("Bayesian/nsb.jl")

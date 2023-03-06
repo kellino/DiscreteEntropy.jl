@@ -19,6 +19,14 @@ function xlogx(x)
     return x * logx(x)
 end
 
+function xFx(f::Function, x)
+    if iszero(x)
+        return zero(x)
+    else
+        return f(x)
+    end
+end
+
 @doc raw"""
     to_bits(x::Float64)
 Return ``\frac{h}{\log(2)}`` where h is in nats

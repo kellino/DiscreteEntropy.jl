@@ -2,13 +2,14 @@ using SpecialFunctions: digamma
 using QuadGK
 using Optim: maximizer
 
+# Maximum Likelihood
 
 @doc raw"""
     maximum_likelihood(data::CountData)::Float64
 Returns the maximum likelihood estimation of Shannon entropy.
 
 ```math
-\hat{H}_{ML} = \log(n) - \frac{1}{n} \sum_{k=1}^{K}h_k \log(h_k)
+\hat{H}_{ML} = \log(N) - \frac{1}{N} \sum_{i=1}^{K}h_i \log(h_i)
 ```
 
 where n is the number of samples
@@ -23,6 +24,9 @@ function maximum_likelihood(counts::AbstractVector{AbstractFloat})
     maximum_likelihood(from_counts(counts))
 end
 
+
+# Jackknife MLE
+
 @doc raw"""
     jackknife_ml(data::CountData; corrected=false)::Tuple{AbstractFloat, AbstractFloat}
 
@@ -36,32 +40,33 @@ function jackknife_ml(data::CountData; corrected=false)
     return jackknife(data, maximum_likelihood, corrected=corrected)
 end
 
+
+# Miller Madow Corretion Estimator
+
 @doc raw"""
-    miller_madow(data::CountData)::Float64
+    miller_madow(data::CountData)
 
 Returns the maximum likelihood estimation of Shannon entropy, with a positive offset based
-on the total number of samples seen (n) and the support size (K).
+on the total number of samples seen (N) and the support size (K).
 
 ```math
-\hat{H}_{MM} = \hat{H}_{ML} + \frac{K - 1}{2n}
+\hat{H}_{MM} = \hat{H}_{ML} + \frac{K - 1}{2N}
 ```
 """
 function miller_madow(data::CountData)
     return maximum_likelihood(data) + ((data.K - 1.0) / (2.0 * data.N))
 end
 
-@inline function g(h::Int64)
-    return digamma(h) + 0.5 * -1.0^h * (digamma(h + 1.0 / 2.0) - digamma(h / 2.0))
-end
 
+# Grassberger Estimator
 
 @doc raw"""
-    grassberger(data::CountData)::Float64
+    grassberger(data::CountData)
 
 Returns the Grassberger estimation of Shannon entropy.
 
 ```math
-\hat{H}_G = log(n) - \frac{1}{n} \sum_{k=1}^{K} h_k \; G(h_k)
+\hat{H}_G = log(N) - \frac{1}{N} \sum_{i=1}^{K} h_i \; G(h_i)
 ```
 This is essentially the same as ``\hat{H}_{ML}``, but with the logarithm swapped for the scalar function ``G``
 
@@ -75,9 +80,13 @@ as given in the [paper](https://arxiv.org/pdf/physics/0307138v2.pdf)
 
 """
 function grassberger(data::CountData)
-    return log(data.N) - (
-        1.0 / data.N * sum([k * g(k) * c for (k, c) in data.histogram])
-    )
+    log(data.N) -
+    (1.0 / data.N) *
+    sum(xFx(g, x[1]) * x[2] for x in eachcol(data.multiplicities))
+end
+
+@inline function g(h::T) where {T<:Real}
+    return digamma(h) + 0.5 * -1.0^h * (digamma(h + 1.0 / 2.0) - digamma(h / 2.0))
 end
 
 function grassberger(counts::AbstractVector{Int64})
@@ -91,7 +100,7 @@ end
 [schurmann](https://arxiv.org/pdf/cond-mat/0403192.pdf)
 
 ```math
-\hat{H}_{SHU} = \psi(n) - \frac{1}{n} \sum_{k=1}^{K} \, y_x \big( \psi(y_x) + (-1)^{y_x} ∫_0^{\frac{1}{\xi} - 1} \frac{t^{y_x}-1}{1+t}dt \big)
+\hat{H}_{SHU} = \psi(N) - \frac{1}{N} \sum_{i=1}^{K} \, h_i \big( \psi(h_i) + (-1)^{h_i} ∫_0^{\frac{1}{\xi} - 1} \frac{t^{h_i}-1}{1+t}dt \big)
 
 ```
 This is no one ideal value for ``\xi``, however the paper suggests ``e^{(-1/2)} \approx 0.6``
@@ -101,8 +110,13 @@ function schurmann(data::CountData, ξ::Float64=exp(-1 / 2))
     @assert ξ > 0.0
     return digamma(data.N) -
            (1.0 / data.N) *
-           sum([(digamma(yₓ) + (-1.0)^yₓ * quadgk(t -> t^(yₓ - 1) / (1 + t), 0, (1 / ξ) - 1.0)[1]) * yₓ * mm for (yₓ, mm) in data.histogram])
+           sum((_schurmann(x[1], x[2], ξ) for x in eachcol(data.multiplicities)))
 
+end
+
+function _schurmann(y, m, ξ=exp(-1 / 2))
+    lim = (1.0 / ξ) - 1.0
+    return (digamma(y) + (-1.0)^y * quadgk(t -> t^(y - 1.0) / (1.0 + t), 0, lim)[1]) * y * m
 end
 
 @doc raw"""

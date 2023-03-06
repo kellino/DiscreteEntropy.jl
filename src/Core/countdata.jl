@@ -1,5 +1,5 @@
 using CSV;
-using StatsBase: countmap, Histogram, fit;
+using StatsBase: countmap, fit, Histogram as Hgm;
 using Printf;
 using LinearAlgebra: dot;
 
@@ -7,7 +7,7 @@ using LinearAlgebra: dot;
      abstract type EntropyData
  """
 abstract type EntropyData end
-struct SampleHistogram <: EntropyData end
+struct Histogram <: EntropyData end
 struct Samples <: EntropyData end
 
 @doc """
@@ -39,7 +39,7 @@ function _from_counts(counts::AbstractVector{T}) where {T<:Real}
     x2 = collect(values(map))
     mm = [x1 x2]
 
-    return CountData(mm', dot(x1, x2), length(mm[:, 1]))
+    return CountData(mm', dot(x1, x2), sum(mm[:, 1]))
 end
 
 function from_counts(counts::CountVector)
@@ -54,7 +54,7 @@ function from_samples(samples::SampleVector)
         return CountData([1.0 N]', N, K)
     end
 
-    counts = filter(!iszero, fit(Histogram, samples.values, nbins=K).weights)
+    counts = filter(!iszero, fit(Hgm, samples.values, nbins=K).weights)
 
     _from_counts(counts)
 end
@@ -67,7 +67,7 @@ function from_data(data::AbstractVector, ::Type{Samples})
     from_samples(svector(data))
 end
 
-function from_data(data::AbstractVector, ::Type{SampleHistogram})
+function from_data(data::AbstractVector, ::Type{Histogram})
     from_counts(cvector(data))
 end
 
@@ -78,6 +78,7 @@ function from_samples(file::String, field)
     csv = CSV.File(file)
     from_samples(csv[field])
 end
+
 
 function pmf(histogram::CountVector, x)
     # TODO bounds checking required
