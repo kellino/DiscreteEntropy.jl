@@ -7,12 +7,19 @@ macro counts(name)
         mutable struct $name{T<:Real,V<:AbstractVector{T}} <: AbstractCounts{T,V}
             values::V
             function $(esc(name)){T,V}(values) where {T<:Real,V<:AbstractVector{T}}
-                isinf(Base.sum(values)) ? throw(ArgumentError("counts cannot contain Inf or NaN values")) : new{T,V}(values)
+                isinf(Base.sum(values)) || any(iszero, values) ? throw(ArgumentError("this vector cannot contain Inf, NaN, or 0 values")) : new{T,V}(values)
             end
         end
         $(esc(name))(values::AbstractVector{T}) where {T<:Real} = $(esc(name)){T,typeof(values)}(values)
     end
 end
+
+length(wv::AbstractCounts) = length(wv.values)
+sum(wv::AbstractCounts) = sum(wv.values)
+Base.isempty(wv::AbstractCounts) = Base.isempty(wv.values)
+size(wv::AbstractCounts) = Base.size(wv.values)
+Base.axes(wv::AbstractCounts) = Base.axes(wv.values)
+
 
 Base.IndexStyle(::Type{<:AbstractCounts{T,V}}) where {T,V} = IndexStyle(V)
 
@@ -43,3 +50,8 @@ cvector(vs::AbstractArray{<:Real}) = CountVector(vec(vs))
 svector(vs::AbstractVector{<:Integer}) = SampleVector(convert(Vector{Float64}, vs))
 svector(vs::AbstractVector{<:Real}) = SampleVector(vs)
 svector(vs::AbstractArray{<:Real}) = SampleVector(vec(vs))
+
+
+@counts XiVector
+xivector(vs::AbstractVector{<:Real}) = XiVector(vs)
+xivector(vs::AbstractArray{<:Real}) = XiVector(vec(vs))

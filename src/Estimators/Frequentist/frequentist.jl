@@ -37,7 +37,9 @@ If corrected in true, then the variance is scaled with n-1, else it is scaled wi
 As found in the [paper](https://academic.oup.com/biomet/article/65/3/625/234287)
 """
 function jackknife_ml(data::CountData; corrected=false)
-    return jackknife(data, maximum_likelihood, corrected=corrected)
+    # TODO
+    0.0
+    # return jackknife(data, maximum_likelihood, corrected=corrected)
 end
 
 
@@ -120,7 +122,7 @@ function _schurmann(y, m, ξ=exp(-1 / 2))
 end
 
 @doc raw"""
-    schurmann_generalised(data::CountData, xis::Vector{Float64})::Float64
+    schurmann_generalised(data::CountVector, xis::Vector{Float64})
 
 [schurmann_generalised](https://arxiv.org/pdf/2111.11175.pdf)
 
@@ -131,13 +133,12 @@ end
 Accepts a vector is $ξ$ values, rather than just one.
 
 """
-function schurmann_generalised(data::CountData, xis::Vector{Float64})::Float64
-    @assert length(data.histogram) == length(xis)
+function schurmann_generalised(data::CountVector, xis::AbstractVector{T}) where {T<:Real}
+    @assert length(data) == length(xis)
 
-    return digamma(data.N) -
-           (1.0 / data.N) *
-           sum([(digamma(yₓ) + (-1.0)^yₓ * quadgk(t -> t^(yₓ - 1) / (1 + t), 0, (1 / ξ) - 1.0)[1]) * yₓ * mm
-                for ((yₓ, mm), ξ) in collect(zip(data.histogram, xis))])
+    digamma(data.N) -
+    (1.0 / data.N) *
+    sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data))
 end
 
 @doc raw"""

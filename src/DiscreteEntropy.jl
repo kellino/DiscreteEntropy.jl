@@ -1,6 +1,6 @@
 module DiscreteEntropy
 
-export CountVector, SampleVector, cvector, svector
+export CountVector, SampleVector, XiVector, cvector, svector, xivector
 export Histogram, Samples
 
 export CountData, from_data, from_samples, from_counts
