@@ -38,7 +38,10 @@ struct Minimax <: AbstractEstimator end
 
 
 """
-    estimate_h(data::CountData, ::Type{T}) where {T<:AbstractEstimator}
+    estimate_h(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
+
+Return the estimate in nats of Shannon entropy of `data` using `estimator`.
+
 """
 function estimate_h(data::CountData, ::Type{MaximumLikelihood})
     maximum_likelihood(data)
@@ -72,9 +75,9 @@ function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::Distri
     schurmann_generalised(data, xis)
 end
 
-# function estimate_h(data::CountData, ::Type{ChaoShen})
-#     chao_shen(data)
-# end
+function estimate_h(data::CountData, ::Type{ChaoShen})
+    chao_shen(data)
+end
 
 # function estimate_h(data::CountData, ::Type{Zhang})
 #     zhang(data)

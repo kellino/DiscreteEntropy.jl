@@ -175,25 +175,33 @@ end
 @doc raw"""
     chao_shen(data::CountData)
 
-    wip
+Return the Chao-Shen estimate of the the Shannon entropy of `data` in nats.
+
+```math
+\hat{H}_{CS} = - \sum_{i=i}^{K} \frac{\hat{p}_i^{CS} \log \hat{p}_i^{CS}}{1 - (1 - \hat{p}_i^{CS})}
+```
+where
+
+```math
+\hat{p}_i^{CS} = (1 - \frac{1 - \hat{p}_i^{ML}}{N}) \hat{p}_i^{ML}
+```
 """
 function chao_shen(data::CountData)
-    # TODO this is not yet correct, suffers from overflow on big samples
-    0.0
-    # p = [k / data.N for (k, _) in data.histogram]
-    # f1 = sum([v for (k, v) in data.histogram if k == 1])
+    f1 = 0.0 # number of singletons
+    for x in eachcol(data.multiplicities)
+        if x[1] == 1.0
+            f1 = x[2]
+            break
+        end
+    end
 
-    # C = 1 - f1 / data.N
-    # pa = C .* p
-    # n = BigFloat(data.N)
-    # la = (1 .- (1 .- pa) .^ n)
+    if f1 == data.N
+        f1 = data.N - 1 # avoid C=0
+    end
 
-    # s = 0
-    # for i in 1:length(p)
-    #     s += pa[i] * log(pa[i]) / la[i] * get!(data.histogram, i, 0.0)
-    # end
+    C = 1 - f1 / data.N # estimated coverage
 
-    # return -s
+    -sum(xlogx(C * x[1] / data.N) / (1 - (1 - (x[1] / data.N) * C)^data.N) * x[2] for x in eachcol(data.multiplicities))
 end
 
 
@@ -222,6 +230,6 @@ function bonachela(data::CountData)::Float64
 end
 
 function shrink(data::CountData)
-    # TODO
+    # TODO also known as the James-Stein
     0.0
 end

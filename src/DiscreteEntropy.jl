@@ -16,7 +16,8 @@ export MaximumLikelihood, MillerMadow, Grassberger, Schurmann, SchurmannGenerali
 export estimate_h
 
 # estimators
-export maximum_likelihood, miller_madow, grassberger, schurmann, schurmann_generalised
+export maximum_likelihood, miller_madow, grassberger, schurmann, schurmann_generalised,
+    chao_shen
 # , jackknife_ml, miller_madohw, grassberger,
 #     schurmann, schurmann_generalised, chao_shen, zhang, bonachela
 
