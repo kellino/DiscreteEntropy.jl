@@ -11,7 +11,7 @@ abstract type NonParameterisedEstimator <: AbstractEstimator end
 abstract type ParameterisedEstimator <: AbstractEstimator end
 
 # Frequentist
-struct Maximum_Likelihood <: NonParameterisedEstimator end
+struct MaximumLikelihood <: NonParameterisedEstimator end
 struct JackknifeML <: NonParameterisedEstimator end
 struct MillerMadow <: NonParameterisedEstimator end
 struct Grassberger <: NonParameterisedEstimator end
@@ -40,7 +40,7 @@ struct Minimax <: AbstractEstimator end
 """
     estimate_h(data::CountData, ::Type{T}) where {T<:AbstractEstimator}
 """
-function estimate_h(data::CountData, ::Type{Maximum_Likelihood})
+function estimate_h(data::CountData, ::Type{MaximumLikelihood})
     maximum_likelihood(data)
 end
 

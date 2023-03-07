@@ -4,4 +4,7 @@ using Test
     @testset "countdata test" begin
         include("countdata_test.jl")
     end
+    @testset "estimator types test" begin
+        include("estimator_types.jl")
+    end
 end
