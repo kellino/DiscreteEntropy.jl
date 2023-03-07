@@ -79,9 +79,9 @@ function estimate_h(data::CountData, ::Type{ChaoShen})
     chao_shen(data)
 end
 
-# function estimate_h(data::CountData, ::Type{Zhang})
-#     zhang(data)
-# end
+function estimate_h(data::CountData, ::Type{Zhang})
+    zhang(data)
+end
 
 # function estimate_h(data::CountData, ::Type{Shrink})
 #     shrink(data)

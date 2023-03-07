@@ -175,7 +175,7 @@ end
 @doc raw"""
     chao_shen(data::CountData)
 
-Return the Chao-Shen estimate of the the Shannon entropy of `data` in nats.
+Return the Chao-Shen estimate of the Shannon entropy of `data` in nats.
 
 ```math
 \hat{H}_{CS} = - \sum_{i=i}^{K} \frac{\hat{p}_i^{CS} \log \hat{p}_i^{CS}}{1 - (1 - \hat{p}_i^{CS})}
@@ -205,21 +205,33 @@ function chao_shen(data::CountData)
 end
 
 
-function helper(v::Int64, data::CountData)::Float64
-    sum([p_k * prod([1 - p_k - (j / data.N) for j in 0:v-1]) for p_k in to_pmf(data)])
-end
-
-function Z(v::Int64, data::CountData)::Float64
-    # TODO check when factorial gets too big, for the moment we just make everything big
-    return data.N^(1 + v) * factorial(big(data.N - (1 + v))) / factorial(big(data.N)) * helper(v::Int64, data)
-end
-
 @doc raw"""
     zhang(data::CountData)
+
+Return the Zhang estimate of the Shannon entropy of `data` in nats.
+
+The recommended definition of Zhang's estimator is from [Grabchak *et al.*](https://www.tandfonline.com/doi/full/10.1080/09296174.2013.830551)
+```math
+\hat{H}_Z = \sum_{i=1}^K \hat{p}_i \sum_{v=1}^{N - h_i} \frac{1}{v} ∏_{j=0}^{v-1} \left( 1 + \frac{1 - h_i}{N - 1 - j} \right)
+```
+
+The actual algorithm comes from [Fast Calculation of entropy with Zhang's estimator](https://arxiv.org/abs/1707.08290) by Lozano *et al.*.
+
+# Links
+[Entropy estimation in turing's perspective](https://dl.acm.org/doi/10.1162/NECO_a_00266)
 """
-function zhang(data::CountData)::Float64
-    # TODO check N, if it's too big, this is ruinously expensive to compute
-    return sum(1.0 / v * Z(v, data) for v in 1:data.N-1)
+function zhang(data::CountData)
+    ent = 0.0
+    for c in eachcol(data.multiplicities)
+        t1 = 1
+        t2 = 0
+        for k in 1:data.N-c[1]
+            t1 *= 1 - ((c[1] - 1.0) / (data.N - k))
+            t2 += t1 / k
+        end
+        ent += t2 * (c[1] / data.N) * c[2]
+    end
+    ent
 end
 
 @doc raw"""
