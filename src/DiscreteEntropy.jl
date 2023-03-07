@@ -9,7 +9,8 @@ export Histogram, Samples
 export CountData, from_data, from_samples, from_counts
 
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
-export MaximumLikelihood, MillerMadow, Grassberger, Schurmann, SchurmannGeneralised
+export MaximumLikelihood, JackknifeML, MillerMadow, Grassberger, Schurmann, SchurmannGeneralised,
+    ChaoShen, Zhang, Bonachela, Shrink
 
 
 # convenience function to create a unified interface

@@ -8,3 +8,7 @@ using Test
 @test JackknifeML <: NonParameterisedEstimator
 @test MillerMadow <: NonParameterisedEstimator
 @test Grassberger <: NonParameterisedEstimator
+@test ChaoShen <: NonParameterisedEstimator
+@test Zhang <: NonParameterisedEstimator
+@test Bonachela <: NonParameterisedEstimator
+@test Shrink <: NonParameterisedEstimator
