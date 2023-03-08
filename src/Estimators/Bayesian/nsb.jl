@@ -31,6 +31,34 @@ function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64
     return ((γ / logx(2)) - 1 + 2 * logx(data.N) - digamma(Δ), sqrt(Δ))
 end
 
+function var1(data::CountData, α, ν)
+    digamma(ν + 1) - sum(digamma(x[1] + α + 1) * ((x[1] + α + 1) / ν) * x[2] for x in eachcol(data.multiplicities))
+end
+
+# TODO doesn't yet take into account the multiplicies, need to figure that one out
+function var2(data::CountData, α, ν)
+    phi(n) = digamma(n + α + 1) - digamma(ν + 2)
+    jf(n) = (digamma(n + 2) - digamma(ν + 2))^2 + trigamma(n + 2) - trigamma(ν + 2)
+    c = trigamma(ν + 2)
+    norm = (ν + 1) * ν
+
+    var = 0.0
+    for i in 1:length(data.multiplicities[1, :])
+        ni = data.multiplicities[1, i]
+        for k in 1:length(data.multiplicities[1, :])
+            nk = data.multiplicities[1, k]
+            temp = 0.0
+            if i != k
+                temp += (ni * nk) / norm * (phi(nk) * phi(ni) - c)
+                temp += (ni + 1) * ni / norm * jf(ni)
+                temp *= data.multiplicities[2, k]
+            end
+            var += temp
+        end
+        var *= data.multiplicities[2, i]
+    end
+    return var
+end
 
 function dlogrho(K0, K1, N)
     # equation 15 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
@@ -89,6 +117,12 @@ function nsb(data::CountData, K)
     numerator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K) * bayes(data, β, K), 0, log(K))[1]
 
     denominator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K), 0, log(K))[1]
+
+    # ν = data.N + α * K
+    var = quadgk(β -> var1(data, β, data.N + β * K) - var2(data, β, data.N + β * K)^2, 0, log(K))[1]
+    println("variance is $var")
+    # sig = sqrt(var)
+    # println("sig is $sig")
 
     convert(Float64, numerator / denominator)
 end

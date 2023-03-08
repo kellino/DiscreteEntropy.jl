@@ -115,7 +115,7 @@ function estimate_h(data::CountData, ::Type{NSB}; K=data.K)
     nsb(data, K)
 end
 
-# # function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
-# #     @warn("not yet finished")
-# #     0.0
-# # end
+function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
+    @warn("not yet finished")
+    0.0
+end

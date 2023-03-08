@@ -19,15 +19,13 @@ export estimate_h
 # estimators
 export maximum_likelihood, miller_madow, grassberger, schurmann, schurmann_generalised,
     chao_shen, zhang
-# , jackknife_ml, miller_madohw, grassberger,
-#     schurmann, schurmann_generalised, chao_shen, zhang, bonachela
+# , jackknife_ml, bonachela
 
 
-export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB
-# ANSB, PYM
+export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, ANSB, PYM
 
 # estimators
-export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb
+export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb
 # nsb, ansb, pym
 
 
