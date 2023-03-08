@@ -23,10 +23,12 @@ export maximum_likelihood, miller_madow, grassberger, schurmann, schurmann_gener
 #     schurmann, schurmann_generalised, chao_shen, zhang, bonachela
 
 
-# export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, ANSB, PYM
+export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB
+# ANSB, PYM
 
 # estimators
-# export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
+export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb
+# nsb, ansb, pym
 
 
 
@@ -39,7 +41,7 @@ export maximum_likelihood, miller_madow, grassberger, schurmann, schurmann_gener
 # export jackknife, bayesian_bootstrap, bootstrap
 
 # utilities
-export to_bits, to_bans
+export to_bits, to_bans, xlogx, logx
 
 include("Core/countvectors.jl")
 include("Core/countdata.jl")
@@ -47,6 +49,8 @@ include("Core/utils.jl")
 
 include("Estimators/estimate.jl")
 include("Estimators/Frequentist/frequentist.jl")
+include("Estimators/Bayesian/bayesian.jl")
+include("Estimators/Bayesian/nsb.jl")
 
 
 # include("mutual_information.jl")

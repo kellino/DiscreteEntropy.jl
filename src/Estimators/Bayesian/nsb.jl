@@ -31,78 +31,36 @@ function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64
     return ((γ / logx(2)) - 1 + 2 * logx(data.N) - digamma(Δ), sqrt(Δ))
 end
 
-function ik(nk, β, Nhat)
-    return (digamma(nk + β + 1) - digamma(Nhat + 2)) * (digamma(nk + β + 1.0) - digamma(Nhat + 2)) - trigamma(Nhat + 2)
-end
-
-function ji(nk, β, Nhat)
-    return (digamma(nk + β + 2) - digamma(Nhat + 2))^2 + trigamma(nk + β + 2) - trigamma(Nhat + 2)
-end
-
-function s2(β, data::CountData)
-    # calculate the variance or σ
-    ν = data.N + data.K * β
-    nx = collect(keys(data.histogram))
-    kx = collect(values(data.histogram))
-    norm = 1.0 / log(2)^2
-
-    left = sum([(((nᵢ + β + 1) * (nᵢ + β) / (ν * (ν + 1))) *
-                 (digamma(nᵢ + β + 2) - digamma(ν + 2))^2 +
-                 trigamma(nᵢ + β + 2) -
-                 trigamma(ν + 2)) * kᵢ
-                for (nᵢ, kᵢ) in collect(zip(nx, kx))])
-
-
-    right = 0.0
-    for i in 1:length(nx)
-        ni = nx[i] + β
-        for k in 1:length(nx)
-            if i != k
-                nk = nx[k] + β
-                right += ((ni * nk) / ν * (ν + 1) *
-                          (digamma(nk + 1) - digamma(ν + 2)) *
-                          (digamma(ni + 1) - digamma(ν + 2)) -
-                          trigamma(ν + 2)) * kx[i] * kx[k]
-            end
-        end
-    end
-
-
-    return left + right
-end
-
 
 function dlogrho(K0, K1, N)
     # equation 15 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
     # rearranged to make solving for 0 easier
-
-    return K1 / K0 - digamma(K0 + N) + digamma(K0)
+    K1 / K0 - digamma(K0 + N) + digamma(K0)
 end
 
 function find_extremum_log_rho(K::Int64, N::Float64)
-    func(x) = dlogrho(x, K, N)
+    func(K0) = dlogrho(K0, K, N)
 
     return find_zero(func, 1)
 end
 
-function neg_log_rho(β, data::CountData)::BigFloat
+function neg_log_rho(data::CountData, β, K::Int64)
     # equation 8 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
-    # rearranged to take logarithm (to avoid overflow), and with P(β(ξ)) = 1 (and therefore ignored)
-    κ = data.K * β
+    # rearranged to take logarithm (to avoid overflow)
+    κ = K * β
 
     return -(
         (loggamma(κ) - loggamma(data.N + κ)) +
-        (sum([kᵢ * (loggamma(nᵢ + β) - loggamma(β)) for (nᵢ, kᵢ) in data.histogram])))
-
+        (sum(x[2] * (loggamma(x[1] + β) - loggamma(β)) for x in eachcol(data.multiplicities))))
 end
 
-function find_l0(data::CountData)
-    return neg_log_rho(find_extremum_log_rho(data.K, data.N) / data.K, data)
+function find_l0(K, data::CountData)
+    neg_log_rho(data, find_extremum_log_rho(K, data.N) / K, K)
 end
 
-function dxi(β, k)::Float64
+function dxi(β, K)::Float64
     # The derivative of ξ = ψ(kappa + 1) - ψ(β + 1)
-    return k * polygamma(1, 1 + k * β) - polygamma(1, 1 + β)
+    return K * polygamma(1, 1 + K * β) - polygamma(1, 1 + β)
 end
 
 @doc raw"""
@@ -123,29 +81,14 @@ where
 ```
 
 """
-function nsb(data::CountData, K=nothing)
-
-    if K === nothing
-        find_nsb(data)
-    else
-        new_data = set_K(data, K)
-        find_nsb(new_data)
-    end
-end
-
-function nsb(samples::AbstractVector)
-    return nsb(from_samples(samples))
-end
-
-function find_nsb(data::CountData)
-    l0 = find_l0(data)
+function nsb(data::CountData, K)
+    l0 = find_l0(K, data)
 
     # in addition to rearranging equation 8 to avoid over/underflow, it's also
     # helpful to wrap \beta in a "big" to handle the exponential correctly
-    top = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K) * bayes(data, x), 0, log(data.K))[1]
+    numerator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K) * bayes(data, β, K), 0, log(K))[1]
 
-    evidence = quadgk(x -> exp(-neg_log_rho(big(x), data) + l0) * dxi(x, data.K), 0, log(data.K))[1]
+    denominator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K), 0, log(K))[1]
 
-    convert(Float64, top / evidence)
-
+    convert(Float64, numerator / denominator)
 end

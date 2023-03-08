@@ -39,7 +39,7 @@ function _from_counts(counts::AbstractVector{T}) where {T<:Real}
     x2 = collect(values(map))
     mm = [x1 x2]
 
-    return CountData(mm', dot(x1, x2), sum(mm[:, 1]))
+    return CountData(mm', dot(x1, x2), sum(mm[:, 2]))
 end
 
 function from_counts(counts::CountVector)

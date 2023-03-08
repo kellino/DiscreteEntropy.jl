@@ -28,24 +28,24 @@ In addition to setting your own α, we have the following suggested choices
 4) minimax: α = √{n} / K
 
 """
-function bayes(data::CountData, α::AbstractFloat)
-    weight = α * data.K + data.N
+function bayes(data::CountData, α::AbstractFloat, K)
+    weight = α * K + data.N
 
-    return logx(weight) - (1.0 / weight) * sum([(kx + α) * logx(kx + α) * nx for (kx, nx) in data.histogram])
+    logx(weight) - (1.0 / weight) * sum(xlogx(x[1] + α) * x[2] for x in eachcol(data.multiplicities))
 end
 
-function jeffrey(data::CountData)
-    return bayes(data, 0.5)
+function jeffrey(data::CountData, K)
+    return bayes(data, 0.5, K)
 end
 
-function laplace(data::CountData)
-    return bayes(data, 1.0)
+function laplace(data::CountData, K)
+    return bayes(data, 1.0, K)
 end
 
-function schurmann_grassberger(data::CountData)
-    return bayes(data, 1.0 / data.K)
+function schurmann_grassberger(data::CountData, K)
+    return bayes(data, 1.0 / K, K)
 end
 
-function minimax(data::CountData)
-    return bayes(data, sqrt(data.N) / data.K)
+function minimax(data::CountData, K)
+    return bayes(data, sqrt(data.N) / K, K)
 end

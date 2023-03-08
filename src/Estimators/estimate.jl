@@ -91,41 +91,29 @@ end
 #     bonachela(data)
 # end
 
-# function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat)
-#     bayes(α, data)
-# end
+function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=data.K)
+    bayes(α, data, K)
+end
 
-# function estimate_h(data::CountData, ::Type{LaPlace})
-#     laplace(data)
-# end
+function estimate_h(data::CountData, ::Type{LaPlace}; K=data.K)
+    laplace(data, K)
+end
 
-# function estimate_h(data::CountData, ::Type{Jeffrey})
-#     jeffrey(data)
-# end
+function estimate_h(data::CountData, ::Type{Jeffrey}; K=data.K)
+    jeffrey(data, K)
+end
 
-# function estimate_h(data::CountData, ::Type{SchurmannGrassberger})
-#     schurmann_grassberger(data)
-# end
+function estimate_h(data::CountData, ::Type{SchurmannGrassberger}; K=data.K)
+    schurmann_grassberger(data, K)
+end
 
-# function estimate_h(data::CountData, ::Type{Minimax})
-#     minimax(data)
-# end
+function estimate_h(data::CountData, ::Type{Minimax}; K=data.K)
+    minimax(data, K)
+end
 
-# function estimate_h(data::CountData, ::Type{Schurmann}, ξ=nothing)
-#     if ξ === nothing
-#         schurmann(data)
-#     else
-#         schurmann(data, ξ)
-#     end
-# end
-
-# function estimate_h(data::CountData, ::Type{SchurmannGeneralised}, xis::AbstractVector)
-#     schurmann_generalised(data, xis)
-# end
-
-# function estimate_h(data::CountData, ::Type{NSB}, K=nothing)
-#     nsb(data, K)
-# end
+function estimate_h(data::CountData, ::Type{NSB}; K=data.K)
+    nsb(data, K)
+end
 
 # # function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
 # #     @warn("not yet finished")
