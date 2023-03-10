@@ -87,9 +87,9 @@ end
 #     shrink(data)
 # end
 #
-# function estimate_h(data::CountData, ::Type{Bonachela})
-#     bonachela(data)
-# end
+function estimate_h(data::CountData, ::Type{Bonachela})
+    bonachela(data)
+end
 
 function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=data.K)
     bayes(α, data, K)

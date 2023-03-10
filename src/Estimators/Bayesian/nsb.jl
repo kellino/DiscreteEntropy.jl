@@ -118,11 +118,17 @@ function nsb(data::CountData, K)
 
     denominator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K), 0, log(K))[1]
 
+    h = numerator / denominator
+    var = quadgk(β -> var1(data, β, data.N + β * K), 0, log(K))[1] - h^2
+    println("var $var")
+    std = sqrt(abs(var))
+    println("std $std")
+
     # ν = data.N + α * K
-    var = quadgk(β -> var1(data, β, data.N + β * K) - var2(data, β, data.N + β * K)^2, 0, log(K))[1]
-    println("variance is $var")
+    # var = quadgk(β -> var1(data, β, data.N + β * K) - var2(data, β, data.N + β * K)^2, 0, log(K))[1]
+    # println("variance is $var")
     # sig = sqrt(var)
     # println("sig is $sig")
 
-    convert(Float64, numerator / denominator)
+    convert(Float64, h)
 end

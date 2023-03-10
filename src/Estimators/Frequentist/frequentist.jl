@@ -236,9 +236,25 @@ end
 
 @doc raw"""
     bonachela(data::CountData)
+
+Return the Bonachela estimator of the Shannon entropy of `data` in nats.
+
+```math
+\hat{H}_{B} = \frac{1}{N+2} \sum_{i=1}^{K} \left( (h_i + 1) \sum_{j=n_i + 2}^{N+2} \frac{1}{j} \right)
+```
+
 """
 function bonachela(data::CountData)::Float64
-    return 1 / data.N * sum([(y + 1) * sum([1 / j for j in y+2:data.N+2]) * mm for (y, mm) in data.histogram])
+    acc = 0.0
+    # 1.0 / (data.N + 2) *
+    for x in eachcol(data.multiplicities)
+        ni = x[1] + 1
+        for j in ni+2:data.N+2
+            ni += 1 / j
+        end
+        acc += ni
+    end
+    1.0 / (data.N + 2) * acc
 end
 
 function shrink(data::CountData)

@@ -1,30 +1,43 @@
-"""
+@doc raw"""
     uncertainty_coefficient(counts::Matrix)
 
-``math
+```math
 C_{XY} = \frac{I(X;Y)}{H(Y)}
-``
+```
 """
 function uncertainty_coefficient(counts::Matrix)
     0.0
 end
 
-"""
-    redundancy(counts::Matrix)
+@doc raw"""
+    redundancy(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
 
-``math
-R = \frac{I(X;Y)}{H(X) + H(Y)}
-``
+Return the estimated information redundancy of `data`, with `K` the sampled support size.
+
+```math
+R = \log(K) - \hat{H}(data)
+```
+
+    redundancy(data::CountData, estimator::Type{T}, K::Int64) where {T<:AbstractEstimator}
+
+Return the estimated information redundancy of `data`, with `K` set by the user.
+
+# External Links
+(https://en.wikipedia.org/wiki/Redundancy_(information_theory))
+
 """
-function redundancy(data::CountData, estimator::Function; k=data.K)
-    0.0
+function redundancy(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
+    log(data.K) - estimate_h(data, estimator)
 end
 
+function redundancy(data::CountData, estimator::Type{T}, K::Int64) where {T<:AbstractEstimator}
+    log(K) - estimate_h(data, estimator)
+end
 
 @doc raw"""
     information_variation(X::CountData, Y::CountData, XY::CountData, H::Function)::Float64
 
-Returns the [Variation of Information](https://en.wikipedia.org/wiki/Variation_of_information). This
+Return the [Variation of Information](https://en.wikipedia.org/wiki/Variation_of_information). This
 satisfies the properties of a metric (triangle inequality, non-negativity, indiscernability and symmetry).
 
 ```math

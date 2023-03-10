@@ -65,6 +65,12 @@ jensen_shannon_distance
 conditional_entropy
 ```
 
+## Other Useful Measures
+```@docs
+redundancy
+uncertainty_coefficient
+```
+
 ## Utilities
 
 ```@docs
