@@ -1,7 +1,6 @@
 using SpecialFunctions: digamma
 using QuadGK
 using Optim: maximizer
-using Distributions: Distribution
 
 # Maximum Likelihood
 
@@ -234,6 +233,8 @@ function zhang(data::CountData)
     ent
 end
 
+# Bonachela
+
 @doc raw"""
     bonachela(data::CountData)
 
@@ -243,21 +244,64 @@ Return the Bonachela estimator of the Shannon entropy of `data` in nats.
 \hat{H}_{B} = \frac{1}{N+2} \sum_{i=1}^{K} \left( (h_i + 1) \sum_{j=n_i + 2}^{N+2} \frac{1}{j} \right)
 ```
 
+# External Links
+[Entropy estimates of small data sets](https://arxiv.org/pdf/0804.4561.pdf)
 """
-function bonachela(data::CountData)::Float64
+function bonachela(data::CountData)
     acc = 0.0
-    # 1.0 / (data.N + 2) *
     for x in eachcol(data.multiplicities)
         ni = x[1] + 1
-        for j in ni+2:data.N+2
+        for j in ni+1:data.N+2
             ni += 1 / j
         end
-        acc += ni
+        acc += ni * x[2]
     end
     1.0 / (data.N + 2) * acc
 end
 
+@doc raw"""
+    shrink(data::CountData)
+
+Return the Shrinkage, or James-Stein estimator of Shannon entropy for `data` in nats.
+
+#Notes
+Based on the implementation in the R package [entropy](https://cran.r-project.org/web/packages/entropy/index.html)
+[Entropy Inference and the James-Stein Estimator](https://www.jmlr.org/papers/volume10/hausser09a/hausser09a.pdf)
+"""
 function shrink(data::CountData)
-    # TODO also known as the James-Stein
-    0.0
+    freqs = lambdashrink(data)
+    mm = [freqs data.multiplicities[2, :]]'
+    cd = CountData(mm, dot(mm[1, :], mm[2, :]), data.K)
+    estimate_h(cd, MaximumLikelihood)
+end
+
+function _lambdashrink(N, u, t)
+    varu = u .* (1 .- u) ./ (N - 1)
+    msp = sum((u .- t) .^ 2)
+
+    if msp == 0
+        return 1
+    else
+        lambda = sum(varu) / msp
+        if lambda > 1
+            return 1
+        elseif lambda < 0
+            return 0
+        else
+            return lambda
+        end
+    end
+end
+
+function lambdashrink(data::CountData)
+    t = 1 / data.K
+    u = data.multiplicities[1, :] ./ data.N
+
+    if data.N == 0 || data.N == 1
+        lambda = 1
+    else
+        lambda = _lambdashrink(data.N, u, t)
+    end
+
+    lambda .* t .+ (1 - lambda) .* u
 end

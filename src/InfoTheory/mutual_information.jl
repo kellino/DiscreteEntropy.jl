@@ -1,12 +1,26 @@
 @doc raw"""
     uncertainty_coefficient(counts::Matrix)
 
-```math
+```math, AbstractBroadcasted
 C_{XY} = \frac{I(X;Y)}{H(Y)}
 ```
+
+# External Links
+[Theil's U](https://en.wikipedia.org/wiki/Uncertainty_coefficient)
 """
-function uncertainty_coefficient(counts::Matrix)
-    0.0
+function uncertainty_coefficient(contingency_matrix::Matrix, estimator::Type{T}; dims=1, symmetric=false) where {T<:AbstractEstimator}
+    hx = estimate_h(from_data(margin(contingency_matrix, 1), Histogram), estimator)
+    hy = estimate_h(from_data(margin(contingency_matrix, 2), Histogram), estimator)
+    ixy = mutual_information(contingency_matrix, estimator)
+    if symmetric
+        return 2.0 * (hx + hy - ixy) / (hx + hy)
+    else
+        if dims == 1
+            return ixy / hx
+        else
+            return ixy / hy
+        end
+    end
 end
 
 @doc raw"""
@@ -23,7 +37,7 @@ R = \log(K) - \hat{H}(data)
 Return the estimated information redundancy of `data`, with `K` set by the user.
 
 # External Links
-(https://en.wikipedia.org/wiki/Redundancy_(information_theory))
+[Redundancy (wikipedia)](https://en.wikipedia.org/wiki/Redundancy_(information_theory))
 
 """
 function redundancy(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
@@ -43,6 +57,13 @@ satisfies the properties of a metric (triangle inequality, non-negativity, indis
 ```math
 VI(X, Y) = 2 H(X, Y) - H(X) - H(Y)
 """
+function information_variation(contingency_matrix::Matrix{T}, estimator::Type{E}) where {T<:Real,E<:AbstractEstimator}
+    2.0 *
+    # estimate_h(from_data(contingency_matrix), Histogram), estimator) -
+    estimate_h(from_data(margin(contingency_matrix, 1), Histogram), estimator) -
+    estimate_h(from_data(margin(contingency_matrix, 2), Histogram), estimator)
+end
+
 function information_variation(X::CountData, Y::CountData, XY::CountData, H::Function)
     return 2.0 * H(XY) - H(X) - H(Y)
 end
@@ -60,6 +81,10 @@ I(X;Y) = H(X) + H(Y) - H(X,Y)
 
 ```
 """
+function mutual_information(contingency_matrix::Matrix, estimator::Type{T}) where {T<:AbstractEstimator}
+    0.0
+end
+
 function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Function)
     return estimator(X) + estimator(Y) - estimator(XY)
 end

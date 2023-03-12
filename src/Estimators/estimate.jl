@@ -83,9 +83,9 @@ function estimate_h(data::CountData, ::Type{Zhang})
     zhang(data)
 end
 
-# function estimate_h(data::CountData, ::Type{Shrink})
-#     shrink(data)
-# end
+function estimate_h(data::CountData, ::Type{Shrink})
+    shrink(data)
+end
 #
 function estimate_h(data::CountData, ::Type{Bonachela})
     bonachela(data)

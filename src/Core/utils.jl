@@ -59,6 +59,6 @@ function update_or_insert!(d::Dict, k, v)
 end
 
 # TODO check the efficiency of vec(), it's probably not the best solution
-function marginal_counts(joint::Matrix, dim)
+function margin(joint::Matrix, dim)
     return vec(sum(joint, dims=dim))
 end
