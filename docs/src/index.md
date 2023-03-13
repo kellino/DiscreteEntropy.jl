@@ -32,6 +32,7 @@ schurmann
 schurmann_generalised
 zhang
 chao_shen
+chao_wang_jost
 bonachela
 shrink
 ```

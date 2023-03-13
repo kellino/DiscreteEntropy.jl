@@ -19,6 +19,7 @@ struct ChaoShen <: NonParameterisedEstimator end
 struct Zhang <: NonParameterisedEstimator end
 struct Bonachela <: NonParameterisedEstimator end
 struct Shrink <: NonParameterisedEstimator end
+struct ChaoWangJost <: NonParameterisedEstimator end
 
 # Frequentist with Parameter(s)
 struct Schurmann <: ParameterisedEstimator end
@@ -86,9 +87,13 @@ end
 function estimate_h(data::CountData, ::Type{Shrink})
     shrink(data)
 end
-#
+
 function estimate_h(data::CountData, ::Type{Bonachela})
     bonachela(data)
+end
+
+function estimate_h(data::CountData, ::Type{ChaoWangJost})
+    chao_wang_jost(data)
 end
 
 function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=data.K)

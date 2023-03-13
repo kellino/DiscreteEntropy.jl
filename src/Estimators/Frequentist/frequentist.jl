@@ -329,3 +329,67 @@ function lambdashrink(data::CountData)
 
     lambda .* t .+ (1 - lambda) .* u
 end
+
+@doc raw"""
+    chao_wang_jost(data::CountData)
+
+Return the Chao Wang Jost Shannon entropy estimate of `data` in nats.
+
+```math
+\hat{H}_{\tiny{CWJ}} = \sum_{1 \leq h_i \leq N-1} \frac{h_i}{N} \left(\sum_{k=h_i}^{N-1} \frac{1}{k} \right) +
+\frac{f_1}{N} (1 - A)^{-N + 1} \left\{ - \log(A) - \sum_{r=1}^{N-1} \frac{1}{r} (1 - A)^r \right\}
+```
+
+with
+
+```math
+A = \begin{cases}
+\frac{2 f_2}{(N-1) f_1 + 2 f_2} \, & \text{if} \, f_2 > 0 \\
+\frac{2}{(N-1)(f_1 - 1) + 1} \, & \text{if} \, f_2 = 0, \; f_1 \neq 0 \\
+1, & \text{if} \, f_1 = f_2 = 0
+\end{cases}
+```
+
+where $f_1$ is the number of singletons and $f_2$ the number of doubletons in `data`.
+
+# Notes
+The algorithm is slightly modified port of that used in the [entropart](https://github.com/EricMarcon/entropart/blob/master/R/Shannon.R) R library.
+
+# External Links
+[Entropy and the species accumulation curve: a novel entropy estimator
+via discovery rates of new species](https://chao.stat.nthu.edu.tw/wordpress/paper/99.pdf)
+"""
+function chao_wang_jost(data::CountData)
+    singles = singletons(data)
+    doubles = doubletons(data)
+
+    if isnothing(singles)
+        f1 = 0
+    else
+        f1 = singles[2]
+    end
+    if isnothing(doubles)
+        f2 = 0
+    else
+        f2 = doubles[2]
+    end
+
+    A =
+        if f2 > 0
+            2 * f2 / ((data.N - 1) * f1 + 2 * f2)
+        else
+            if f1 > 0
+                2 / ((data.N - 1) * (f1 - 1) + 2)
+            else
+                1
+            end
+        end
+
+    cwj = sum(x[1] / data.N * (digamma(data.N) - digamma(x[1])) * x[2] for x in eachcol(data.multiplicities))
+
+    if A != 1
+        p2 = sum(1 / r * (1 - A)^r for r in 1:data.N-1)
+        cwj += f1 / data.N * (1 - A)^(1 - data.N) * (-log(A) - p2)
+    end
+    cwj
+end

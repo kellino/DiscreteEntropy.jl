@@ -6,7 +6,7 @@ using Base: @propagate_inbounds
 export CountVector, SampleVector, XiVector, cvector, svector, xivector
 export Histogram, Samples
 
-export CountData, from_data, from_samples, from_counts
+export CountData, from_data, from_samples, from_counts, singletons, doubletons
 
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
 export MaximumLikelihood, JackknifeML, MillerMadow, Grassberger, Schurmann, SchurmannGeneralised,
@@ -18,7 +18,7 @@ export estimate_h
 
 # estimators
 export maximum_likelihood, miller_madow, grassberger, schurmann, schurmann_generalised,
-    chao_shen, zhang, bonachela, shrink
+    chao_shen, zhang, bonachela, shrink, chao_wang_jost
 # , jackknife_ml, chao_wong_grjost, bub
 
 

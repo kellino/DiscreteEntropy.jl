@@ -23,6 +23,22 @@ Base.:(==)(x::CountData, y::CountData) = Base.:(==)(x.multiplicities, y.multipli
 
 Base.copy(x::CountData) = CountData(x.multiplicities, x.N, x.K)
 
+function find_col(data::CountData, target)
+    for x in eachcol(data.multiplicities)
+        if x[1] == target
+            return x
+        end
+    end
+end
+
+function singletons(data::CountData)
+    find_col(data, 1)
+end
+
+function doubletons(data::CountData)
+    find_col(data, 2)
+end
+
 function coincidences(data::CountData)
     0.0
     # return data.N - sum([kᵢ for (_, kᵢ) in data.histogram])
