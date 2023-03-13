@@ -7,10 +7,15 @@ using Optim: maximizer
 @doc raw"""
     maximum_likelihood(data::CountData)::Float64
 
-Compute the maximum likelihood estimation of Shannon entropy of `data` in nats.
+Return the maximum likelihood estimation of Shannon entropy of `data` in nats.
 
 ```math
-\hat{H}_{ML} = \log(N) - \frac{1}{N} \sum_{i=1}^{K}h_i \log(h_i)
+\hat{H}_{\tiny{ML}} = - \sum_{i=1}^K p_i \log(p_i)
+```
+
+or equivalently
+```math
+\hat{H}_{\tiny{ML}} = \log(N) - \frac{1}{N} \sum_{i=1}^{K}h_i \log(h_i)
 ```
 
 # Examples
@@ -29,19 +34,14 @@ function maximum_likelihood(data::CountData)
     sum(xlogx(x[1]) * x[2] for x in eachcol(data.multiplicities))
 end
 
-function maximum_likelihood(counts::AbstractVector{AbstractFloat})
-    maximum_likelihood(from_counts(counts))
-end
-
-
 # Jackknife MLE
 
 @doc raw"""
     jackknife_ml(data::CountData; corrected=false)::Tuple{AbstractFloat, AbstractFloat}
 
-Returns the *jackknifed* estimate of data and the variance of the jackknifing (not the variance of the estimator itself).
+Return the *jackknifed* estimate of data and the variance of the jackknifing (not the variance of the estimator itself).
 
-If corrected in true, then the variance is scaled with n-1, else it is scaled with n
+If corrected is true, then the variance is scaled with n-1, else it is scaled with n
 
 As found in the [paper](https://academic.oup.com/biomet/article/65/3/625/234287)
 """
@@ -57,11 +57,11 @@ end
 @doc raw"""
     miller_madow(data::CountData)
 
-Returns the maximum likelihood estimation of Shannon entropy, with a positive offset based
+Return the Miller Madow estimation of Shannon entropy, with a positive bias based
 on the total number of samples seen (N) and the support size (K).
 
 ```math
-\hat{H}_{MM} = \hat{H}_{ML} + \frac{K - 1}{2N}
+\hat{H}_{\tiny{MM}} = \hat{H}_{\tiny{ML}} + \frac{K - 1}{2N}
 ```
 """
 function miller_madow(data::CountData)
@@ -74,16 +74,17 @@ end
 @doc raw"""
     grassberger(data::CountData)
 
-Returns the Grassberger estimation of Shannon entropy.
+Return the Grassberger estimation of Shannon entropy of `data` in nats.
 
 ```math
 \hat{H}_G = log(N) - \frac{1}{N} \sum_{i=1}^{K} h_i \; G(h_i)
 ```
-This is essentially the same as ``\hat{H}_{ML}``, but with the logarithm swapped for the scalar function ``G``
+
+This is essentially the same as ``\hat{H}_{\tiny{ML}}``, but with the logarithm swapped for the scalar function ``G``
 
 where
 ```math
-G(h) = \psi(h) + \frac{1}{2}(-1)^h \big( \psi(\frac{h+1}{2} - \psi(\frac{h}{2}))
+G(h) = \psi(h) + \frac{1}{2}(-1)^h \left( \psi(\frac{h+1}{2} - \psi(\frac{h}{2}) ) \right)
 ```
 
 This is the solution to ``G(h) = \psi(h) + (-1)^h \int_0^1 \frac{x^h - 1}{x+1} dx``
@@ -108,14 +109,16 @@ end
 @doc raw"""
     schurmann(data::CountData, ξ::Float64 = ℯ^(-1/2))
 
-[schurmann](https://arxiv.org/pdf/cond-mat/0403192.pdf)
+Return the Schurmann estimate of Shannon entropy of `data` in nats.
 
 ```math
-\hat{H}_{SHU} = \psi(N) - \frac{1}{N} \sum_{i=1}^{K} \, h_i \big( \psi(h_i) + (-1)^{h_i} ∫_0^{\frac{1}{\xi} - 1} \frac{t^{h_i}-1}{1+t}dt \big)
+\hat{H}_{SHU} = \psi(N) - \frac{1}{N} \sum_{i=1}^{K} \, h_i \left( \psi(h_i) + (-1)^{h_i} ∫_0^{\frac{1}{\xi} - 1} \frac{t^{h_i}-1}{1+t}dt \right)
 
 ```
 This is no one ideal value for ``\xi``, however the paper suggests ``e^{(-1/2)} \approx 0.6``
 
+# External Links
+[schurmann](https://arxiv.org/pdf/cond-mat/0403192.pdf)
 """
 function schurmann(data::CountData, ξ::Float64=exp(-1 / 2))
     @assert ξ > 0.0
@@ -136,11 +139,11 @@ end
 [schurmann_generalised](https://arxiv.org/pdf/2111.11175.pdf)
 
 ```math
-\hat{H}_{SHU} = \psi(N) - \frac{1}{N} \sum_{i=1}^{K} \, h_i \big( \psi(h_i) + (-1)^{h_i} ∫_0^{\frac{1}{\xi_i} - 1} \frac{t^{h_i}-1}{1+t}dt \big)
+\hat{H}_{\tiny{SHU}} = \psi(N) - \frac{1}{N} \sum_{i=1}^{K} \, h_i \left( \psi(h_i) + (-1)^{h_i} ∫_0^{\frac{1}{\xi_i} - 1} \frac{t^{h_i}-1}{1+t}dt \right)
 
 ```
 
-Computes the generalised Schurmann entropy estimation, given a countvector *data* and a xivector *xis*, which must both
+Return the generalised Schurmann entropy estimation, given a countvector `data` and a xivector `xis`, which must both
 be the same length.
 
 
@@ -264,8 +267,29 @@ end
 
 Return the Shrinkage, or James-Stein estimator of Shannon entropy for `data` in nats.
 
-#Notes
+```math
+\hat{H}_{\tiny{SHR}} = - \sum_{i=1}^{K} \hat{p}_x^{\tiny{SHR}} \log(\hat{p}_x^{\tiny{SHR}})
+```
+where
+
+```math
+\hat{p}_x^{\tiny{SHR}} = \lambda t_x + (1 - \lambda) \hat{p}_x^{\tiny{ML}}
+```
+
+and
+```math
+\lambda = \frac{ 1 - \sum_{x=1}^{K} (\hat{p}_x^{\tiny{SHR}})^2}{(n-1) \sum_{x=1}^K (t_x - \hat{p}_x^{\tiny{ML}})^2}
+```
+
+with
+```math
+t_x = 1 / K
+```
+
+# Notes
 Based on the implementation in the R package [entropy](https://cran.r-project.org/web/packages/entropy/index.html)
+
+# External Links
 [Entropy Inference and the James-Stein Estimator](https://www.jmlr.org/papers/volume10/hausser09a/hausser09a.pdf)
 """
 function shrink(data::CountData)

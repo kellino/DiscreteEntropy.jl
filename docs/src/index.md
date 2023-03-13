@@ -33,6 +33,7 @@ schurmann_generalised
 zhang
 chao_shen
 bonachela
+shrink
 ```
 
 ## Bayesian Estimators
