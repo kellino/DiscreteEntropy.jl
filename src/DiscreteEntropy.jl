@@ -17,16 +17,16 @@ export MaximumLikelihood, JackknifeML, MillerMadow, Grassberger, Schurmann, Schu
 export estimate_h
 
 # estimators
-export maximum_likelihood, miller_madow, grassberger, schurmann, schurmann_generalised,
+export maximum_likelihood, miller_madow, jackknife_ml, grassberger, schurmann, schurmann_generalised,
     chao_shen, zhang, bonachela, shrink, chao_wang_jost
-# , jackknife_ml, chao_wong_grjost, bub
+# , jackknife_ml, bub
 
 
 export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, ANSB, PYM
 
 # estimators
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb
-# pym
+# pym, cdm
 
 export redundancy, uncertainty_coefficient
 
@@ -49,6 +49,7 @@ include("Estimators/estimate.jl")
 include("Estimators/Frequentist/frequentist.jl")
 include("Estimators/Bayesian/bayesian.jl")
 include("Estimators/Bayesian/nsb.jl")
+include("Estimators/resample.jl")
 
 include("InfoTheory/mutual_information.jl")
 # include("conditional_entropy.jl")

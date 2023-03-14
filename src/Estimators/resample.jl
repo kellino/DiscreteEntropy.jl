@@ -1,22 +1,54 @@
 using Distributions: Dirichlet;
 using Random;
-using StatsBase;
-
+# using StatsBase
 # https://towardsdatascience.com/the-bayesian-bootstrap-6ca4a1d45148
 
-# TODO this need thorough testing!
-function jk(data::CountData)
-    res::Dict{CountData,Int64} = Dict()
-    ks = collect(keys(data.histogram))
-    vs = collect(values(data.histogram))
+function reduce(i, mat::Matrix)
+    d = Dict()
 
-    res[data] = 1
-    for i in 1:length(ks)
-        (d, mm) = reduce(i, ks, vs)
-        res[from_dict(d)] = mm
+    if mat[:, i][2] > 1
+        remainder = mat[:, i][2] - 1
+        # 3
+        for (j, x) in enumerate(eachcol(mat))
+            if j == i
+                update_or_insert!(d, x[1], x[2] - 1)
+            else
+                update_or_insert!(d, x[1], x[2])
+            end
+        end
+        if remainder - mat[:, i][1] != 0
+            update_or_insert!(d, 1, 1)
+        end
+
+    elseif mat[:, i][2] == 1
+        for (j, x) in enumerate(eachcol(mat))
+            if j != i
+                update_or_insert!(d, x[1], x[2])
+            end
+        end
+        # TODO the logic is not correct here!
+        update_or_insert!(d, mat[:, i][1] - 1, 1)
     end
 
-    return res
+    mm = prod(mat[:, i])
+    ks = collect(keys(d))
+    vs = collect(values(d))
+    hist = [ks vs]'
+    cd = CountData(hist, dot(ks, vs), sum(hist[2, :]))
+    return (cd, mm)
+end
+
+function jk(data::CountData)
+    res::Dict{CountData,Int64} = Dict()
+
+    res[data] = 1
+    for (i, _) in enumerate(eachcol(data.multiplicities))
+        (new, count) = reduce(i, data.multiplicities)
+        res[new] = count
+    end
+
+    println(res)
+    res
 end
 
 @doc raw"""
@@ -25,44 +57,23 @@ end
 Compute the jackknifed estimate of *statistic* on data.
 """
 function jackknife(data::CountData, statistic::Function; corrected=false)
-    entropies = [(statistic(c), mm) for (c, mm) in jk(data)]
-    len = sum([mm for (_, mm) in entropies])
+    entropies = ((statistic(c), mm) for (c, mm) in jk(data))
+    len = sum(mm for (_, mm) in entropies)
 
-    μ = 1.0 / len * sum(h * mm for (h, mm) in entropies)
+    μ = 1 / len * sum(h * mm for (h, mm) in entropies)
 
     denom = 0
     if corrected
-        denom = 1.0 / (len - 1)
+        denom = 1 / (len - 1)
     else
-        denom = 1.0 / len
+        denom = 1 / len
     end
 
-    v = denom * sum([(h - μ)^2.0 * mm for (h, mm) in entropies])
+    v = denom * sum([(h - μ)^2 * mm for (h, mm) in entropies])
 
     return μ, v
 
 
-end
-
-function reduce(i, ks, vs)
-    d::Dict{Int64,Int64} = Dict()
-    mm = 1
-    if vs[i] == 1
-        n = ks[i] - 1
-        ks[i] = n
-        for j in 1:length(ks)
-            update_or_insert!(d, ks[j], vs[j])
-        end
-        ks[i] += 1
-    elseif vs[i] > 1
-        mm = vs[i]
-        vs[i] -= 1
-        for j in 1:length(ks)
-            update_or_insert!(d, ks[j], vs[j])
-        end
-        vs[i] = 1
-    end
-    return (d, mm)
 end
 
 # TODO add bootstrap resampling
