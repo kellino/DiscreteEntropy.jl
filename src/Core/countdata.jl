@@ -49,8 +49,11 @@ function ratio(data::CountData)::Float64
     # return coincidences(data) / data.N
 end
 
-function _from_counts(counts::AbstractVector{T}) where {T<:Real}
+function _from_counts(counts::AbstractVector{T}, zeros) where {T<:Real}
     map = countmap(counts)
+    if zeros
+        delete!(map, 0)
+    end
     x1 = collect(keys(map))
     x2 = collect(values(map))
     mm = [x1 x2]
@@ -58,11 +61,11 @@ function _from_counts(counts::AbstractVector{T}) where {T<:Real}
     return CountData(mm', dot(x1, x2), sum(mm[:, 2]))
 end
 
-function from_counts(counts::CountVector)
-    _from_counts(counts.values)
+function from_counts(counts::CountVector, remove_zeros::Bool)
+    _from_counts(counts.values, remove_zeros)
 end
 
-function from_samples(samples::SampleVector)
+function from_samples(samples::SampleVector, remove_zeros::Bool)
     K = length(unique(samples.values))
 
     if K == 1
@@ -72,31 +75,31 @@ function from_samples(samples::SampleVector)
 
     counts = filter(!iszero, fit(Hgm, samples.values, nbins=K).weights)
 
-    _from_counts(counts)
+    _from_counts(counts, remove_zeros)
 end
 
 @doc """
      from_data(data::AbstractVector, ::Type{Samples})
      from_data(data::AbstractVector, ::Type{SampleHistogram})
  """
-function from_data(data::AbstractVector, ::Type{Samples})
-    from_samples(svector(data))
+function from_data(data::AbstractVector, ::Type{Samples}; remove_zeros=true)
+    from_samples(svector(data), remove_zeros)
 end
 
-function from_data(data::AbstractVector, ::Type{Histogram})
-    from_counts(cvector(data))
+function from_data(data::AbstractVector, ::Type{Histogram}; remove_zeros=true)
+    from_counts(cvector(data), remove_zeros)
 end
 
-function from_data(count_matrix::Matrix, ::Type{Histogram})
-    from_counts(cvector(vec(count_matrix)))
+function from_data(count_matrix::Matrix, ::Type{Histogram}; remove_zeros=true)
+    from_counts(cvector(vec(count_matrix)), remove_zeros)
 end
 
 @doc raw"""
     from_samples
 """
-function from_samples(file::String, field)
+function from_samples(file::String, field; remove_zeros=true)
     csv = CSV.File(file)
-    from_samples(csv[field])
+    from_samples(csv[field], remove_zeros)
 end
 
 
