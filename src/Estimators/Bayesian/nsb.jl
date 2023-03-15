@@ -32,6 +32,10 @@ function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64
     end
 
     Δ = coincidences(data)
+    if iszero(Δ)
+        @warn("no coincidences")
+        return NaN
+    end
 
     return (γ - log(2)) + 2 * log(data.N) - digamma(Δ), sqrt(trigamma(Δ))
     # return ((γ / logx(2)) - 1 + 2 * logx(data.N) - digamma(Δ), sqrt(Δ))
@@ -125,4 +129,29 @@ function nsb(data::CountData, K)
     h = numerator / denominator
 
     convert(Float64, h)
+end
+
+function guess_k(data::CountData, eps=1.e-5)
+    # adapted from guess_alphabet_size()
+    # https://github.com/simomarsili/ndd/blob/master/ndd/estimators.py
+    multiplier = 10
+    dk = log(multiplier)
+    k1 = convert(Integer, sum(data.multiplicities[2, :]))
+    h0 = nsb(data, k1)
+    hasym = ansb(data)[1]
+
+    for _ in 1:40
+        k1 = round(k1 * multiplier)
+        h1 = nsb(data, k1)
+        dh = (h1 - h0) / dk
+        if dh < eps
+            break
+        end
+        if !(isnan(hasym)) && h1 >= hasym
+            return
+        end
+        h0 = h1
+    end
+
+    return convert(Integer, round(k1 / sqrt(multiplier)))
 end
