@@ -124,3 +124,7 @@ function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
     @warn("not yet finished")
     0.0
 end
+
+function estimate_h(data::CountData, ::Type{ANSB})
+    ansb(data)
+end

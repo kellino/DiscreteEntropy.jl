@@ -40,13 +40,12 @@ function doubletons(data::CountData)
 end
 
 function coincidences(data::CountData)
-    0.0
-    # return data.N - sum([kᵢ for (_, kᵢ) in data.histogram])
+    # TODO assumes that K doesn't contain zeros
+    data.N - data.K
 end
 
 function ratio(data::CountData)::Float64
-    0.0
-    # return coincidences(data) / data.N
+    coincidences(data) / data.N
 end
 
 function _from_counts(counts::AbstractVector{T}, zeros) where {T<:Real}
@@ -109,6 +108,7 @@ function pmf(histogram::CountVector, x)
 end
 
 function to_csv_string(data::CountData)::String
+    # TODO check this still works
     dict = []
     for x in eachcol(data.multiplicities)
         push!(dict, x[1], x[2])
