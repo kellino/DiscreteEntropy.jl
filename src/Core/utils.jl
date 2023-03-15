@@ -1,5 +1,7 @@
 using SpecialFunctions: loggamma
 
+@enum Axis X = 2 Y = 1
+
 @doc raw"""
     logx(x)::Float64
 Returns natural logarithm of x, or 0.0 if x is zero
@@ -58,7 +60,21 @@ function update_or_insert!(d::Dict, k, v)
     end
 end
 
-# TODO check the efficiency of vec(), it's probably not the best solution
-function margin(joint::Matrix, dim)
-    return vec(sum(joint, dims=dim))
+@doc raw"""
+    marginal_counts(contingency_matrix::Matrix, dim)
+
+Return the *unnormalised* marginal counts of `contingency_matrix` along dimension `dim`.
+
+"""
+function marginal_counts(joint::Matrix, dim)
+    if dim == 1
+        return [sum(x) for x in eachrow(joint)]
+    end
+
+    if dim != 2
+        @warn("unexpected dimension, returning dim=2")
+    end
+
+    return [sum(x) for x in eachcol(joint)]
+
 end

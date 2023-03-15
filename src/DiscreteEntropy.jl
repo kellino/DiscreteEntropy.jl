@@ -3,6 +3,7 @@ module DiscreteEntropy
 import Base: length, size, sum, show
 using Base: @propagate_inbounds
 
+export Axis, X, Y
 export CountVector, SampleVector, XiVector, cvector, svector, xivector
 export Histogram, Samples
 

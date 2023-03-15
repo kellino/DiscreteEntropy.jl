@@ -87,6 +87,10 @@ function from_data(data::AbstractVector, ::Type{Histogram})
     from_counts(cvector(data))
 end
 
+function from_data(count_matrix::Matrix, ::Type{Histogram})
+    from_counts(cvector(vec(count_matrix)))
+end
+
 @doc raw"""
     from_samples
 """

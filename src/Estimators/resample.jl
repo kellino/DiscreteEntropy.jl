@@ -1,6 +1,7 @@
 using Distributions: Dirichlet;
 using Random;
-# using StatsBase
+using StatsBase: weights, sample, Weights, mean, var
+
 # https://towardsdatascience.com/the-bayesian-bootstrap-6ca4a1d45148
 
 function reduce(i, mat::Matrix)

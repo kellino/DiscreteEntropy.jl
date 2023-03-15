@@ -1,21 +1,24 @@
 @doc raw"""
     uncertainty_coefficient(counts::Matrix)
 
-```math, AbstractBroadcasted
+Return the uncertainty coefficient, or *Thiel's U* of `counts`.
+
+```math
 C_{XY} = \frac{I(X;Y)}{H(Y)}
 ```
 
 # External Links
 [Theil's U](https://en.wikipedia.org/wiki/Uncertainty_coefficient)
 """
-function uncertainty_coefficient(contingency_matrix::Matrix, estimator::Type{T}; dims=1, symmetric=false) where {T<:AbstractEstimator}
-    hx = estimate_h(from_data(margin(contingency_matrix, 1), Histogram), estimator)
-    hy = estimate_h(from_data(margin(contingency_matrix, 2), Histogram), estimator)
+function uncertainty_coefficient(contingency_matrix::Matrix, estimator::Type{T}; dim=Axis, symmetric=false) where {T<:AbstractEstimator}
+    hx = estimate_h(from_data(marginal_counts(contingency_matrix, 2), Histogram), estimator)
+    hy = estimate_h(from_data(marginal_counts(contingency_matrix, 1), Histogram), estimator)
     ixy = mutual_information(contingency_matrix, estimator)
+
     if symmetric
         return 2.0 * (hx + hy - ixy) / (hx + hy)
     else
-        if dims == 1
+        if dim == X
             return ixy / hx
         else
             return ixy / hy
@@ -60,8 +63,8 @@ VI(X, Y) = 2 H(X, Y) - H(X) - H(Y)
 function information_variation(contingency_matrix::Matrix{T}, estimator::Type{E}) where {T<:Real,E<:AbstractEstimator}
     2.0 *
     # estimate_h(from_data(contingency_matrix), Histogram), estimator) -
-    estimate_h(from_data(margin(contingency_matrix, 1), Histogram), estimator) -
-    estimate_h(from_data(margin(contingency_matrix, 2), Histogram), estimator)
+    estimate_h(from_data(marginal_counts(contingency_matrix, 1), Histogram), estimator) -
+    estimate_h(from_data(marginal_counts(contingency_matrix, 2), Histogram), estimator)
 end
 
 function information_variation(X::CountData, Y::CountData, XY::CountData, H::Function)
@@ -82,7 +85,11 @@ I(X;Y) = H(X) + H(Y) - H(X,Y)
 ```
 """
 function mutual_information(contingency_matrix::Matrix, estimator::Type{T}) where {T<:AbstractEstimator}
-    0.0
+    hx = estimate_h(from_data(marginal_counts(contingency_matrix, 2), Histogram), estimator)
+    hy = estimate_h(from_data(marginal_counts(contingency_matrix, 1), Histogram), estimator)
+    hxy = estimate_h(from_data(contingency_matrix, Histogram), estimator)
+
+    hx + hy - hxy
 end
 
 function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Function)
