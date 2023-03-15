@@ -1,10 +1,17 @@
 @doc raw"""
-    uncertainty_coefficient(counts::Matrix)
+    uncertainty_coefficient(counts::Matrix, estimator::Type{T}; dim=Axis, symmetric=false) where {T<:AbstractEstimator}
 
-Return the uncertainty coefficient, or *Thiel's U* of `counts`.
+Return the estimated uncertainty coefficient, or *Thiel's U* of `counts`, using estimator `estimator` along axis `dim`.
 
 ```math
-C_{XY} = \frac{I(X;Y)}{H(Y)}
+C_X = \frac{I(X;Y)}{H(X)}
+```
+
+Return the symmetrical uncertainty coefficient if `symmetric` is `true`.
+Do not set a value for `dim` is using `symmetric`: it will be ignored.
+
+```math
+2 \left(\frac{H(X) + H(Y) - I(X;Y)}{H(X) + H(Y)}\right)
 ```
 
 # External Links
