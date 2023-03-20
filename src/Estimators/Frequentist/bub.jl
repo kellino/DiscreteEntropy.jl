@@ -72,7 +72,6 @@ function under(data::CountData, upper_bound)
         return (h, m)
     end
 
-
     h
 end
 
