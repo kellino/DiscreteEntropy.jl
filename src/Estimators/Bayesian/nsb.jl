@@ -8,17 +8,22 @@ using Roots: find_zero
 @doc raw"""
     ansb(data::CountData; undersampled::Float64=0.1)::Float64
 
-```math
-\hat{H}_{ANSB} = \frac{C_\gamma}{\ln(2)} - 1 + 2 \ln(N) - \psi_0(\Delta)
-```
-where $C_\gamma$ is Euler's Gamma Constant $\approx 0.57721...$, $\psi_0$ is the digamma function and
-$\Delta$ the number of coincidences in the data.
+Return the Asymptotic NSB estimation of the Shannon entropy of `data` in nats.
 
-Returns the [Asymptotic NSB estimator](https://arxiv.org/pdf/physics/0306063.pdf) (equations 11 and 12)
+See [Asymptotic NSB estimator](https://arxiv.org/pdf/physics/0306063.pdf) (equations 11 and 12)
+
+```math
+\hat{H}_{\tiny{ANSB}} = (C_\gamma - \log(2)) + 2 \log(N) - \psi(\Delta)
+```
+
+where $C_\gamma$ is Euler's Gamma ($\approx 0.57721...$), $\psi_0$ is the digamma function and
+$\Delta$ the number of coincidences in the data.
 
 This is designed for the extremely undersampled regime (K ~ N) and diverges with N when well-sampled. ANSB requires
 that ``N/K → 0``, which we set to be ``N/K < 0.1`` by default
 
+# External Links
+[Asymptotic NSB estimator](https://arxiv.org/pdf/physics/0306063.pdf) (equations 11 and 12)
 """
 function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64}
     rd = ratio(data)
@@ -27,8 +32,13 @@ function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64
     end
 
     Δ = coincidences(data)
+    if iszero(Δ)
+        @warn("no coincidences")
+        return NaN
+    end
 
-    return ((γ / logx(2)) - 1 + 2 * logx(data.N) - digamma(Δ), sqrt(Δ))
+    return (γ - log(2)) + 2 * log(data.N) - digamma(Δ), sqrt(trigamma(Δ))
+    # return ((γ / logx(2)) - 1 + 2 * logx(data.N) - digamma(Δ), sqrt(Δ))
 end
 
 function var1(data::CountData, α, ν)
@@ -112,23 +122,36 @@ where
 function nsb(data::CountData, K)
     l0 = find_l0(K, data)
 
-    # in addition to rearranging equation 8 to avoid over/underflow, it's also
-    # helpful to wrap \beta in a "big" to handle the exponential correctly
     numerator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K) * bayes(data, β, K), 0, log(K))[1]
 
     denominator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K), 0, log(K))[1]
 
     h = numerator / denominator
-    var = quadgk(β -> var1(data, β, data.N + β * K), 0, log(K))[1] - h^2
-    println("var $var")
-    std = sqrt(abs(var))
-    println("std $std")
-
-    # ν = data.N + α * K
-    # var = quadgk(β -> var1(data, β, data.N + β * K) - var2(data, β, data.N + β * K)^2, 0, log(K))[1]
-    # println("variance is $var")
-    # sig = sqrt(var)
-    # println("sig is $sig")
 
     convert(Float64, h)
+end
+
+function guess_k(data::CountData, eps=1.e-5)
+    # adapted from guess_alphabet_size()
+    # https://github.com/simomarsili/ndd/blob/master/ndd/estimators.py
+    multiplier = 10
+    dk = log(multiplier)
+    k1 = convert(Integer, sum(data.multiplicities[2, :]))
+    h0 = nsb(data, k1)
+    hasym = ansb(data)[1]
+
+    for _ in 1:40
+        k1 = round(k1 * multiplier)
+        h1 = nsb(data, k1)
+        dh = (h1 - h0) / dk
+        if dh < eps
+            break
+        end
+        if !(isnan(hasym)) && h1 >= hasym
+            return
+        end
+        h0 = h1
+    end
+
+    return convert(Integer, round(k1 / sqrt(multiplier)))
 end

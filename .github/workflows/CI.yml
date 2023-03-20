@@ -18,7 +18,12 @@ jobs:
       fail-fast: false
       matrix:
         version:
+<<<<<<< HEAD
         #  - '1.0'
+||||||| b8ef801
+          - '1.0'
+=======
+>>>>>>> dev
           - '1.8'
           - 'nightly'
         os:

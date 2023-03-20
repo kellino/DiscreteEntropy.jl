@@ -23,6 +23,7 @@ struct ChaoWangJost <: NonParameterisedEstimator end
 
 # Frequentist with Parameter(s)
 struct Schurmann <: ParameterisedEstimator end
+struct BUB <: ParameterisedEstimator end
 struct SchurmannGeneralised <: ParameterisedEstimator end
 
 # Bayesian with Parameter(s)
@@ -96,6 +97,10 @@ function estimate_h(data::CountData, ::Type{ChaoWangJost})
     chao_wang_jost(data)
 end
 
+function estimate_h(data::CountData, ::Type{BUB})
+    bub(data)
+end
+
 function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=data.K)
     bayes(α, data, K)
 end
@@ -116,11 +121,23 @@ function estimate_h(data::CountData, ::Type{Minimax}; K=data.K)
     minimax(data, K)
 end
 
-function estimate_h(data::CountData, ::Type{NSB}; K=data.K)
+function estimate_h(data::CountData, ::Type{NSB}; K=data.K, guess=false)
+    if guess
+        gk = guess_k(data)
+        return nsb(data, gk)
+    end
     nsb(data, K)
 end
+
+# function estimate_h(data::CountData, ::Type{NSB}; K=)
+#     nsb(data, guess_k(data))
+# end
 
 function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
     @warn("not yet finished")
     0.0
+end
+
+function estimate_h(data::CountData, ::Type{ANSB})
+    ansb(data)
 end

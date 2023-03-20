@@ -103,6 +103,7 @@ function grassberger(counts::AbstractVector{Int64})
     grassberger(from_counts(counts))
 end
 
+# Schurmann Estimator
 
 @doc raw"""
     schurmann(data::CountData, ξ::Float64 = ℯ^(-1/2))
@@ -172,6 +173,8 @@ function schurmann_generalised(data::CountVector, xis::T, scalar::Bool=false) wh
     schurmann_generalised(data, xi_vec)
 end
 
+# Chao Shen Estimator
+
 @doc raw"""
     chao_shen(data::CountData)
 
@@ -201,9 +204,11 @@ function chao_shen(data::CountData)
 
     C = 1 - f1 / data.N # estimated coverage
 
+    # TODO this might suffers from under/overflow when data.N is large
     -sum(xlogx(C * x[1] / data.N) / (1 - (1 - (x[1] / data.N) * C)^data.N) * x[2] for x in eachcol(data.multiplicities))
 end
 
+# Zhang Estimator
 
 @doc raw"""
     zhang(data::CountData)
@@ -234,7 +239,7 @@ function zhang(data::CountData)
     ent
 end
 
-# Bonachela
+# Bonachela Estimator
 
 @doc raw"""
     bonachela(data::CountData)
@@ -259,6 +264,8 @@ function bonachela(data::CountData)
     end
     1.0 / (data.N + 2) * acc
 end
+
+# Shrink / James-Stein Estimator
 
 @doc raw"""
     shrink(data::CountData)
@@ -327,6 +334,8 @@ function lambdashrink(data::CountData)
 
     lambda .* t .+ (1 - lambda) .* u
 end
+
+# Chao Wang Jost Estimator
 
 @doc raw"""
     chao_wang_jost(data::CountData)
