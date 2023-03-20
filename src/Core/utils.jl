@@ -78,3 +78,7 @@ function marginal_counts(joint::Matrix, dim)
     return [sum(x) for x in eachcol(joint)]
 
 end
+
+function logspace(start::Float64, stop::Float64, steps::Int64)::Vector{Float64}
+    return 10 .^ range(start, stop, length=steps)
+end

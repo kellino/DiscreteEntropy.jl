@@ -3,18 +3,16 @@ using LinearAlgebra: I, dot
 # A Julia port of the original code found on
 # Liam Paninski's [homepage](ht, upperboundtps://www.stat.columbia.edu/~liam/research/code/BUBfunc.m)
 
-function bub(data::CountData; upper_bound=false)
+function bub(data::CountData; upper_bound=false, k_max=11)
     if data.N < 20.0
         return under(data, upper_bound)
     else
-        return over(data, upper_bound)
+        return over(data, upper_bound, k_max)
     end
 end
 
 function under_ub(N, K, a, mesh)
     p, P = get_mesh(N, mesh)
-
-
     Pn = [dot(a, x) for x in eachcol(P)]
 
     maxbias = K * maximum(Pn .+ log.(p .^ p))
@@ -78,5 +76,20 @@ function under(data::CountData, upper_bound)
     h
 end
 
-function over(data::CountData, upper_bound)
+function over(data::CountData, upper_bound, k_max)
+    N = convert(Integer, data.N)
+
+    if k_max > N
+        k_max = N - 1
+    end
+
+    c = 80
+    c = ceil(min(N, c * maximum(N / data.K, 1)))
+    s = 30
+    mesh = 200
+    eps = (N^-1) * 10^-10
+    Ni = loggamma(N + 1) .- loggamma.(1:c+1) .- loggamma.(N + 1 .- (0:c))
+
+    p = logspace(log(1e-4 / N, 10), log(minimum(1, s / N) - eps, 10), mesh)
+    p
 end
