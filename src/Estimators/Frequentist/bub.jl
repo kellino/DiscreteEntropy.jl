@@ -1,7 +1,7 @@
 using LinearAlgebra: I, dot
 
 # A Julia port of the original code found on
-# Liam Paninski's [homepage](ht, upperboundtps://www.stat.columbia.edu/~liam/research/code/BUBfunc.m)
+# Liam Paninski's [homepage](https://www.stat.columbia.edu/~liam/research/code/BUBfunc.m)
 
 function bub(data::CountData; upper_bound=false, k_max=11)
     if data.N < 20.0
