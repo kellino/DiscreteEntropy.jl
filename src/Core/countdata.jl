@@ -40,7 +40,6 @@ function doubletons(data::CountData)
 end
 
 function coincidences(data::CountData)
-    # TODO assumes that K doesn't contain zeros
     data.N - data.K
 end
 

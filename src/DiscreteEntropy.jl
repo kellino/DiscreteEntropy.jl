@@ -11,7 +11,7 @@ export CountData, from_data, from_samples, from_counts, singletons, doubletons
 
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
 export MaximumLikelihood, JackknifeML, MillerMadow, Grassberger, Schurmann, SchurmannGeneralised,
-    ChaoShen, Zhang, Bonachela, Shrink, BUB
+    ChaoShen, Zhang, Bonachela, Shrink, BUB, ChaoWangJost
 
 
 # convenience function to create a unified interface
@@ -32,7 +32,7 @@ export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb
 export redundancy, uncertainty_coefficient
 
 # Other Discrete Entropy measures, metrics and calculations
-# export mutual_information
+export mutual_information, uncertainty_coefficient
 # export conditional_entropy
 # export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
 

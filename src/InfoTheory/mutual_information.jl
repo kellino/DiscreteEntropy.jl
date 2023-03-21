@@ -33,6 +33,11 @@ function uncertainty_coefficient(contingency_matrix::Matrix, estimator::Type{T};
     end
 end
 
+function uncertainty_coefficient(X::CountData, Y::CountData, XY::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
+    hp = estimate_h(P, estimator)
+    hxy = mutual_information(X, Y, XY, estimator)
+end
+
 @doc raw"""
     redundancy(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
 
@@ -99,10 +104,6 @@ function mutual_information(contingency_matrix::Matrix, estimator::Type{T}) wher
     hx + hy - hxy
 end
 
-function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Function)
-    return estimator(X) + estimator(Y) - estimator(XY)
-end
-
 function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Type{T}) where {T<:NonParameterisedEstimator}
     estimate_h(X, estimator) + estimate_h(Y, estimator) - estimate_h(XY, estimator)
 end
@@ -119,13 +120,3 @@ function mutual_information(X::CountData, Y::CountData, XY::CountData,
     e1::Type{A}, e2::Type{B}, e3::Type{C}) where {A,B,C<:NonParameterisedEstimator}
     estimate_h(X, e1) + estimate_h(Y, e2) - estimate_h(XY, e3)
 end
-
-
-
-# function mutual_information(counts::Matrix, args...)::Float64
-#     X = from_counts(marginal_counts(counts, 1))
-#     Y = from_counts(marginal_counts(counts, 2))
-#     XY = from_counts([1, 2, 3]) # TODO need to implement this
-
-#     return mutual_information(X, Y, XY, args...)
-# end

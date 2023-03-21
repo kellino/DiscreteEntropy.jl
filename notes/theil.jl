@@ -11,57 +11,82 @@ begin
 	Pkg.instantiate()
 	using Distributions
 	using DiscreteEntropy
+	using Plots
+	using Random
 end
 
-# ╔═╡ 67cf7a89-2ec5-4eff-ba61-68ad43b40fd7
-begin
-	raw = rand(Uniform(), 3, 3)
-	gt = raw ./ sum(raw)
+# ╔═╡ ccd66770-34fb-4065-9501-41f5bf6206ff
+Random.seed!(42)
+
+# ╔═╡ b03a1272-0fdf-4055-a95f-28b4723fccd3
+function true_thiel(contingency_matrix)
+	X = [sum(x) for x in eachcol(contingency_matrix)]
+	mutual_information(contingency_matrix, MaximumLikelihood) / maximum_likelihood(from_data(X, Histogram))
 end
 
-# ╔═╡ 84d1992e-7889-4e3a-8183-7a195c33425c
-sum(gt)
-
-# ╔═╡ 9dfe66f1-0c8a-40ed-b5ac-08c28214d35b
-dist = Categorical(vec(gt))
-
-# ╔═╡ 3eb2496c-8fb5-4c37-bf0f-40451b5186ca
-entropy(dist)
-
-# ╔═╡ 1ecb77d8-8ea5-41b0-b2b7-49eca1533b6a
-function marginals(mm, i)
-	i2s = CartesianIndices(mm)
-	@inbounds i2s[i].I
+# ╔═╡ fedaf719-d206-410a-b9b6-a9d147a1caa2
+function to_contingency_matrix(samples, size)
+	mat = zeros(size)
+	for s in samples
+		@inbounds mat[s] += 1
+	end
+	mat
 end
 
 # ╔═╡ b11aab1e-5481-49e4-820a-d3d1829a3cd6
-function ent(d, estimator::Type{T}) where {T<:AbstractEstimator}
-	out = []
-	for i in 10:10:1000
-		push!(out, estimate_h(from_data(rand(d, i), Samples), estimator))
+function theil_est(d, size, estimator::Type{T}, step, lim) where {T<:AbstractEstimator}
+	out = zeros(floor(Int, lim/step))
+	Threads.@threads for i in 10:step:lim
+		samples = rand(d, i)
+		ctm = to_contingency_matrix(samples, size)
+		out[floor(Int, i / step)] = uncertainty_coefficient(ctm, estimator)
 	end
 	out
 end	
 
-# ╔═╡ 364f5ad3-718d-42c1-aa4a-75f1a9a47b9f
-ests = ent(dist, MaximumLikelihood)
+# ╔═╡ 18b4206a-b316-4b94-a4de-11dfe8a7e161
+function run(step, lim, estimator)
+	sz = rand(2:1000, 2)
+	raw = rand(Uniform(), sz[1], sz[2])
+	P = raw ./ sum(raw)
+	dist = Categorical(vec(P))
+	truth = true_thiel(P)
+	ests = theil_est(dist, size(P), estimator, step, lim)
+	truth .- ests
+end
 
-# ╔═╡ 6148fbac-79c4-4646-95b7-20d7dfa060a0
-maximum(ests)
+# ╔═╡ bb5846a3-0104-4377-83f1-c083c4a3807d
+plot(run(10, 100000, ChaoShen), label="Chao Shen", xlabel="samples", ylabel="bias")
 
-# ╔═╡ 6e633852-cf91-4301-b220-6451cd7334f9
-md"""
-now we have to figure out how to get the marginals from the counts
-"""
+# ╔═╡ 996aaa02-2016-493d-b60d-92b458d2dc58
+plot(run(10, 10_0000, Schurmann), label="Schurmann", xlabel="samples", ylabel="bias")
+
+# ╔═╡ 874262bb-84bc-40c9-a553-ce031bb47baf
+plot(run(10, 10_0000, Zhang), label="Zhang", xlabel="samples", ylabel="bias")
+
+# ╔═╡ 5f9584ce-0496-4c8c-83de-57651e123234
+plot(run(10, 10_0000, Bonachela), label="Bonachela", xlabel="samples", ylabel="bias")
+
+# ╔═╡ 74fb4d41-9faa-4317-9d40-6002ae0d8bfc
+plot(run(10, 10_0000, MillerMadow), label="MillerMadow", xlabel="samples", ylabel="bias")
+
+# ╔═╡ b0540708-1c20-41bb-ae47-c93661bb8ed4
+plot(run(10, 10_0000, ChaoWangJost), label="ChaoWangJost", xlabel="samples", ylabel="bias")
+
+# ╔═╡ 19d88f27-2e16-43d8-b0c5-0800c22c1525
+plot(run(10, 10_0000, MaximumLikelihood), label="MaximumLikelihood", xlabel="samples", ylabel="bias")
 
 # ╔═╡ Cell order:
 # ╠═d2c5f75e-c732-11ed-2d67-933a47e47531
-# ╠═67cf7a89-2ec5-4eff-ba61-68ad43b40fd7
-# ╠═84d1992e-7889-4e3a-8183-7a195c33425c
-# ╠═9dfe66f1-0c8a-40ed-b5ac-08c28214d35b
-# ╠═3eb2496c-8fb5-4c37-bf0f-40451b5186ca
-# ╠═1ecb77d8-8ea5-41b0-b2b7-49eca1533b6a
+# ╠═ccd66770-34fb-4065-9501-41f5bf6206ff
+# ╠═b03a1272-0fdf-4055-a95f-28b4723fccd3
+# ╠═fedaf719-d206-410a-b9b6-a9d147a1caa2
 # ╠═b11aab1e-5481-49e4-820a-d3d1829a3cd6
-# ╠═364f5ad3-718d-42c1-aa4a-75f1a9a47b9f
-# ╠═6148fbac-79c4-4646-95b7-20d7dfa060a0
-# ╟─6e633852-cf91-4301-b220-6451cd7334f9
+# ╠═18b4206a-b316-4b94-a4de-11dfe8a7e161
+# ╠═bb5846a3-0104-4377-83f1-c083c4a3807d
+# ╠═996aaa02-2016-493d-b60d-92b458d2dc58
+# ╠═874262bb-84bc-40c9-a553-ce031bb47baf
+# ╠═5f9584ce-0496-4c8c-83de-57651e123234
+# ╠═74fb4d41-9faa-4317-9d40-6002ae0d8bfc
+# ╠═b0540708-1c20-41bb-ae47-c93661bb8ed4
+# ╠═19d88f27-2e16-43d8-b0c5-0800c22c1525
