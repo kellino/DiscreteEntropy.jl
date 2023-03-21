@@ -20,8 +20,6 @@ export estimate_h
 # estimators
 export maximum_likelihood, miller_madow, jackknife_ml, grassberger, schurmann, schurmann_generalised,
     chao_shen, zhang, bonachela, shrink, chao_wang_jost, bub
-# bub
-
 
 export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, ANSB, PYM
 
@@ -29,10 +27,9 @@ export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, ANSB, PYM
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb
 # pym, cdm
 
-export redundancy, uncertainty_coefficient
-
 # Other Discrete Entropy measures, metrics and calculations
-export mutual_information, uncertainty_coefficient
+export mutual_information, uncertainty_coefficient, redundancy
+
 # export conditional_entropy
 # export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
 
@@ -56,8 +53,6 @@ include("Estimators/resample.jl")
 include("InfoTheory/mutual_information.jl")
 # include("conditional_entropy.jl")
 # include("divergence.jl")
-# include("Bayesian/bayesian.jl")
-# include("Bayesian/nsb.jl")
 # include("Bayesian/pym.jl")
 
 end
