@@ -25,11 +25,11 @@ that ``N/K → 0``, which we set to be ``N/K < 0.1`` by default
 # External Links
 [Asymptotic NSB estimator](https://arxiv.org/pdf/physics/0306063.pdf) (equations 11 and 12)
 """
-function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64}
-    rd = ratio(data)
-    if rd > undersampled
-        @warn("data is not sufficiently undersampled $rd, so calculation may diverge...")
-    end
+function ansb(data::CountData; undersampled::Float64=0.1, std_dev=false)
+    # rd = ratio(data)
+    # if rd > undersampled
+    #     @warn("data is not sufficiently undersampled $rd, so calculation may diverge...")
+    # end
 
     Δ = coincidences(data)
     if iszero(Δ)
@@ -37,8 +37,11 @@ function ansb(data::CountData; undersampled::Float64=0.1)::Tuple{Float64,Float64
         return NaN
     end
 
-    return (γ - log(2)) + 2 * log(data.N) - digamma(Δ), sqrt(trigamma(Δ))
-    # return ((γ / logx(2)) - 1 + 2 * logx(data.N) - digamma(Δ), sqrt(Δ))
+    if std_dev
+        return (γ - log(2)) + 2 * log(data.N) - digamma(Δ), sqrt(trigamma(Δ))
+    else
+        return (γ - log(2)) + 2 * log(data.N) - digamma(Δ)
+    end
 end
 
 function var1(data::CountData, α, ν)

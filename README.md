@@ -9,12 +9,13 @@ A collection of discrete entropy estimators and other information theoretic tool
 # Priority TODO
 + finish pym
 + finish bub
-+ fix jackknife
++ finish jackknife
 + nsb variance
 
 # TODO
 + tests
 + bootstrap (not a priority)
++ unseen
 + cdm
 
 # Docs

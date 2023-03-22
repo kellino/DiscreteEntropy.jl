@@ -3,7 +3,7 @@ module DiscreteEntropy
 import Base: length, size, sum, show
 using Base: @propagate_inbounds
 
-export Axis, X, Y
+export Axis
 export CountVector, SampleVector, XiVector, cvector, svector, xivector
 export Histogram, Samples
 
@@ -53,6 +53,5 @@ include("Estimators/resample.jl")
 include("InfoTheory/mutual_information.jl")
 # include("conditional_entropy.jl")
 # include("divergence.jl")
-# include("Bayesian/pym.jl")
 
 end
