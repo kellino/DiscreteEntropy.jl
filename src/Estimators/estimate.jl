@@ -31,6 +31,7 @@ struct Bayes <: ParameterisedEstimator end
 struct NSB <: ParameterisedEstimator end
 struct PYM <: ParameterisedEstimator end
 
+struct AutoNSB <: NonParameterisedEstimator end
 struct ANSB <: NonParameterisedEstimator end
 struct Jeffrey <: NonParameterisedEstimator end
 struct LaPlace <: NonParameterisedEstimator end
@@ -121,17 +122,13 @@ function estimate_h(data::CountData, ::Type{Minimax}; K=data.K)
     minimax(data, K)
 end
 
-function estimate_h(data::CountData, ::Type{NSB}; K=data.K, guess=false)
-    if guess
-        gk = guess_k(data)
-        return nsb(data, gk)
-    end
-    nsb(data, K)
+function estimate_h(data::CountData, ::Type{NSB}, k)
+    nsb(data, k)
 end
 
-# function estimate_h(data::CountData, ::Type{NSB}; K=)
-#     nsb(data, guess_k(data))
-# end
+function estimate_h(data::CountData, ::Type{AutoNSB})
+    nsb(data, guess_k(data))
+end
 
 function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
     @warn("not yet finished")
