@@ -155,7 +155,7 @@ function guess_k(data::CountData, eps=1.e-5)
             break
         end
         if !(isnan(hasym)) && h1 >= hasym
-            return
+            return hasym
         end
         h0 = h1
     end

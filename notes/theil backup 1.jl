@@ -132,6 +132,7 @@ plot_theil(10, 100, 1000, AutoNSB)
 # ╠═1338b59c-06ed-4909-8ae4-b49288096c19
 # ╠═74bcc9c4-227a-44f3-bcc7-10851d79964c
 # ╠═0908a4f7-5e52-437a-97c7-9ff269174b65
+# ╠═4d28c900-3a1e-4c66-a9a6-78dc4700e5d7
 # ╠═64101851-9fab-4fa6-becc-97d4edbc4a49
 # ╠═be48eab1-afb8-411e-b127-164ecf40fb81
 # ╠═ae593aa5-e9ac-4690-b22e-70bb7ebfab1e

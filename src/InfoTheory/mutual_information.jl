@@ -20,22 +20,19 @@ Do not set a value for `dim` is using `symmetric`: it will be ignored.
 function uncertainty_coefficient(contingency_matrix::Matrix, estimator::Type{T}; dim=Axis, symmetric=false) where {T<:AbstractEstimator}
     hx = estimate_h(from_data(marginal_counts(contingency_matrix, 2), Histogram), estimator)
     hy = estimate_h(from_data(marginal_counts(contingency_matrix, 1), Histogram), estimator)
-    ixy = mutual_information(contingency_matrix, estimator)
+    hxy = estimate_h(from_data(contingency_matrix, Histogram), estimator)
+
+    mi = hx + hy - hxy
 
     if symmetric
-        return 2.0 * (hx + hy - ixy) / (hx + hy)
+        return 2.0 * (hx + hy - mi) / (hx + hy)
     else
         if dim == X
-            return ixy / hx
+            return mi / hx
         else
-            return ixy / hy
+            return mi / hy
         end
     end
-end
-
-function uncertainty_coefficient(X::CountData, Y::CountData, XY::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
-    hp = estimate_h(P, estimator)
-    hxy = mutual_information(X, Y, XY, estimator)
 end
 
 @doc raw"""
@@ -52,7 +49,7 @@ R = \log(K) - \hat{H}(data)
 Return the estimated information redundancy of `data`, with `K` set by the user.
 
 # External Links
-[Redundancy (wikipedia)](https://en.wikipedia.org/wiki/Redundancy_(information_theory))
+[Redundancy on wikipedia](https://en.wikipedia.org/wiki/Redundancy_(information_theory))
 
 """
 function redundancy(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
@@ -70,7 +67,7 @@ Return the [Variation of Information](https://en.wikipedia.org/wiki/Variation_of
 satisfies the properties of a metric (triangle inequality, non-negativity, indiscernability and symmetry).
 
 ```math
-VI(X, Y) = 2 H(X, Y) - H(X) - H(Y)
+VI(X, Y) = 2 * H(X, Y) - H(X) - H(Y)
 """
 function information_variation(contingency_matrix::Matrix{T}, estimator::Type{E}) where {T<:Real,E<:AbstractEstimator}
     2.0 *
