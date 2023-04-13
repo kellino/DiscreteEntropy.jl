@@ -99,10 +99,6 @@ end
     return digamma(h) + 0.5 * -1.0^h * (digamma(h + 1.0 / 2.0) - digamma(h / 2.0))
 end
 
-function grassberger(counts::AbstractVector{Int64})
-    grassberger(from_counts(counts))
-end
-
 # Schurmann Estimator
 
 @doc raw"""

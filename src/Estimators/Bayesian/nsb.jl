@@ -86,6 +86,9 @@ end
 function find_extremum_log_rho(K::Int64, N::Float64)
     func(K0) = dlogrho(K0, K, N)
 
+    # z = find_zero(func, 1)
+    # println("$z, $K, $N")
+    # return z
     return find_zero(func, 1)
 end
 
@@ -130,7 +133,6 @@ function nsb(data::CountData, K)
     l0 = find_l0(K, data)
 
     numerator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K) * bayes(data, β, K), 0, log(K))[1]
-
     denominator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K), 0, log(K))[1]
 
     h = numerator / denominator
@@ -141,6 +143,7 @@ end
 function guess_k(data::CountData, eps=1.e-5)
     # adapted from guess_alphabet_size()
     # https://github.com/simomarsili/ndd/blob/master/ndd/estimators.py
+    # TODO this is very slow
     multiplier = 10
     dk = log(multiplier)
     k1 = convert(Integer, sum(data.multiplicities[2, :]))
@@ -151,6 +154,7 @@ function guess_k(data::CountData, eps=1.e-5)
         k1 = round(k1 * multiplier)
         h1 = nsb(data, k1)
         dh = (h1 - h0) / dk
+        println(dh)
         if dh < eps
             break
         end

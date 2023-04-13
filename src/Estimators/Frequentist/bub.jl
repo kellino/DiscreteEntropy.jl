@@ -90,5 +90,6 @@ function over(data::CountData, upper_bound, k_max)
     Ni = loggamma(N + 1) .- loggamma.(1:c+1) .- loggamma.(N + 1 .- (0:c))
 
     p = logspace(log(1e-4 / N, 10), log(minimum(1, s / N) - eps, 10), mesh)
-    p
+    lp = log.(p)
+    lq = log.(1 .- p)
 end
