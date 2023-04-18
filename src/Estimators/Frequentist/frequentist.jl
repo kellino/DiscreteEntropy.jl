@@ -72,28 +72,23 @@ end
 @doc raw"""
     grassberger(data::CountData)
 
-Return the Grassberger estimation of Shannon entropy of `data` in nats.
+Return the Grassberger (1988) estimation of Shannon entropy of `data` in nats
 
 ```math
-\hat{H}_G = log(N) - \frac{1}{N} \sum_{i=1}^{K} h_i \; G(h_i)
+\hat{H}_{\tiny{Gr88}} = \sum_i \frac{h_i}{H} \left(\log(N) - \psi(h_i) - \frac{(-1)^{h_i}}{n_i + 1}  \right)
 ```
-
-This is essentially the same as ``\hat{H}_{\tiny{ML}}``, but with the logarithm swapped for the scalar function ``G``
-
-where
-```math
-G(h) = \psi(h) + \frac{1}{2}(-1)^h \left( \psi(\frac{h+1}{2} - \psi(\frac{h}{2}) ) \right)
-```
-
+Equation 13 from
+[Finite sample corrections to entropy and dimension estimate](https://www.academia.edu/download/47091312/0375-9601_2888_2990193-420160707-16069-1k3ppo7.pdf)
 """
-function grassberger(data::CountData)
+function grassberger1988(data::CountData)
     ln = log(data.N)
     sum((x[1] / data.N * (ln - digamma(x[1]) - (-1)^x[1] / (x[1] + 1))) * x[2] for x in eachcol(data.multiplicities))
 end
 
-@inline function g(h::T) where {T<:Real}
-    return digamma(h) + 0.5 * -1.0^h * (digamma(h + 1.0 / 2.0) - digamma(h / 2.0))
+function grassberger2003(data::CountData)
+    schurmann(data, 1.0)
 end
+
 
 # Schurmann Estimator
 

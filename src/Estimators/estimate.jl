@@ -14,7 +14,8 @@ abstract type ParameterisedEstimator <: AbstractEstimator end
 struct MaximumLikelihood <: NonParameterisedEstimator end
 struct JackknifeML <: NonParameterisedEstimator end
 struct MillerMadow <: NonParameterisedEstimator end
-struct Grassberger <: NonParameterisedEstimator end
+struct Grassberger88 <: NonParameterisedEstimator end
+struct Grassberger03 <: NonParameterisedEstimator end
 struct ChaoShen <: NonParameterisedEstimator end
 struct Zhang <: NonParameterisedEstimator end
 struct Bonachela <: NonParameterisedEstimator end
@@ -58,8 +59,12 @@ function estimate_h(data::CountData, ::Type{MillerMadow})
     miller_madow(data)
 end
 
-function estimate_h(data::CountData, ::Type{Grassberger})
-    grassberger(data)
+function estimate_h(data::CountData, ::Type{Grassberger88})
+    grassberger1988(data)
+end
+
+function estimate_h(data::CountData, ::Type{Grassberger03})
+    grassberger2003(data)
 end
 
 function estimate_h(data::CountData, ::Type{Schurmann}, xi=nothing)
