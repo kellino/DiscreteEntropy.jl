@@ -85,14 +85,10 @@ where
 G(h) = \psi(h) + \frac{1}{2}(-1)^h \left( \psi(\frac{h+1}{2} - \psi(\frac{h}{2}) ) \right)
 ```
 
-This is the solution to ``G(h) = \psi(h) + (-1)^h \int_0^1 \frac{x^h - 1}{x+1} dx``
-as given in the [paper](https://arxiv.org/pdf/physics/0307138v2.pdf)
-
 """
 function grassberger(data::CountData)
-    log(data.N) -
-    (1.0 / data.N) *
-    sum(xFx(g, x[1]) * x[2] for x in eachcol(data.multiplicities))
+    ln = log(data.N)
+    sum((x[1] / data.N * (ln - digamma(x[1]) - (-1)^x[1] / (x[1] + 1))) * x[2] for x in eachcol(data.multiplicities))
 end
 
 @inline function g(h::T) where {T<:Real}
