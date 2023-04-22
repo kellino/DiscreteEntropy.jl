@@ -81,8 +81,8 @@ Equation 13 from
 [Finite sample corrections to entropy and dimension estimate](https://www.academia.edu/download/47091312/0375-9601_2888_2990193-420160707-16069-1k3ppo7.pdf)
 """
 function grassberger1988(data::CountData)
-    ln = log(data.N)
-    sum((x[1] / data.N * (ln - digamma(x[1]) - (-1)^x[1] / (x[1] + 1))) * x[2] for x in eachcol(data.multiplicities))
+    log_n = log(data.N)
+    sum((x[1] / data.N * (log_n - digamma(x[1]) - (-1)^x[1] / (x[1] + 1))) * x[2] for x in eachcol(data.multiplicities))
 end
 
 function grassberger2003(data::CountData)

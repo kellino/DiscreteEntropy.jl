@@ -12,8 +12,7 @@ export CountData, from_data, from_samples, from_counts, singletons, doubletons
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
 export MaximumLikelihood, JackknifeML, MillerMadow, Grassberger88, Grassberger03,
     Schurmann, SchurmannGeneralised,
-    ChaoShen, Zhang, Bonachela, Shrink, BUB, ChaoWangJost
-
+    ChaoShen, Zhang, Bonachela, Shrink, BUB, ChaoWangJost, PERT
 
 # convenience function to create a unified interface
 export estimate_h

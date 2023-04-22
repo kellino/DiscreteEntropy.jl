@@ -40,6 +40,8 @@ struct SchurmannGrassberger <: NonParameterisedEstimator end
 struct Minimax <: AbstractEstimator end
 
 
+# Other
+struct PERT <: AbstractEstimator end
 
 """
     estimate_h(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
@@ -142,4 +144,24 @@ end
 
 function estimate_h(data::CountData, ::Type{ANSB})
     ansb(data)
+end
+
+function estimate_h(data::CountData, ::Type{PERT})
+    # TODO no reason to prefer ChaoShen here
+    pert(data, ChaoShen)
+end
+
+@doc raw"""
+    pert(data::CountData, estimator)
+
+A Pert estimate of entropy, where
+
+```
+H = \frac{a + 4b + c}{6}
+```
+
+where a is the minimum (maximum_likelihood), c is the maximum (log(k)) and $b$ is the most likely value (ChaoShen)
+"""
+function pert(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
+    return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, estimator) + log(data.K)) / 6.0
 end
