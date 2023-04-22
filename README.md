@@ -17,10 +17,10 @@ A collection of discrete entropy estimators and other information theoretic tool
 + bootstrap (not a priority)
 + unseen
 + cdm
-+ check bonachela and grassberger, as both give weird results
++ check bonachela, as gives weird results
 
 # Ideas
-  [three-point estimation](https://en.wikipedia.org/wiki/Three-point_estimation)
+  DONE [three-point estimation](https://en.wikipedia.org/wiki/Three-point_estimation)
 
 # Docs
   To build docs, run ``julia --project=. docs/make.jl`` in root directory of the project.

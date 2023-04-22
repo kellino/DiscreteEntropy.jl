@@ -163,5 +163,5 @@ H = \frac{a + 4b + c}{6}
 where a is the minimum (maximum_likelihood), c is the maximum (log(k)) and $b$ is the most likely value (ChaoShen)
 """
 function pert(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
-    return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, estimator) + log(data.K)) / 6.0
+    return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, estimator) + estimate_h(data, ANSB)) / 6.0
 end
