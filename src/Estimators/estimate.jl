@@ -138,8 +138,17 @@ function estimate_h(data::CountData, ::Type{AutoNSB})
 end
 
 function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
-    @warn("not yet finished")
-    0.0
+    #@warn("not yet finished")
+    #0.0
+    mm = data.multiplicities[2:2, :]
+    icts = data.multiplicities[1:1, :]
+    mm = vec(round.(Int, mm))
+    icts = vec(round.(Int, icts))
+    icts = sort(icts)
+    
+    (Hbls, Hvar) = pym(mm, icts)
+
+    return Hbls
 end
 
 function estimate_h(data::CountData, ::Type{ANSB})
