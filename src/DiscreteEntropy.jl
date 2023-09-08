@@ -10,15 +10,15 @@ export Histogram, Samples
 export CountData, from_data, from_samples, from_counts, singletons, doubletons
 
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
-export MaximumLikelihood, JackknifeML, MillerMadow, Grassberger88, Grassberger03,
+export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger88, Grassberger03,
     Schurmann, SchurmannGeneralised,
     ChaoShen, Zhang, Bonachela, Shrink, BUB, ChaoWangJost, PERT
 
 # convenience function to create a unified interface
-export estimate_h
+export estimate_h, estimate_h_and_var
 
 # estimators
-export maximum_likelihood, miller_madow, jackknife_ml, grassberger1988, schurmann, schurmann_generalised,
+export maximum_likelihood, miller_madow, jackknife_mle, grassberger1988, schurmann, schurmann_generalised,
     chao_shen, zhang, bonachela, shrink, chao_wang_jost, bub
 
 export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, AutoNSB, ANSB, PYM

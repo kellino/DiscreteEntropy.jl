@@ -20,6 +20,6 @@ t2 = [4, 5, 4, 3, 2, 1, 2, 3, 5]
 # t3 = [1, 2, 3, 4, 5, 6, 7] Failing test
 
 
-@test oracle(t1, MaximumLikelihood) ≈ jackknife_ml(from_data(t1, Samples))[1]
-@test oracle(t2, MaximumLikelihood) ≈ jackknife_ml(from_data(t2, Samples))[1]
+@test oracle(t1, MaximumLikelihood) ≈ jackknife_mle(from_data(t1, Samples))[1]
+@test oracle(t2, MaximumLikelihood) ≈ jackknife_mle(from_data(t2, Samples))[1]
 # @test oracle(t3, MaximumLikelihood) == jackknife_ml(from_data(t3, Samples))[1]

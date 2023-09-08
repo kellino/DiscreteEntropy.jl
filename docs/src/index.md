@@ -25,7 +25,7 @@ CountData
 
 ```@docs
 maximum_likelihood
-jackknife_ml
+jackknife_mle
 miller_madow
 grassberger
 schurmann

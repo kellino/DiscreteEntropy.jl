@@ -37,7 +37,7 @@ end
 # Jackknife MLE
 
 @doc raw"""
-    jackknife_ml(data::CountData; corrected=false)::Tuple{AbstractFloat, AbstractFloat}
+    jackknife_mle(data::CountData; corrected=false)::Tuple{AbstractFloat, AbstractFloat}
 
 Return the *jackknifed* estimate of data and the variance of the jackknifing (not the variance of the estimator itself).
 
@@ -45,7 +45,7 @@ If corrected is true, then the variance is scaled with n-1, else it is scaled wi
 
 As found in the [paper](https://academic.oup.com/biomet/article/65/3/625/234287)
 """
-function jackknife_ml(data::CountData; corrected=false)
+function jackknife_mle(data::CountData; corrected=false)
     return jackknife(data, maximum_likelihood, corrected=corrected)
 end
 

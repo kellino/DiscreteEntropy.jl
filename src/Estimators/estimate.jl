@@ -12,7 +12,7 @@ abstract type ParameterisedEstimator <: AbstractEstimator end
 
 # Frequentist
 struct MaximumLikelihood <: NonParameterisedEstimator end
-struct JackknifeML <: NonParameterisedEstimator end
+struct JackknifeMLE <: NonParameterisedEstimator end
 struct MillerMadow <: NonParameterisedEstimator end
 struct Grassberger88 <: NonParameterisedEstimator end
 struct Grassberger03 <: NonParameterisedEstimator end
@@ -53,9 +53,13 @@ function estimate_h(data::CountData, ::Type{MaximumLikelihood})
     maximum_likelihood(data)
 end
 
-# function estimate_h(data::CountData, ::Type{JackknifeML})
-#     jackknife_ml(data)[1]
-# end
+function estimate_h(data::CountData, ::Type{JackknifeMLE}; corrected=false)
+    jackknife_mle(data; corrected)[1]
+end
+
+function estimate_h_and_var(data::CountData, ::Type{JackknifeMLE}; corrected=false)
+    jackknife_mle(data; corrected)
+end
 
 function estimate_h(data::CountData, ::Type{MillerMadow})
     miller_madow(data)
@@ -145,7 +149,7 @@ function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
     mm = vec(round.(Int, mm))
     icts = vec(round.(Int, icts))
     icts = sort(icts)
-    
+
     (Hbls, Hvar) = pym(mm, icts)
 
     return Hbls

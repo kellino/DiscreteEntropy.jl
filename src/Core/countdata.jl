@@ -63,6 +63,10 @@ function from_counts(counts::CountVector, remove_zeros::Bool)
     _from_counts(counts.values, remove_zeros)
 end
 
+function from_counts(counts::AbstractVector; remove_zeros::Bool=true)
+    from_counts(CountVector(counts), remove_zeros)
+end
+
 function from_samples(samples::SampleVector, remove_zeros::Bool)
     K = length(unique(samples.values))
 
