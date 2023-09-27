@@ -193,12 +193,10 @@ function meshgrid(x, y)
 end
 
 function condH(a, d, mm, icts)
-    (m, v) = computeHpy(mm, icts, a[:], d[:])
-    v = v .+ m .^ 2
-    v = reshape(v, size(a))
+    m = computeHpy(mm, icts, a[:], d[:])
     m = reshape(m, size(a))
 
-    return (m, v)
+    return m
 end
 
 function computeHpy(mm, icts, alphas, ds)
@@ -253,12 +251,11 @@ function computeHpy(mm, icts, alphas, ds)
 
     Hp = zeros(size(ds))
 
-    (Hpi, HvarPi) = computeHpyPrior(alphas + K * ds, ds)
+    Hpi = computeHpyPrior(alphas + K * ds, ds)
 
     if N == 0
         # if we have no data, return prior mean & variance
         Hpy = Hpi
-        Hvar = HvarPi
         return
     end
 
@@ -266,8 +263,6 @@ function computeHpy(mm, icts, alphas, ds)
     oneminuspstarmean = (N .- K .* ds) ./ (alphas .+ N)
     pstarmean = (alphas .+ K .* ds) ./ (alphas .+ N)
     # compute E[(p_*).^2] and E[(1-p_*)^2]
-    pstarsq = (alphas .+ K .* ds) .* (alphas .+ K .* ds .+ 1) ./ ((alphas .+ N) .* (alphas .+ N .+ 1))
-    oneminuspstarsq = (N .- K .* ds) .* (N .- K .* ds .+ 1) ./ ((alphas .+ N) .* (alphas .+ N .+ 1))
     # compute E[h(p_*)]
     Hpstar = digamma.(alphas .+ N .+ 1) -
              (alphas .+ K .* ds) ./ (alphas .+ N) .* digamma.(alphas .+ K .* ds .+ 1) -
@@ -280,53 +275,7 @@ function computeHpy(mm, icts, alphas, ds)
     Hpy = oneminuspstarmean .* Hp + pstarmean .* Hpi + Hpstar
     Hpy = reshape(Hpy, originalSize)
 
-    # Compute variance If |return| > 1
-    # First term term of variance decomposition
-    # First, compute pstarHpstar
-    # compute E[p_*h(p_*)]
-
-    # pstarHpstar quite different from Matlab in results  !!!!!!!!
-    pstarHpstar = (alphas .+ K .* ds) .* (alphas .+ K .* ds .+ 1.0) ./
-                  ((alphas .+ N) .* (alphas .+ N .+ 1.0)) .* (digamma.(alphas .+ N .+ 2.0) -
-                                                              digamma.(alphas .+ N .+ 2.0)) +
-                  (alphas .+ K .* ds) .* (N .- K .* ds) ./ ((alphas .+ N) .* (alphas .+ N .+ 1.0)) .*
-                  (digamma.(alphas .+ N .+ 2.0) - digamma.(N .- K .* ds .+ 1.0))
-
-    print()
-
-    # E[p_*^2]
-    Hmom2 = zeros(size(ds))
-    # When alpha is huge , the second moment of the entropy should just be
-    # zero. This is producing an error as a result of numerical troubles.
-    for k = 1:length(ds)
-        # changed from 0 -> [0] !!!!!!!!
-        Hmom2[k] = varianceEntropy([0], [alphas[k] .+ K .* ds[k]; N .- K .* ds[k]])
-    end
-
-    # E[K]^2 (NOTE: Bad notation! This is not #bins, this is K(p_*) used in the notes!)
-    Kmeansq = (oneminuspstarmean .* Hp + pstarmean .* Hpi + Hpstar) .^ 2
-
-    # E[K^2]
-    # Slightly different from Matlab in results!!!!!
-    Ksqr = 2 * pstarHpstar .* (Hpi - Hp) + 2 * Hp .* Hpstar + Hmom2 +
-           pstarsq .* (Hpi .^ 2 - 2 * Hpi .* Hp) +
-           2 * (alphas + K * ds) ./ (alphas .+ N) .* Hp .* Hpi + oneminuspstarsq .* Hp .^ 2
-
-    # ?!
-    Trm1 = Ksqr - Kmeansq
-
-    # Second term of variance decomposition
-    # HvarPi is computed above.
-    HvarP = reduced_varianceEntropy(mm, icts, -ds, K, 0)
-
-    # alpha slighltly different from Matlab
-    Trm2 = (N .- K .* ds) .* (N .- K .* ds .+ 1) ./ ((alphas .+ N) .* (alphas .+ N .+ 1)) .* HvarP +
-           (alphas .+ K .* ds) .* (alphas .+ K .* ds .+ 1) ./ ((alphas .+ N) .* (alphas .+ N .+ 1)) .* HvarPi
-
-    # Add two variance terms
-    Hvar = Trm1 + Trm2
-
-    return (Hpy, Hvar)
+    return Hpy
 end
 
 function reduced_varianceEntropy(mm, icts, alphas, K, flag::Int=0)
@@ -523,12 +472,11 @@ function computeHpyPrior(alphas, ds)
     #   Hvar = variance of entropy at each alpha
 
     Hpy = digamma.(1.0 .+ alphas) .- digamma.(1.0 .- ds)
-    Hvar = (alphas .+ ds) ./ ((alphas .+ 1.0) .^ 2.0 .* (1.0 .- ds)) .+ (1.0 .- ds) ./ (alphas .+ 1.0) .* trigamma.(2.0 .- ds) - trigamma.(2.0 .+ alphas)
 
-    return (Hpy, Hvar)
+    return Hpy
 end
 
-function gq100(a, b)
+function gq100(a, b, ngrid)
     N = 25
 
     (_, _, y, Lp) = lgwt(N, -1, 1)
@@ -608,7 +556,7 @@ end
 #function pym(mm::Vector{Int64}, icts::Vector{Int64})::Float64
 function pym(mm::Vector{Int64}, icts::Vector{Int64})
     Hbls = 0.0
-    Hvar = 0.0
+ 
     if !any(x -> x > 1, icts)
         return Inf64
     end
@@ -621,7 +569,6 @@ function pym(mm::Vector{Int64}, icts::Vector{Int64})
 
     if K == 1
         Hbls = NaN64
-        Hvar = Inf64
     end
 
     mpt = [1.0, 0.01]
@@ -671,14 +618,13 @@ function pym(mm::Vector{Int64}, icts::Vector{Int64})
         loglik = logliPyOccupancy(aa[:], dd[:], mm, icts)
         lik = exp.(loglik .- maximum(loglik))
         prior = pymPrior(aa[:], dd[:])
-        (mc, vc) = condH(aa[:], dd[:], mm, icts)
+        mc = condH(aa[:], dd[:], mm, icts)
         A = ((lik .* prior) .* vec(dw * aw'))
         Z = sum(A)
         Hbls = sum(A .* mc)
-        Hvar = (Z * sum(sum(A .* vc)) - Hbls .^ 2) / Z .^ 2
         Hbls = Hbls / Z
     end
 
     #return (al, au, dl, du)
-    return (Hbls, Hvar)
+    return Hbls
 end

@@ -76,7 +76,7 @@ println("BAYESIAN ESTIMATORS")
 
 estimate = estimate_h(data, PYM)
 println("PYM " * string(estimate))
-
+print()
 """
 estimate = bayes(data, 0.0, data.K)
 println("BAYES " * string(estimate))

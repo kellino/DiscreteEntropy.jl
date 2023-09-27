@@ -150,7 +150,7 @@ function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
     icts = vec(round.(Int, icts))
     icts = sort(icts)
 
-    (Hbls, Hvar) = pym(mm, icts)
+    Hbls = pym(mm, icts)
 
     return Hbls
 end
