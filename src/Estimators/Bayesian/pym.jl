@@ -8,13 +8,10 @@ using Optim;
 end
 
 const ComplexOrReal{T} = Union{T,Complex{T}}
-global m
+global mm
 global icts
 
 ψ₂(x) = polygamma(2, x)
-
-#mm = [1, 2, 3]
-#icts = [2, 2, 3]
 
 struct Prior
     type::PriorType
@@ -25,6 +22,13 @@ struct Prior
     ddprior::Array{Float64,2}
 end
 
+@doc raw"""
+    pym(mm::Vector{Int64}, icts::Vector{Int64})::Float64
+
+A more or less faithful port of the original [matlab code](https://github.com/pillowlab/PYMentropy)
+to Julia
+
+"""
 
 function convert_from_py_params(α::Float64, δ::Float64)
     digamma_1_minus_delta = digamma(1.0 - δ)
@@ -36,30 +40,30 @@ end
 
 function common_prior_jacobian(α::Float64, δ::Float64)
     (eta, gam) = convert_from_py_params(α, δ)
-    iSz = size(α)
     dha = trigamma(α + 1.0)
     dhd = trigamma(1.0 - δ)
     dga = -(gam / eta) * dha
     dgd = dhd .* (digamma(α + 1.0) .- digamma.(1.0)) / (eta^2.0)
     J = dha * dgd - dhd * dga
 
-    return (J, gam, eta, iSz, dga, dgd, dha, dhd)
+    return (J, gam, eta, dga, dgd, dha, dhd)
 end
 
-function computePrior(α::Float64, δ::Float64, param::Float64, type::PriorType, op::Integer)
-    # only handling default case at the moment
-    (_, gg_t, hh_t, iSz, dga, dgd, dha, dhd) = common_prior_jacobian(α, δ)
+# param: pym's free parameter which is a distribution over gamma
+# n_outarg: number of output arguments specified in the call to the currently executing function 
+function computePrior(α::Float64, δ::Float64, param::Float64, type::PriorType, n_outarg::Integer)
+    # Only handling default case at the moment
+    (_, gg_t, hh_t, dga, dgd, dha, dhd) = common_prior_jacobian(α, δ)
     
     if type == default
 
         f = exp(-1 ./ (1 - gg_t) / param)
     
-        if op == 1
+        if n_outarg == 1
 
             return f
         end 
     
-
         dg = -f / (1 - gg_t)^2 / param
 
         dp::Vector{Float64} = []
@@ -81,32 +85,35 @@ function computePrior(α::Float64, δ::Float64, param::Float64, type::PriorType,
     end
 end
 
-pymPrior(a::Number, d::Number, p::Number, t::PriorType, op::Integer) = _pymPrior(float(a), float(d), float(p), t, op)
+# p -> param: pym's free parameter which is a distribution over gamma
+# n_oa -> n_outarg: number of output arguments specified in the call to the currently executing function 
+pymPrior(a::Number, d::Number, p::Number, t::PriorType, n_oa::Integer) = _pymPrior(float(a), float(d), float(p), t, n_oa)
 
-function _pymPrior(α::ComplexOrReal{Float64}, δ::ComplexOrReal{Float64}, param::Float64, type::PriorType, n_opar::Integer)
+function _pymPrior(α::ComplexOrReal{Float64}, δ::ComplexOrReal{Float64}, param::Float64, type::PriorType, n_outarg::Integer)
     a = real(α)
     d = real(δ)
     p = real(param)
     t = type
-    op = Integer(n_opar)
+    n_oa = Integer(n_outarg)
 
-    return computePrior(a, d, p, t, op)
+    return computePrior(a, d, p, t, n_oa)
 end
 
-logliPyOccupancy(a::Number, d::Number, op::Integer) = _logliPyOccupancy(float(a), float(d), op)
+# n_oa -> n_outarg:: number of output arguments specified in the call to the currently executing function 
+logliPyOccupancy(a::Number, d::Number, n_oa::Integer) = _logliPyOccupancy(float(a), float(d), n_oa)
 
-function _logliPyOccupancy(α::ComplexOrReal{Float64}, δ::ComplexOrReal{Float64}, n_opar::Integer)
-    # via the derivative of the Kölbig digamma formulation
+function _logliPyOccupancy(α::ComplexOrReal{Float64}, δ::ComplexOrReal{Float64}, n_outarg::Integer)
+    # Via the derivative of the Kölbig digamma formulation
     a = real(α)
     d = real(δ)
-    op = Integer(n_opar)
+    n_oa = Integer(n_outarg)
 
     N = dot(mm, icts)
     K = sum(mm)
 
     logp = -gammalndiff(a + 1.0, N - 1.0) + sum(map(x -> logx(a + x * d), 1:K-1)) + dot(mm, map(x -> gammalndiff(1.0 - d, Float64(x)), icts .- 1))
     
-    if op == 1
+    if n_oa == 1
         return logp
     else 
         KK = 1:K - 1
@@ -139,7 +146,6 @@ function hessian(α::Float64, δ::Float64)
 end
 
 function nlogPostPyoccupancy(α::Float64, δ::Float64)
-
     if α < 0.0 || δ < 0.0 || δ > 1.0
         return (Inf, -[α, δ])
     end
@@ -154,14 +160,6 @@ function nlogPostPyoccupancy(α::Float64, δ::Float64)
 
     return (nlogp, ndlogp)
 end
-
-@doc raw"""
-    pym(mm::Vector{Int64}, icts::Vector{Int64})::Float64
-
-A more or less faithful port of the original [matlab code](https://github.com/pillowlab/PYMentropy)
-to Julia
-
-"""
 
 function meshgrid(x, y)
     X = [i for i in x, j in 1:length(y)]
@@ -216,35 +214,33 @@ function computeHpy(mm, icts, alphas, ds)
         mm = 0
     end
 
-    #if nargin < 4: We haven't passed any d's - we want Dirichlet Process posterior
-    #ds = zeros(size(alphas));
+    # If n_outarg < 4: We haven't passed any d's - we want Dirichlet Process posterior
+    # ds = zeros(size(alphas));
 
-    # make alphas,icts,mm column vectors
+    # Make alphas, icts, mm column vectors
     originalSize = size(alphas)
     alphas = alphas[:]
     ds = ds[:]
     icts = icts[:]
     mm = mm[:]
 
-    N = icts' * mm # number of samples
-    K = sum(mm[icts.>0]) # number of tables
+    # N: number of samples, K: number of tables
+    N = icts' * mm 
+    K = sum(mm[icts.>0]) 
 
     Hp = zeros(size(ds))
 
     Hpi = computeHpyPrior(alphas + K * ds, ds)
 
     if N == 0
-        # if we have no data, return prior mean & variance
+        # If we have no data, return prior mean & variance
         Hpy = Hpi
 
         return
     end
 
-    # compute E[p_*] and E[(1-p_*)]
     oneminuspstarmean = (N .- K .* ds) ./ (alphas .+ N)
     pstarmean = (alphas .+ K .* ds) ./ (alphas .+ N)
-    # compute E[(p_*).^2] and E[(1-p_*)^2]
-    # compute E[h(p_*)]
     Hpstar = digamma.(alphas .+ N .+ 1) -
              (alphas .+ K .* ds) ./ (alphas .+ N) .* digamma.(alphas .+ K .* ds .+ 1) -
              (N .- K .* ds) ./ (alphas .+ N) .* digamma.(N .- K .* ds .+ 1)
@@ -259,60 +255,13 @@ function computeHpy(mm, icts, alphas, ds)
     return Hpy
 end
 
-function computeHdir(mm, icts, K, alphas)
-    # [Hdir,Hvar] = computeHdir(mm,icts,K,alphas);
-
-    # Compute posterior mean of P(H|n,alpha), the expected entropy under a
-    # fixed Dirichlet prior with Dirichlet parameter alpha
-
-    # Accepts a vector "alphas" and returns posterior mean at each alpha
-
-    # Inputs:
-    #   mm = multiplicities (mm(j) is # bins with icts(j) elements)
-    #   icts = vector of unique counts
-    #   K = # total bins in distribution
-    #   alphas = scalar (or vector) of Dirichlet parameters
-
-    # Ouptuts:
-    #   Hdir = mean entropy at each alpha
-    #   Hvar = variance of entropy at each alpha
-
-    if isempty(mm) || isempty(icts)
-        icts = 0
-        mm = K
-    end
-
-    # modify mm and icts to account for #zeros (finite bin case)
-    nZ = K - sum(mm)
-
-    # Make alphas,icts,mm column vectors
-    if size(alphas, 1) == 1
-        alphas = alphas'  # column vec
-    end
-    if size(icts, 1) == 1
-        icts = icts'
-    end
-    if size(mm, 1) == 1
-        mm = mm'
-    end
-
-    N = icts' * mm # number of samples
-    A = N .+ K .* alphas # number of effective samples (vector)
-    aa = alphas .+ icts' # posterior Dirichlet priors
-
-    # Compute posterior mean over entropy
-    Hdir = digamma.(A .+ 1) - (1.0 ./ A) .* ((aa .* digamma.(aa .+ 1)) * mm)
-
-    return Hdir
-end
-
 function computeHpyPrior(alphas, ds)
     # Compute prior mean of P(H|alpha,d) under a Pitman-Yor process prior
     # with parameter alpha and d.
     # Accepts same size "alphas" and "ds" and returns posterior mean
     # at each alpha and d with the same size.
 
-    # Ouptuts:
+    # Outputs:
     #   Hpy = mean entropy at each alpha
     #   Hvar = variance of entropy at each alpha
 
@@ -321,7 +270,7 @@ function computeHpyPrior(alphas, ds)
     return Hpy
 end
 
-function gq100(a, b, ngrid)
+function gq100(a, b)
     N = 25
 
     (_, _, y, Lp) = lgwt(N, -1, 1)
@@ -343,15 +292,12 @@ function gq100(a, b, ngrid)
 end
 
 function lgwt(N, a, b)
-
     eps = 2.2204e-16
     N = N - 1
     N1 = N + 1
     N2 = N + 2
 
     xu = range(-1, 1, N1)'
-
-    #println(vcat(xu))
 
     # Initial guess
     y = cos.((2 * (0:N)' .+ 1) * pi / (2 * N + 2)) + (0.27 / N1) * sin.((pi * xu) * N / N2)
@@ -367,7 +313,6 @@ function lgwt(N, a, b)
     y0 = 2
 
     # Iterate until new points are uniformly within epsilon of old points
-
     while maximum(vec(abs.(y .- y0))) > eps
 
         L[:, 1] .= 1
@@ -398,7 +343,6 @@ end
 
 #------------------------------------------------------------#
 
-#function pym(mm::Vector{Int64}, icts::Vector{Int64})::Float64
 function pym(_mm::Vector{Int64}, _icts::Vector{Int64})
     Hbls = 0.0
 
@@ -412,7 +356,7 @@ function pym(_mm::Vector{Int64}, _icts::Vector{Int64})
     eps = 2.2204e-16
     min_alpha = 10 * eps
 
-    N = dot(mm, icts)
+    # N = dot(mm, icts)
     K = sum(mm)
 
     if K == 1
@@ -423,7 +367,7 @@ function pym(_mm::Vector{Int64}, _icts::Vector{Int64})
     nlpy(x) = nlogPostPyoccupancy(x[1], x[2])[1]
     res = optimize(nlpy, mpt)
 
-    #new mpt
+    # New mpt
     params = Optim.minimizer(res)
     fval = Optim.minimum(res)
 
@@ -455,11 +399,8 @@ function pym(_mm::Vector{Int64}, _icts::Vector{Int64})
         du = min(1 - eps, max(params[2] + invHessian[2, 2], eps))
     end
 
-    Na = []
-    Nd = []
-
-    (ax, aw, Na) = gq100(al, au, Na)
-    (dx, dw, Nd) = gq100(dl, du, Nd)
+    (ax, aw, Na) = gq100(al, au)
+    (dx, dw, Nd) = gq100(dl, du)
 
     if Nd * Na < 1e4
         (aa, dd) = meshgrid(ax, dx)
@@ -473,6 +414,5 @@ function pym(_mm::Vector{Int64}, _icts::Vector{Int64})
         Hbls = Hbls / Z
     end
 
-    #return (al, au, dl, du)
     return Hbls
 end

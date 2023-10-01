@@ -20,8 +20,21 @@ gt = entropy(dist)
 #sample from PYM entropy estimator MATLAB reference implementation
 #https://github.com/pillowlab/PYMentropy/tree/master
 
+"""
+#samples from dist (n. of trials/observations)
+l = 100
+#support set distribution (upper bound range of the observed variable's possible values, if.n = 100 -> [0-100])
+global n = 100
+
+Random.seed!(40)
+dist = BetaBinomial(n, 1.0, 2.0)
+samples = rand(dist, l)
+data = from_samples(svector(samples),true)
+"""
+
 samples = [1, 2, 2, 3, 3, 4, 4, 4, 4]
 data = from_samples(svector(samples),true)
+
 
 #println(sort(unique(svector(samples).values)))
 println(data)
@@ -29,7 +42,7 @@ println()
 
 #FREQUENTIST
 
-"""
+
 println("FREQUENTIST ESTIMATORS")
 
 estimate = estimate_h(data, MaximumLikelihood)
@@ -68,7 +81,7 @@ println("ChaoWangJost " * string(estimate))
 #estimate = estimate_h(data, BUB) ?
 
 println()
-"""
+
 
 #BAYESIAN
 
@@ -77,7 +90,7 @@ println("BAYESIAN ESTIMATORS")
 estimate = estimate_h(data, PYM)
 println("PYM " * string(estimate))
 print()
-"""
+
 estimate = bayes(data, 0.0, data.K)
 println("BAYES " * string(estimate))
 
@@ -94,8 +107,10 @@ println("SchurmannGrassberger " * string(estimate))
 estimate = estimate_h(data, Minimax)
 println("Minimax " * string(estimate))
 
+"""
 estimate = estimate_h(data, NSB)
 println("NSB " * string(estimate))
+"""
 
 estimate = estimate_h(data, AutoNSB)
 println("AutoNSB " * string(estimate))
@@ -106,9 +121,8 @@ println("ANSB " * string(estimate))
 estimate = estimate_h(data, PERT)
 println("PERT " * string(estimate))
 
-
 print()
-"""
+
 
 
 
