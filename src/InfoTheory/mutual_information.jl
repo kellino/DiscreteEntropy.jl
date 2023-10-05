@@ -117,3 +117,17 @@ function mutual_information(X::CountData, Y::CountData, XY::CountData,
     e1::Type{A}, e2::Type{B}, e3::Type{C}) where {A,B,C<:NonParameterisedEstimator}
     estimate_h(X, e1) + estimate_h(Y, e2) - estimate_h(XY, e3)
 end
+
+# Arrays of discrete values
+function mutual_information(X::Vector, Y::Vector)
+    matrix = freqtable(X, Y)
+    m_XY = prop(matrix)
+    m_X = marginal_counts(Matrix{Float64}(m_XY), 1)
+    m_Y = marginal_counts(Matrix{Float64}(m_XY), 2)
+
+    HX = _entropy(m_X)
+    HY = _entropy(m_Y)
+    HXY = _entropy(vec(m_XY))
+    IXY = HX + HY - HXY
+    return IXY
+end
