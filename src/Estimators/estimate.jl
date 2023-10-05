@@ -49,6 +49,8 @@ struct PERT <: AbstractEstimator end
 Return the estimate in nats of Shannon entropy of `data` using `estimator`.
 
 """
+
+
 function estimate_h(data::CountData, ::Type{MaximumLikelihood})
     maximum_likelihood(data)
 end
@@ -86,7 +88,7 @@ function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::XiVect
 end
 
 function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::Distribution)
-    schurmann_generalised(data, xis)
+    schurmann_generalised(data, xis, true)
 end
 
 function estimate_h(data::CountData, ::Type{ChaoShen})
@@ -114,7 +116,7 @@ function estimate_h(data::CountData, ::Type{BUB})
 end
 
 function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=data.K)
-    bayes(α, data, K)
+    bayes(data, α, K)
 end
 
 function estimate_h(data::CountData, ::Type{LaPlace}; K=data.K)
@@ -133,14 +135,6 @@ function estimate_h(data::CountData, ::Type{Minimax}; K=data.K)
     minimax(data, K)
 end
 
-function estimate_h(data::CountData, ::Type{NSB}, k)
-    nsb(data, k)
-end
-
-function estimate_h(data::CountData, ::Type{AutoNSB})
-    nsb(data, guess_k(data))
-end
-
 function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
     #@warn("not yet finished")
     #0.0
@@ -153,6 +147,16 @@ function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
     Hbls = pym(mm, icts)
 
     return Hbls
+end
+
+function estimate_h(data::CountData, ::Type{NSB}, guess=false)
+    print()
+    if guess
+        gk = guess_k(data)
+        
+        return nsb(data, gk)
+    end
+    nsb(data, data.K)
 end
 
 function estimate_h(data::CountData, ::Type{ANSB})

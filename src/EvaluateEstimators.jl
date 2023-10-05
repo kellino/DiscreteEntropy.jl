@@ -5,32 +5,27 @@ using Distributions
 using NLopt
 
 #-----------------------------------------#
-"""
-
-#random sample
-Random.seed!(42)
-dist = BetaBinomial(100, 1.0, 2.0)
-samples = rand(dist, 100)
-data = from_samples(svector(samples),true)
-
-gt = entropy(dist)
-"""
-#-----------------------------------------#
-
-#sample from PYM entropy estimator MATLAB reference implementation
-#https://github.com/pillowlab/PYMentropy/tree/master
 
 """
-#samples from dist (n. of trials/observations)
+# Random sample
+# Samples from dist (n. of trials/observations)
 l = 100
-#support set distribution (upper bound range of the observed variable's possible values, if.n = 100 -> [0-100])
+# Support set distribution (upper bound range of the observed variable's possible values, if.n = 100 -> [0-100])
 global n = 100
 
 Random.seed!(40)
 dist = BetaBinomial(n, 1.0, 2.0)
 samples = rand(dist, l)
 data = from_samples(svector(samples),true)
+
+gt = entropy(dist)
 """
+
+#-----------------------------------------#
+
+# Sample from PYM entropy estimator MATLAB reference implementation
+# https://github.com/pillowlab/PYMentropy/tree/master
+
 
 samples = [1, 2, 2, 3, 3, 4, 4, 4, 4]
 data = from_samples(svector(samples),true)
@@ -40,8 +35,8 @@ data = from_samples(svector(samples),true)
 println(data)
 println()
 
-#FREQUENTIST
 
+# Frequentist
 
 println("FREQUENTIST ESTIMATORS")
 
@@ -62,7 +57,7 @@ println("Grassberger03 " * string(estimate))
 estimate = estimate_h(data, Schurmann)
 println("Schurmann " * string(estimate))
 
-#estimate = estimate_h(data, SchurmannGeneralised) ?
+#estimate = estimate_h(cvector(samples), SchurmannGeneralised, dist) ?
 
 estimate = estimate_h(data, ChaoShen)
 println("ChaoShen " * string(estimate))
@@ -78,12 +73,15 @@ println("Bonachela " * string(estimate))
 
 estimate = estimate_h(data, ChaoWangJost)
 println("ChaoWangJost " * string(estimate))
-#estimate = estimate_h(data, BUB) ?
+
+estimate = estimate_h(data, BUB)
+println("BUB " * string(estimate))
 
 println()
 
+#------------------------------------------#
 
-#BAYESIAN
+# Bayesian
 
 println("BAYESIAN ESTIMATORS")
 
@@ -91,10 +89,9 @@ estimate = estimate_h(data, PYM)
 println("PYM " * string(estimate))
 print()
 
-estimate = bayes(data, 0.0, data.K)
+estimate = estimate_h(data, Bayes, 0.0)
 println("BAYES " * string(estimate))
 
-#estimate = estimate_h(data, Bayes, 0.0)
 estimate = estimate_h(data, LaPlace)
 println("LaPlace " * string(estimate))
 
@@ -107,13 +104,8 @@ println("SchurmannGrassberger " * string(estimate))
 estimate = estimate_h(data, Minimax)
 println("Minimax " * string(estimate))
 
-"""
-estimate = estimate_h(data, NSB)
+estimate = estimate_h(data, NSB, false)
 println("NSB " * string(estimate))
-"""
-
-estimate = estimate_h(data, AutoNSB)
-println("AutoNSB " * string(estimate))
 
 estimate = estimate_h(data, ANSB)
 println("ANSB " * string(estimate))

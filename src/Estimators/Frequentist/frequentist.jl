@@ -137,13 +137,15 @@ be the same length.
 
 Computes the generalised Schurmann entropy estimation, given a countvector *data* and a distribution *xis*.
 """
-function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
+function schurmann_generalised(data::CountVector, xis::Vector{T}) where {T<:Real}
+#function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
     @assert Base.length(data) == Base.length(xis)
     N = sum(data)
 
-    digamma(N) -
-    (1.0 / N) *
-    sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data))
+    for x in enumerate(data)
+        digamma(N) - (1.0 / N) * sum(_schurmann(x[2], 1, xis[x[1]]))
+    end
+    #digamma(N) - (1.0 / N) * sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data))
 end
 
 function schurmann_generalised(data::CountVector, xis::T, scalar::Bool=false) where {T<:Distribution}
