@@ -1,127 +1,110 @@
 include("DiscreteEntropy.jl")
-include("Core/utils.jl")
 using .DiscreteEntropy
 using Random
-using Distributions
-using NLopt
 
 
+function h_estimation(data)
+    estimations = []
 
-#-----------------------------------------#
-function H_estimation(data)
-    # Frequentist
-    println("FREQUENTIST ESTIMATORS")
+    function _estimate(_data, _estimator::Type{T}) where {T<:AbstractEstimator}
+        h = estimate_h(_data, _estimator)
+        #println(string(_estimator) * " " * string(round(h; digits=4)))
+        println(string(round(h; digits=4)))
+        return h
+    end
 
-    estimate = estimate_h(data, MaximumLikelihood)
-    println("MaximumLikelihood " * string(estimate))
+    function _estimate(_data, _estimator::Type{T}) where {T<:NonParameterisedEstimator} 
+        h = estimate_h(_data, _estimator)
+        #println(string(_estimator) * " " * string(round(h; digits=4)))
+        println(string(round(h; digits=4)))
+        return h
+    end
 
-    #estimate = estimate_h(data, JackknifeML) ?
+    function _estimate(_data, _estimator::Type{T}, param) where {T<:ParameterisedEstimator}
+        h = estimate_h(_data, _estimator, param)
+        #println(string(_estimator) * " " * string(round(h; digits=4)))
+        println(string(round(h; digits=4)))
+        return h
+    end
 
-    estimate = estimate_h(data, MillerMadow)
-    println("MillerMadow " * string(estimate))
 
-    estimate = estimate_h(data, Grassberger88)
-    println("Grassberger88 " * string(estimate))
+    println("Frequentist h estimators")
+    F_estimators = [MaximumLikelihood, MillerMadow, Grassberger88, Grassberger03, Schurmann, ChaoShen, Zhang, Shrink, Bonachela, ChaoWangJost]
+    for F_estimator in F_estimators
+        if F_estimator == Schurmann
+            push!(estimations, _estimate(data, F_estimator, exp(-1 / 2)))
+        else
+            push!(estimations, _estimate(data, F_estimator))
+        end
+    end 
 
-    estimate = estimate_h(data, Grassberger03)
-    println("Grassberger03 " * string(estimate))
+    println("Bayesian h estimators")
+    B_estimators = [PYM, Bayes, LaPlace, Jeffrey, SchurmannGrassberger, Minimax, NSB, ANSB, PERT]
+    for B_estimator in B_estimators
+        if B_estimator == Bayes
+            push!(estimations, _estimate(data, B_estimator, 0.0))
+        elseif B_estimator == NSB
+            push!(estimations, _estimate(data, B_estimator, false))
+        elseif B_estimator == PYM
+            push!(estimations, _estimate(data, B_estimator, nothing))
+        else
+            push!(estimations, _estimate(data, B_estimator))
+        end
+    end 
 
-    estimate = estimate_h(data, Schurmann)
-    println("Schurmann " * string(estimate))
-
-    #estimate = estimate_h(cvector(samples), SchurmannGeneralised, dist) ?
-
-    estimate = estimate_h(data, ChaoShen)
-    println("ChaoShen " * string(estimate))
-
-    estimate = estimate_h(data, Zhang)
-    println("Zhang " * string(estimate))
-
-    estimate = estimate_h(data, Shrink)
-    println("Shrink " * string(estimate))
-
-    estimate = estimate_h(data, Bonachela)
-    println("Bonachela " * string(estimate))
-
-    estimate = estimate_h(data, ChaoWangJost)
-    println("ChaoWangJost " * string(estimate))
-
-    estimate = estimate_h(data, BUB)
-    #println("BUB " * string(estimate))
-
-    println()
-    #------------------------------------------#
-
-    # Bayesian
-    println("BAYESIAN ESTIMATORS")
-
-    estimate = estimate_h(data, PYM)
-    println("PYM " * string(estimate))
-    print()
-
-    estimate = estimate_h(data, Bayes, 0.0)
-    println("BAYES " * string(estimate))
-
-    estimate = estimate_h(data, LaPlace)
-    println("LaPlace " * string(estimate))
-
-    estimate = estimate_h(data, Jeffrey)
-    println("Jeffrey " * string(estimate))
-
-    estimate = estimate_h(data, SchurmannGrassberger)
-    println("SchurmannGrassberger " * string(estimate))
-
-    estimate = estimate_h(data, Minimax)
-    println("Minimax " * string(estimate))
-
-    estimate = estimate_h(data, NSB, false)
-    println("NSB " * string(estimate))
-
-    estimate = estimate_h(data, ANSB)
-    println("ANSB " * string(estimate))
-
-    estimate = estimate_h(data, PERT)
-    println("PERT " * string(estimate))
-
-    print()
+    return estimations
 end
 
 
-"""
-# Random sample
-# Samples from dist (n. of trials/observations)
-l = 100
-# Support set distribution (upper bound range of the observed variable's possible values, if.n = 100 -> [0-100])
-global n = 100
+function mi_estimation(x::CountData, y::CountData, xy::CountData)
+    estimations = []
 
-Random.seed!(40)
-dist = BetaBinomial(n, 1.0, 2.0)
-samples = rand(dist, l)
-data = from_samples(svector(samples),true)
+    function _estimate(_x, _y, _xy, _estimator::Type{T}) where {T<:AbstractEstimator}
+        mi = estimate_h(_x, _estimator) + estimate_h(_y, _estimator) - estimate_h(_xy, _estimator)
+        #println(string(_estimator) * " " * string(round(mi; digits=4)))
+        println(string(round(mi; digits=4)))
+        return mi
+    end
 
-gt = entropy(dist)
-"""
+    function _estimate(_x, _y, _xy, _estimator::Type{T}) where {T<:NonParameterisedEstimator} 
+        mi = estimate_h(_x, _estimator) + estimate_h(_y, _estimator) - estimate_h(_xy, _estimator)
+        #println(string(_estimator) * " " * string(round(mi; digits=4)))
+        println(string(round(mi; digits=4)))
+        return mi
+    end
 
-#-----------------------------------------#
-
-# Sample from PYM entropy estimator MATLAB reference implementation
-# https://github.com/pillowlab/PYMentropy/tree/master
-
-"""
-samples = [1, 2, 2, 3, 3, 4, 4, 4, 4]
-data = from_samples(svector(samples),true)
-
-#println(sort(unique(svector(samples).values)))
-println(data)
-
-H_estimation(data)
-"""
+    function _estimate(_x, _y, _xy, _estimator::Type{T}, param) where {T<:ParameterisedEstimator}
+        mi = estimate_h(_x, _estimator, param) + estimate_h(_y, _estimator, param) - estimate_h(_xy, _estimator, param)
+        #println(string(_estimator) * " " * string(round(mi; digits=4)))
+        println(string(round(mi; digits=4)))
+        return mi
+    end
 
 
+    println("Frequentist mi estimators")
+    F_estimators = [MaximumLikelihood, MillerMadow, Grassberger88, Grassberger03, Schurmann, ChaoShen, Zhang, Shrink, Bonachela, ChaoWangJost]
+    for F_estimator in F_estimators
+        if F_estimator == Schurmann
+            push!(estimations, _estimate(x, y, xy, F_estimator, exp(-1 / 2)))
+        else
+            push!(estimations, _estimate(x, y, xy, F_estimator))
+        end
+    end 
 
+    println("Bayesian mi estimators")
+    B_estimators = [PYM, Bayes, LaPlace, Jeffrey, SchurmannGrassberger, Minimax, NSB, ANSB, PERT]
+    for B_estimator in B_estimators
+        if B_estimator == Bayes
+            push!(estimations, _estimate(x, y, xy, B_estimator, 0.0))
+        elseif B_estimator == NSB
+            push!(estimations, _estimate(x, y, xy, B_estimator, false))
+        elseif B_estimator == PYM
+            push!(estimations, _estimate(x, y, xy, B_estimator, nothing))
+        else
+            push!(estimations, _estimate(x, y, xy, B_estimator))
+        end
+    end 
 
-
-
-
-
+    return estimations
+end
 
