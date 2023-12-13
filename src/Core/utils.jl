@@ -82,3 +82,23 @@ end
 function logspace(start, stop, steps::Integer)
     return 10 .^ range(start, stop, length=steps)
 end
+
+function round_data(data::Float64)
+    return round(data; digits=4)
+end 
+
+function print_data(arg1::String, arg2::Float64)
+    println(arg1 * " " * string(round_data(arg2)))
+end
+
+function print_data(arg1, arg2::Float64)
+    println(string(arg1) * " " * string(round_data(arg2)))
+end
+
+function print_data(data::Float64)
+    println(round_data(data))
+end
+
+function print_data(data::Int)
+    println(data)
+end
