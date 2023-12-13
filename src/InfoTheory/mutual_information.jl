@@ -1,3 +1,156 @@
+using Random
+
+# ------------------------------Shannon Mutual Information------------------------------ #
+
+# Arrays of real values (probability distribution) 
+#m_x: marginal probability (x)
+#m_x: marginal probability (y)
+#j_xy: joint probability (xy)
+#real_mutual_information
+function _mutual_information(m_X::Vector, m_Y::Vector, j_XY::Vector)
+    hX = _entropy(m_X)
+    hY = _entropy(m_Y)
+    hXY = _jointentropy(j_XY)
+    mi = hX + hY - hXY
+    return mi
+end
+
+# Arrays of discrete values (samples)
+#discrete_mutual_information
+function _mutual_information(X::Vector, Y::Vector)
+    matrix = freqtable(X, Y)
+    j_XY = prop(matrix)
+    m_X = marginal_counts(Matrix{Float64}(j_XY), 1)
+    m_Y = marginal_counts(Matrix{Float64}(j_XY), 2)
+
+    hX = _entropy(m_X)
+    hY = _entropy(m_Y)
+    hXY = _entropy(vec(j_XY))
+    mi = hX + hY - hXY
+    return mi
+end
+
+
+# ----------------------Shannon Mutual Information - Estimation ------------------------ #
+
+Schurmann_param = exp(-1 / 2)
+Bayes_param = 0.0
+NSB_param = false
+PYM_param = nothing
+
+# Mutual Information Estimation
+function mi_estimations(X::CountData, Y::CountData, XY::CountData)
+    estimations = []
+    function _estimate(_X, _Y, _XY, _estimator::Type{T}) where {T<:AbstractEstimator}
+        mi = estimate_h(_X, _estimator) + estimate_h(_Y, _estimator) - estimate_h(_XY, _estimator)
+        return mi
+    end
+
+    function _estimate(_X, _Y, _XY, _estimator::Type{T}) where {T<:NonParameterisedEstimator} 
+        mi = estimate_h(_X, _estimator) + estimate_h(_Y, _estimator) - estimate_h(_XY, _estimator)
+        return mi
+    end
+
+    function _estimate(_X, _Y, _XY, _estimator::Type{T}, arg) where {T<:ParameterisedEstimator}
+        mi = estimate_h(_X, _estimator, arg) + estimate_h(_Y, _estimator, arg) - estimate_h(_XY, _estimator, arg)
+        return mi
+    end
+
+    # Frequentist Estimators
+    println("Frequentist mi estimations")
+    F_estimators = [MaximumLikelihood, MillerMadow, Grassberger88, Grassberger03, Schurmann, ChaoShen, Zhang, Shrink, Bonachela, ChaoWangJost]
+    for F_estimator in F_estimators
+        if F_estimator == Schurmann
+            push!(estimations, _estimate(X, Y, XY, F_estimator, Schurmann_param))
+        else
+            push!(estimations, _estimate(X, Y, XY, F_estimator))
+        end
+        #print_data(F_estimator, last(estimations))
+        print_data(last(estimations))
+    end 
+
+    # Bayesian Estimators
+    println("Bayesian mi estimations")
+    B_estimators = [PYM, Bayes, LaPlace, Jeffrey, SchurmannGrassberger, Minimax, NSB, ANSB, PERT]
+    for B_estimator in B_estimators
+        if B_estimator == Bayes
+            push!(estimations, _estimate(X, Y, XY, B_estimator, Bayes_param))
+        elseif B_estimator == NSB
+            push!(estimations, _estimate(X, Y, XY, B_estimator, NSB_param))
+        elseif B_estimator == PYM
+            push!(estimations, _estimate(X, Y, XY, B_estimator, PYM_param))
+        else
+            push!(estimations, _estimate(X, Y, XY, B_estimator))
+        end
+        #print_data(B_estimator, last(estimations))
+        print_data(last(estimations))
+    end 
+
+    return estimations
+end
+
+
+function mi_estimations(contingency_matrix::Matrix)
+    estimations = []
+
+    function _estimate(_contingency_matrix, _estimator::Type{T}) where {T<:AbstractEstimator}
+        hX = estimate_h(from_data(marginal_counts(_contingency_matrix, 1), Histogram), _estimator)
+        hY = estimate_h(from_data(marginal_counts(_contingency_matrix, 2), Histogram), _estimator)
+        hXY = estimate_h(from_data(_contingency_matrix, Histogram), _estimator)
+        mi = hX + hY - hXY
+        return mi
+    end
+
+    function _estimate(_contingency_matrix, _estimator::Type{T}) where {T<:NonParameterisedEstimator}
+        hX = estimate_h(from_data(marginal_counts(_contingency_matrix, 1), Histogram), _estimator)
+        hY = estimate_h(from_data(marginal_counts(_contingency_matrix, 2), Histogram), _estimator)
+        hXY = estimate_h(from_data(_contingency_matrix, Histogram), _estimator)
+        mi = hX + hY - hXY
+        return mi
+    end
+    
+    function _estimate(_contingency_matrix, _estimator::Type{T}, arg) where {T<:ParameterisedEstimator}
+        hX = estimate_h(from_data(marginal_counts(_contingency_matrix, 1), Histogram), _estimator, arg)
+        hY = estimate_h(from_data(marginal_counts(_contingency_matrix, 2), Histogram), _estimator, arg)
+        hXY = estimate_h(from_data(_contingency_matrix, Histogram), _estimator, arg)
+        mi = hX + hY - hXY
+        return mi
+    end
+
+    # Frequentist Estimators
+    println("Frequentist mi estimations")
+    F_estimators = [MaximumLikelihood, MillerMadow, Grassberger88, Grassberger03, Schurmann, ChaoShen, Zhang, Shrink, Bonachela, ChaoWangJost]
+    for F_estimator in F_estimators
+        if F_estimator == Schurmann
+            push!(estimations, _estimate(contingency_matrix, F_estimator, Schurmann_param))
+        else
+            push!(estimations, _estimate(contingency_matrix, F_estimator))
+        end
+        #print_data(F_estimator, last(estimations))
+        print_data(last(estimations))
+    end 
+
+    # Bayesian Estimators
+    println("Bayesian mi estimations")
+    B_estimators = [PYM, Bayes, LaPlace, Jeffrey, SchurmannGrassberger, Minimax, NSB, ANSB, PERT]
+    for B_estimator in B_estimators
+        if B_estimator == Bayes
+            push!(estimations, _estimate(contingency_matrix, B_estimator, Bayes_param))
+        elseif B_estimator == NSB
+            push!(estimations, _estimate(contingency_matrix, B_estimator, NSB_param))
+        elseif B_estimator == PYM
+            push!(estimations, _estimate(contingency_matrix, B_estimator, PYM_param))
+        else
+            push!(estimations, _estimate(contingency_matrix, B_estimator))
+        end
+        #print_data(B_estimator, last(estimations))
+        print_data(last(estimations))
+    end 
+
+    return estimations
+end
+
+
 @doc raw"""
     uncertainty_coefficient(counts::Matrix, estimator::Type{T}; dim=Axis, symmetric=false) where {T<:AbstractEstimator}
 
@@ -93,12 +246,10 @@ I(X;Y) = H(X) + H(Y) - H(X,Y)
 
 ```
 """
-function mutual_information(contingency_matrix::Matrix, estimator::Type{T}) where {T<:AbstractEstimator}
-    hx = estimate_h(from_data(marginal_counts(contingency_matrix, 2), Histogram), estimator)
-    hy = estimate_h(from_data(marginal_counts(contingency_matrix, 1), Histogram), estimator)
-    hxy = estimate_h(from_data(contingency_matrix, Histogram), estimator)
 
-    hx + hy - hxy
+
+function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Function)
+    return estimator(X) + estimator(Y) - estimator(XY)
 end
 
 function mutual_information(X::CountData, Y::CountData, XY::CountData, estimator::Type{T}) where {T<:NonParameterisedEstimator}
@@ -118,16 +269,10 @@ function mutual_information(X::CountData, Y::CountData, XY::CountData,
     estimate_h(X, e1) + estimate_h(Y, e2) - estimate_h(XY, e3)
 end
 
-# Arrays of discrete values
-function mutual_information(X::Vector, Y::Vector)
-    matrix = freqtable(X, Y)
-    m_XY = prop(matrix)
-    m_X = marginal_counts(Matrix{Float64}(m_XY), 1)
-    m_Y = marginal_counts(Matrix{Float64}(m_XY), 2)
+# function mutual_information(counts::Matrix, args...)::Float64
+#     X = from_counts(marginal_counts(counts, 1))
+#     Y = from_counts(marginal_counts(counts, 2))
+#     XY = from_counts([1, 2, 3]) # TODO need to implement this
 
-    HX = _entropy(m_X)
-    HY = _entropy(m_Y)
-    HXY = _entropy(vec(m_XY))
-    IXY = HX + HY - HXY
-    return IXY
-end
+#     return mutual_information(X, Y, XY, args...)
+# end
