@@ -1,5 +1,6 @@
 include("../src/DiscreteEntropy.jl")
 include("mi_estimation.jl")
+include("cmi_estimation.jl")
 
 using .DiscreteEntropy
 
@@ -8,4 +9,5 @@ n_runs = 1000
 
 for n in input_size
     mutual_information_estimation(n, n, n_runs)
+    conditional_mutual_information_estimation(n, n, n, n_runs)
 end
