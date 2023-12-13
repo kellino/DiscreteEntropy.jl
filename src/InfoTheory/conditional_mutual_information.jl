@@ -19,7 +19,7 @@ Bayes_param = 0.0
 NSB_param = false
 PYM_param = nothing
 
-function cmi_estimation(XZ::CountData, YZ::CountData, XYZ::CountData, Z::CountData)
+function cmi_estimations(XZ::CountData, YZ::CountData, XYZ::CountData, Z::CountData)
     estimations = []
 
     function _estimate(_XZ, _YZ, _XYZ, _Z, _estimator::Type{T}) where {T<:AbstractEstimator}
