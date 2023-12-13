@@ -114,6 +114,10 @@ function schurmann(data::CountData, ξ::Float64=exp(-1 / 2))
            sum((_schurmann(x[1], x[2], ξ) for x in eachcol(data.multiplicities)))
 end
 
+function _schurmann(y, m, ξ=exp(-1 / 2))
+    lim = (1.0 / ξ) - 1.0
+    return (digamma(y) + (-1.0)^y * quadgk(t -> t^(y - 1.0) / (1.0 + t), 0, lim)[1]) * y * m
+end
 
 # Schurmann Generalised Estimator
 
