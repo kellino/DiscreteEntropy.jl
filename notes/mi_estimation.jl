@@ -12,16 +12,16 @@ using Random
 
 function mutual_information_estimation(X_n::Integer, Y_n::Integer, runs=1000)
     # Generate arbitrary Joint Probability Distribution of two random variables (X, Y)
-    # -> Random generation of matrix of decimal values
+    # (Random generation of matrix of decimal values)
 
-    # support set for X and Y -> number of rows (r) and colums (c) of matrix
+    # support set (sample space) of X and Y -> number of rows (r) and colums (c) of contingency matrix
     r = X_n
     c = Y_n
 
     # number of runs (characterised by different seeds)
     n_runs = runs
 
-    # ground truth and estimation of Shannon measurements (for n_runs)
+    # shannon measurement's Ground Truth and Estimation (for n_runs)
     n_runs_hX = []
     n_runs_hY = []
     n_runs_hXY = []
@@ -32,7 +32,7 @@ function mutual_information_estimation(X_n::Integer, Y_n::Integer, runs=1000)
     n_runs_mi_est = []
 
     # Saving setting
-    root = "out/"
+    root = "out/mi_estimation/"
     matrix_size = string(r) * "x" * string(c)
     current_datetime = now()
     formatted_datetime = Dates.format(current_datetime, "yyyymmdd_HHMMSS")
@@ -49,6 +49,9 @@ function mutual_information_estimation(X_n::Integer, Y_n::Integer, runs=1000)
         mkdir(working_dir)
     end
 
+    println("Support X:" * " " * string(r))
+    println("Support Y:" * " " * string(c))
+    println("Sample space" * " " * string(r) * "x" * string(c))
 
     for id_run in 1:n_runs
 
@@ -64,34 +67,42 @@ function mutual_information_estimation(X_n::Integer, Y_n::Integer, runs=1000)
         hXY_est = []
         mi_est = []
 
-        println("Matrix" * " " * string(r) * "x" * string(c))
-        println("Run" * " " * string(id_run))
+        println("*********** Run" * " " * string(id_run) * " ***********")
 
         # set of sample size
         ss_lst = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 
         # --------------------Random Joint Probability Distribution----------------------#
+        
+        # Generate random contingency matrix r*c
         matrix_joint = Matrix{Float64}(undef, r, c)
         v = rand(r * c)
+        # Normalize the matrix to have sum 1.0 (probability rule of sum)
         matrix_joint = reshape((v / sum(v)), (r, c))
-        j_XY = matrix_joint
+        pXY = matrix_joint
 
-        # Check sum probabilities = 1
-        sum_j_XY = sum(j_XY)
-        print_data(sum_j_XY)
+        # Check probability rule of sum
+        sum_pXY = sum(pXY)
+        print_data("Sum joint probabilities XY:", sum_pXY)
 
         # Marginal probability distributions
-        m_X = marginal_counts(Matrix{Float64}(j_XY), 1)
-        m_Y = marginal_counts(Matrix{Float64}(j_XY), 2)
+        pX = marginal_counts(Matrix{Float64}(pXY), 1)
+        pY = marginal_counts(Matrix{Float64}(pXY), 2)
 
         # ----------------------------------Ground Truth----------------------------------#
+       
         # Ground Truth Entropy
-        push!(hX, _entropy(m_X))
-        push!(hY, _entropy(m_Y))
-        push!(hXY, _jointentropy(vec(j_XY)))
+        gthX = _entropy(pX)
+        push!(hX, gthX)
+        gthY = _entropy(pY)
+        push!(hY, gthY)
+        gthXY = _jointentropy(vec(pXY))
+        push!(hXY, gthXY)
 
         # Ground Truth Mutual Information
-        push!(mi, _mutual_information(vec(m_X), vec(m_Y), vec(j_XY)))
+        gt = _mutual_information(vec(pX), vec(pY), vec(pXY))
+        push!(mi, gt)
+        print_data("Ground truth I(X;Y):", gt)
 
         # Cartesian product
         x = []
@@ -106,15 +117,15 @@ function mutual_information_estimation(X_n::Integer, Y_n::Integer, runs=1000)
         for ss in ss_lst
             
             # ----------------------Sampling from Joint Distribution----------------------#
+            
             global n_s = 0
             pos_samples = []
 
-            println("Sample size")
-            println(ss)
+            println("Sample size " * string(ss))
 
             while n_s < ss
                 global n_s += 1
-                sample = random_choice(vec(j_XY))
+                sample = random_choice(vec(pXY))
                 push!(pos_samples, sample)
             end
             
@@ -126,7 +137,8 @@ function mutual_information_estimation(X_n::Integer, Y_n::Integer, runs=1000)
             pos_samples = [x for x in pos_samples]
             
             f = freqtable(pos_samples)
-            p = prop(f)
+            # Joint probability distribution sample
+            pXY_s = prop(f)
             
             # Association of positional samples to actual n-tuple samples (n=2 -> joint samples (X,Y))
             d = Dict()
@@ -150,28 +162,28 @@ function mutual_information_estimation(X_n::Integer, Y_n::Integer, runs=1000)
             end
 
             matrix_sample = freqtable(X_samples, Y_samples)
-            j_XY = prop(matrix_sample)
-            m_X = marginal_counts(Matrix{Float64}(j_XY), 1)
-            m_Y = marginal_counts(Matrix{Float64}(j_XY), 2)
+            pXY_s = prop(matrix_sample)
+            pX_s = marginal_counts(Matrix{Float64}(pXY_s), 1)
+            pY_s = marginal_counts(Matrix{Float64}(pXY_s), 2)
             
             data_X = from_samples(svector([x for x in X_samples]), true)
             data_Y = from_samples(svector([y for y in Y_samples]), true)
             data_XY = from_samples(svector([s for s in pos_samples]), true)
             
             # ---------------------------Mutual Information Estimation-------------------------#
-            hXe = h_estimations(data_X)
-            println("entropy X")
-            push!(hX_est, hXe)
-            hYe = h_estimations(data_Y)
-            println("entropy Y")
-            push!(hY_est, hYe)
-            hXYe = h_estimations(data_XY)
-            println("joint entropy XY")
-            push!(hXY_est, hXYe)
+            println("-----------I(X;Y)-----------")
             #res = mi_estimations(Matrix(matrix_sample))
             res = mi_estimations(data_X, data_Y, data_XY)
             push!(mi_est, res)
-
+            println("-----------H(X)-----------")
+            hXe = h_estimations(data_X)
+            push!(hX_est, hXe)
+            println("-----------H(Y)-----------")
+            hYe = h_estimations(data_Y)
+            push!(hY_est, hYe)
+            println("-----------H(X,Y)-----------")
+            hXYe = h_estimations(data_XY)
+            push!(hXY_est, hXYe)
         end 
 
         push!(n_runs_hX, hX)
@@ -182,15 +194,14 @@ function mutual_information_estimation(X_n::Integer, Y_n::Integer, runs=1000)
         push!(n_runs_hY_est, hY_est)
         push!(n_runs_hXY_est, hXY_est)
         push!(n_runs_mi_est, mi_est)
-
-        f = serialize(string(working_dir)*"hX.dat", n_runs_hX)
-        f = serialize(string(working_dir)*"hY.dat", n_runs_hY)
-        f = serialize(string(working_dir)*"hXY.dat", n_runs_hXY)
-        f = serialize(string(working_dir)*"mi.dat", n_runs_mi)
-        f = serialize(string(working_dir)*"hX_est.dat", n_runs_hX_est)
-        f = serialize(string(working_dir)*"hY_est.dat", n_runs_hY_est)
-        f = serialize(string(working_dir)*"hXY_est.dat", n_runs_hXY_est)
-        f = serialize(string(working_dir)*"mi_est.dat", n_runs_mi_est)
-
     end
+
+    f = serialize(string(working_dir)*"hX.dat", n_runs_hX)
+    f = serialize(string(working_dir)*"hY.dat", n_runs_hY)
+    f = serialize(string(working_dir)*"hXY.dat", n_runs_hXY)
+    f = serialize(string(working_dir)*"mi.dat", n_runs_mi)
+    f = serialize(string(working_dir)*"hX_est.dat", n_runs_hX_est)
+    f = serialize(string(working_dir)*"hY_est.dat", n_runs_hY_est)
+    f = serialize(string(working_dir)*"hXY_est.dat", n_runs_hXY_est)
+    f = serialize(string(working_dir)*"mi_est.dat", n_runs_mi_est)
 end

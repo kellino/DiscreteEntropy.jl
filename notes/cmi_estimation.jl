@@ -12,9 +12,9 @@ using Random
 
 function conditional_mutual_information_estimation(X_n::Integer, Y_n::Integer, Z_n::Integer, runs=1000)
     # Generate arbitrary Joint Probability Distribution of three random variables (X, Y, Z)
-    # -> Random generation of matrix of decimal values
+    # (Random generation of matrices of decimal values)
 
-    # support set for X, Y and Z -> number of rows (r) and colums (c) of matrix
+    # support set (sample space) of X, Y and Z -> number of rows (r) and colums (c) of contingency matrices
     r = X_n
     c = Y_n
     n = Z_n
@@ -22,7 +22,7 @@ function conditional_mutual_information_estimation(X_n::Integer, Y_n::Integer, Z
     # number of runs (characterised by different seeds)
     n_runs = runs
 
-    # ground truth and estimation of Shannon measurements (for n_runs)
+    # shannon measurements' Ground Truth and Estimation (for n_runs)
     n_runs_hXZ = []
     n_runs_hYZ = []
     n_runs_hXYZ = [] 
@@ -34,30 +34,29 @@ function conditional_mutual_information_estimation(X_n::Integer, Y_n::Integer, Z
     n_runs_hZ_est = []
     n_runs_cmi_est = []
 
-    function add_rule_of_sum(matrices)
-        matrices = []
+    function add_rule_of_sum(_matrices)
         single_sums = []
         total_sum = []
 
         # Scale matrices to ensure the sum of values within each matrix is greater than zero and lower than 1
         scale_factor = 0.9
-        for i in 1:length(matrices)
-            matrices[i] *= scale_factor
+        for i in 1:length(_matrices)
+            _matrices[i] *= scale_factor
             # Calculate the sum of each matrix
-            push!(single_sums, sum(matrices[i]))
+            push!(single_sums, sum(_matrices[i]))
         end
     
-        # Normalize matrices to make the sum among the three matrices equal to 1.0
+        # Normalize matrices to make the sum among the matrices equal to 1.0 (probability rule of sum)
         total_sum = sum(single_sums)
-        for i in 1:length(matrices)
-            matrices[i] /= total_sum
+        for i in 1:length(_matrices)
+            _matrices[i] /= total_sum
         end
     
-        return matrices
+        return _matrices
     end
 
     # Saving setting
-    root = "out/"
+    root = "out/cmi_estimation/"
     matrix_size = string(r) * "x" * string(c) * "x" * string(n)
     current_datetime = now()
     formatted_datetime = Dates.format(current_datetime, "yyyymmdd_HHMMSS")
@@ -74,21 +73,25 @@ function conditional_mutual_information_estimation(X_n::Integer, Y_n::Integer, Z
         mkdir(working_dir)
     end
 
+    println("Support X:" * " " * string(r))
+    println("Support Y:" * " " * string(c))
+    println("Support Z:" * " " * string(n))
+    println("Sample space" * " " * string(r) * "x" * string(c) * "x" * string(n))
 
     for id_run in 1:n_runs
 
         Random.seed!(id_run)
 
         single_sum = 0
-        jXZ_temp = []
-        jXZ = []
-        jYZ_temp = []
-        jYZ = []
-        m_Z = []
-        jXYZ_temp = []
-        jXYZ = []    
+        pXZ_temp = []
+        pXZ = []
+        pYZ_temp = []
+        pYZ = []
+        pZ = []
+        pXYZ_temp = []
+        pXYZ = []    
 
-        # arrays for shannon measurements' Ground Truth and Estimation (for single run)
+        # shannon measurements' Ground Truth and Estimation (for single run)
         hXZ = []
         hYZ = []
         hXYZ = []
@@ -100,90 +103,96 @@ function conditional_mutual_information_estimation(X_n::Integer, Y_n::Integer, Z
         hZ_est = []
         cmi_est = []
 
-        println("Matrix" * " " * string(r) * "x" * string(c)) * "x" * string(n)
-        println("Run" * " " * string(id_run))
+        println("*********** Run" * " " * string(id_run) * " ***********")
 
         # set of sample size
         ss_lst = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 
         # --------------------Random Joint Probability Distribution----------------------#
         
-        # Generate n random matrices
+        # Generate n random contingency matrices r*c
+        matrices = []
+        single_sum = []
+
         for i in 1:n
             matrix = rand(Float64, r, c)
             push!(matrices, matrix)
         end 
         matrices = add_rule_of_sum(matrices)
 
-        # Check sum probabilities = 1
+        # Check probability rule of sum
         for i in 1:length(matrices)
             push!(single_sum, sum(matrices[i]))
         end
-        print_data("\nSum among the" * string(n) * "matrices:", sum(single_sum))
-
+        print_data("Sum joint probabilities XYZ:", sum(single_sum))
 
         # Marginal joint probability distributions
         for i in 1:length(matrices)
-            m_matrix = marginal_counts(Matrix{Float64}(matrices[i]), 1)
-            push!(jXZ_temp, m_matrix)
+            XZ_matrix = marginal_counts(Matrix{Float64}(matrices[i]), 1)
+            push!(pXZ_temp, XZ_matrix)
         end
-        for i in 1:length(jXZ_temp)
-            push!(jXZ, getindex.(jXZ_temp,i))
-        end
-        
-        for i in 1:length(matrices)
-            m_matrix = marginal_counts(Matrix{Float64}(matrices[i]), 2)
-            push!(jYZ_temp, m_matrix)
-        end
-        for i in 1:length(jYZ_temp)
-            push!(jYZ, getindex.(jYZ_temp,i))
+        for i in 1:length(pXZ_temp)
+            push!(pXZ, getindex.(pXZ_temp,i))
         end
         
         for i in 1:length(matrices)
-            push!(m_Z, sum(matrices[i]))
+            YZ_matrix = marginal_counts(Matrix{Float64}(matrices[i]), 2)
+            push!(pYZ_temp, YZ_matrix)
+        end
+        for i in 1:length(pYZ_temp)
+            push!(pYZ, getindex.(pYZ_temp,i))
+        end
+        
+        for i in 1:length(matrices)
+            push!(pZ, sum(matrices[i]))
         end
 
         for i in 1:length(matrices)
-            push!(jXYZ_temp, vec(matrices[i]))
+            push!(pXYZ_temp, vec(matrices[i]))
         end
-        jXYZ = collect(Iterators.flatten(jXYZ_temp))
+        pXYZ = collect(Iterators.flatten(pXYZ_temp))
 
         # ----------------------------------Ground Truth----------------------------------#
+        
         # Ground Truth Entropy
-        push!(hXZ, _entropy(collect(Iterators.flatten(jXZ))))
-        push!(hYZ, _entropy(collect(Iterators.flatten(jYZ))))
-        push!(hXYZ, _jointentropy(collect(Iterators.flatten(jXYZ))))
-        push!(hZ, _entropy([i for i in m_Z]))
+        gthXZ = _entropy(collect(Iterators.flatten(pXZ)))
+        push!(hXZ, gthXZ)
+        gthYZ = _entropy(collect(Iterators.flatten(pYZ)))
+        push!(hYZ, gthYZ)
+        gthXYZ = _jointentropy(collect(Iterators.flatten(pXYZ)))
+        push!(hXYZ, gthXYZ)
+        gthZ = _entropy([i for i in pZ])
+        push!(hZ, gthZ)
 
         # Ground Truth Conditional Mutual Information
-        push!(cmi, _conditional_mutual_information(collect(Iterators.flatten(jXZ)), collect(Iterators.flatten(jYZ)), collect(Iterators.flatten(jXYZ)), [i for i in m_Z]))
-
+        gt = _conditional_mutual_information(collect(Iterators.flatten(pXZ)), collect(Iterators.flatten(pYZ)), collect(Iterators.flatten(pXYZ)), [i for i in pZ])
+        push!(cmi, gt)
+        print_data("Ground truth I(X;Y|Z):", gt)
 
         for ss in ss_lst
             
-            # ----------------------Sampling from Joint Distribution----------------------#
+            # ----------------------Sampling from Joint Probability Distribution----------------------#
             global n_s = 0
             pos_samples_XZ = []
             pos_samples_YZ = []
             pos_samples_XYZ = []
             pos_samples_Z = []
 
-            println("Sample size")
-            println(ss)
+            println("Sample size " * string(ss))
 
             while n_s < ss
                 global n_s += 1
-                sample = random_choice(collect(Iterators.flatten(jXZ)))
-                push!(pos_samples_XZ, sample)
+                sampleXZ = random_choice(collect(Iterators.flatten(pXZ)))
+                push!(pos_samples_XZ, sampleXZ)
         
-                sample = random_choice(collect(Iterators.flatten(jYZ)))
-                push!(pos_samples_YZ, sample)
+                sampleYZ = random_choice(collect(Iterators.flatten(pYZ)))
+                push!(pos_samples_YZ, sampleYZ)
         
-                sample = random_choice(collect(Iterators.flatten(jXYZ)))
-                push!(pos_samples_XYZ, sample)
+                sampleXYZ = random_choice(collect(Iterators.flatten(pXYZ)))
+                push!(pos_samples_XYZ, sampleXYZ)
         
-                sample = random_choice(collect(Iterators.flatten(m_Z)))
-                push!(pos_samples_Z, sample)
+                sampleZ = random_choice(collect(Iterators.flatten(pZ)))
+                push!(pos_samples_Z, sampleZ)
             end
             
             # positional samples -> e.g. [1, 2, 3, 3, 4, 4, 4] 
@@ -208,21 +217,21 @@ function conditional_mutual_information_estimation(X_n::Integer, Y_n::Integer, Z
             data_Z = from_samples(svector([s for s in pos_samples_Z]), true)
             
             # ---------------------------Mutual Information Estimation-------------------------#
-            hXZe = H_estimation(data_XZ)
-            println("entropy XZ")
-            push!(hXZ_est, hXZe)
-            hYZe = H_estimation(data_YZ)
-            println("entropy YZ")
-            push!(hYZ_est, hYZe)
-            hXYZe = H_estimation(data_XYZ)
-            println("entropy XYZ")
-            push!(hXYZ_est, hXYZe)
-            hZe = H_estimation(data_Z)
-            println("entropy Z")
-            push!(hZ_est, hZe)
+            println("-----------I(X;Y|Z)-----------")
             res = cmi_estimations(data_XZ, data_YZ, data_XYZ, data_Z)
             push!(cmi_est, res)
-
+            println("-----------H(X,Z)-----------")
+            hXZe = h_estimations(data_XZ)
+            push!(hXZ_est, hXZe)
+            println("-----------H(Y,Z)-----------")
+            hYZe = h_estimations(data_YZ)
+            push!(hYZ_est, hYZe)
+            println("-----------H(X,Y,Z)-----------")
+            hXYZe = h_estimations(data_XYZ)
+            push!(hXYZ_est, hXYZe)
+            println("-----------H(Z)-----------")
+            hZe = h_estimations(data_Z)
+            push!(hZ_est, hZe)
         end 
 
         push!(n_runs_hXZ, hXZ)
@@ -235,16 +244,15 @@ function conditional_mutual_information_estimation(X_n::Integer, Y_n::Integer, Z
         push!(n_runs_hXYZ_est, hXYZ_est)
         push!(n_runs_hZ_est, hZ_est)
         push!(n_runs_cmi_est, cmi_est)
-
-        f = serialize(string(working_dir)*"hXZ.dat", n_runs_hXZ)
-        f = serialize(string(working_dir)*"hYZ.dat", n_runs_hYZ)
-        f = serialize(string(working_dir)*"hXYZ.dat", n_runs_hXYZ)
-        f = serialize(string(working_dir)*"hZ.dat", n_runs_hZ)
-        f = serialize(string(working_dir)*"cmi.dat", n_runs_cmi)
-        f = serialize(string(working_dir)*"hXZ_est.dat", n_runs_hXZ_est)
-        f = serialize(string(working_dir)*"hYZ_est.dat", n_runs_hYZ_est)
-        f = serialize(string(working_dir)*"hXYZ_est.dat", n_runs_hXYZ_est)
-        f = serialize(string(working_dir)*"cmi_est.dat", n_runs_cmi_est)
-
     end
+
+    f = serialize(string(working_dir)*"hXZ.dat", n_runs_hXZ)
+    f = serialize(string(working_dir)*"hYZ.dat", n_runs_hYZ)
+    f = serialize(string(working_dir)*"hXYZ.dat", n_runs_hXYZ)
+    f = serialize(string(working_dir)*"hZ.dat", n_runs_hZ)
+    f = serialize(string(working_dir)*"cmi.dat", n_runs_cmi)
+    f = serialize(string(working_dir)*"hXZ_est.dat", n_runs_hXZ_est)
+    f = serialize(string(working_dir)*"hYZ_est.dat", n_runs_hYZ_est)
+    f = serialize(string(working_dir)*"hXYZ_est.dat", n_runs_hXYZ_est)
+    f = serialize(string(working_dir)*"cmi_est.dat", n_runs_cmi_est)
 end

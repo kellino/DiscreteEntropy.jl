@@ -11,21 +11,21 @@ using Random
 
 
 function entropy_estimation(X_n::Integer, runs=1000)
-    # Generate arbitrary Probability Distribution of one random variables (X)
-    # -> Random generation of array of decimal values
+    # Generate arbitrary Probability Distribution (PMF) of one random variable (X)
+    # (Random generation of array of decimal values)
 
-    # support set for X -> length of array
+    # support set (sample space) of X  -> length of PMF array
     n = X_n
 
     # number of runs (characterised by different seeds)
     n_runs = runs
 
-    # ground truth and estimation of Shannon measurements (for n_runs)
-    n_runs_h = []
-    n_runs_h_est = []
+    # shannon measurement's Ground Truth and Estimation (for n_runs)
+    n_runs_hX = []
+    n_runs_hX_est = []
 
     # Saving setting
-    root = "out/"
+    root = "out/h_estimation/"
     array_size = string(n)
     current_datetime = now()
     formatted_datetime = Dates.format(current_datetime, "yyyymmdd_HHMMSS")
@@ -42,17 +42,17 @@ function entropy_estimation(X_n::Integer, runs=1000)
         mkdir(working_dir)
     end
 
-
+    println("Support (sample space) X:" * " " * string(n))
+    
     for id_run in 1:n_runs
 
         Random.seed!(id_run)
 
-        # arrays for shannon measurements' Ground Truth and Estimation (for single run)
-        h = []
-        h_est = []
+        # shannon measurement's Ground Truth and Estimation (for single run)
+        hX = []
+        hX_est = []
 
-        println("Input Space" * " " * string(n))
-        println("Run" * " " * string(id_run))
+        println("*********** Run" * " " * string(id_run) * " ***********")
 
         # set of sample size
         ss_lst = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
@@ -60,29 +60,31 @@ function entropy_estimation(X_n::Integer, runs=1000)
         # ------------------------Random Probability Distribution-------------------------#
         
         # Generate n random numbers
-        array = rand(n)
-        # Normalize the array to have a sum of 1
-        array /= sum(array)
+        pmfX = rand(n)
+        # Normalize the array to have sum 1.0 (probability rule of sum)
+        pmfX /= sum(pmfX)
 
-        pX = array
+        pX = pmfX
 
-        # Check sum probabilities = 1
+        # Check probability rule of sum
         sum_pX = sum(pX)
-        print_data(sum_pX)
+        print_data("Sum probabilities X:", sum_pX)
 
         # ----------------------------------Ground Truth----------------------------------#
+        
         # Ground Truth Entropy
-        push!(h, _entropy(pX))
-
+        gt = _entropy(pX)
+        push!(hX, gt)
+        print_data("Ground truth H(X):", gt)
 
         for ss in ss_lst
             
             # --------------------Sampling from Probability Distribution----------------------#
+            
             global n_s = 0
             samples = []
 
-            println("Sample size")
-            println(ss)
+            println("Sample size " * string(ss))
 
             while n_s < ss
                 global n_s += 1
@@ -91,22 +93,23 @@ function entropy_estimation(X_n::Integer, runs=1000)
             end
 
             f = freqtable(samples)
-            p = prop(f)
+            # Probability distribution sample
+            pX_s = prop(f)
             
             data_X = from_samples(svector([x for x in samples]), true)
             
             # --------------------------------Entropy Estimation------------------------------#
-            he = h_estimations(data_X)
-            println("entropy X")
-            push!(h_est, he)
-
+            
+            println("-----------H(X)-----------")
+            hXe = h_estimations(data_X)
+            push!(hX_est, hXe)
         end 
 
-        push!(n_runs_h, h)
-        push!(n_runs_h_est, h_est)
-
-        f = serialize(string(working_dir)*"hX.dat", n_runs_h)
-        f = serialize(string(working_dir)*"hX_est.dat", n_runs_h_est)
-
+        push!(n_runs_hX, hX)
+        push!(n_runs_hX_est, hX_est)
     end
+
+    f = serialize(string(working_dir)*"hX.dat", n_runs_hX)
+    f = serialize(string(working_dir)*"hX_est.dat", n_runs_hX_est)
 end
+
