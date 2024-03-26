@@ -27,7 +27,7 @@ function reduce(i, mat::Matrix)
                 update_or_insert!(d, x[1], x[2])
             end
         end
-        # TODO the logic is not correct here!
+
         update_or_insert!(d, mat[:, i][1] - 1, 1)
     end
 
@@ -42,13 +42,20 @@ end
 function jk(data::CountData)
     res::Dict{CountData,Int64} = Dict()
 
-    res[data] = 1
-    for (i, _) in enumerate(eachcol(data.multiplicities))
-        (new, count) = reduce(i, data.multiplicities)
-        res[new] = count
+    if data.N == data.K
+        # if N == K then we only have unique values, ie something like [1,2,3,4] with no repetition
+        # we don't need to do a clever reduce here, just knock off one
+        mul = data.multiplicities
+        mul[2] -= 1
+        new = CountData(mul, data.N - 1, data.K - 1)
+        res[new] = data.K
+    else
+        for (i, _) in enumerate(eachcol(data.multiplicities))
+            (new, count) = reduce(i, data.multiplicities)
+            res[new] = count
+        end
     end
 
-    println(res)
     res
 end
 
@@ -60,6 +67,9 @@ Compute the jackknifed estimate of *statistic* on data.
 function jackknife(data::CountData, statistic::Function; corrected=false)
     entropies = ((statistic(c), mm) for (c, mm) in jk(data))
     len = sum(mm for (_, mm) in entropies)
+    for e in entropies
+        println(e)
+    end
 
     μ = 1 / len * sum(h * mm for (h, mm) in entropies)
 

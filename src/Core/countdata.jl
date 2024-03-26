@@ -12,6 +12,10 @@ struct Samples <: EntropyData end
 
 @doc """
     CountData
+    an 2 x m matrix where m[1, :] is counts and m[2, :] the number of bins with those counts
+    [[2 3 1] => counts / icts
+    [2 1 2]] => bins / mm
+    so we have two bins with two, 1 bin with 3, and 2 bins with 1
 """
 mutable struct CountData
     multiplicities::Matrix{Float64}
@@ -75,9 +79,20 @@ function from_samples(samples::SampleVector, remove_zeros::Bool)
         return CountData([1.0 N]', N, K)
     end
 
-    counts = filter(!iszero, fit(Hgm, samples.values, nbins=K).weights)
+    counts::Dict{Int64,Int64} = Dict()
+    for x in filter(!iszero, samples.values)
+        if haskey(counts, x)
+            counts[x] += 1
+        else
+            counts[x] = 1
+        end
+    end
 
-    _from_counts(counts, remove_zeros)
+    # k = collect(keys(counts))
+    v = collect(values(counts))
+    # counts = filter(!iszero, fit(Hgm, samples.values, nbins=K).weights)
+
+    _from_counts(v, remove_zeros)
 end
 
 @doc """

@@ -5,9 +5,10 @@ using Test
 @test ParameterisedEstimator <: AbstractEstimator
 
 @test MaximumLikelihood <: NonParameterisedEstimator
-@test JackknifeML <: NonParameterisedEstimator
+@test JackknifeMLE <: NonParameterisedEstimator
 @test MillerMadow <: NonParameterisedEstimator
-@test Grassberger <: NonParameterisedEstimator
+@test Grassberger88 <: NonParameterisedEstimator
+@test Grassberger03 <: NonParameterisedEstimator
 @test ChaoShen <: NonParameterisedEstimator
 @test Zhang <: NonParameterisedEstimator
 @test Bonachela <: NonParameterisedEstimator
