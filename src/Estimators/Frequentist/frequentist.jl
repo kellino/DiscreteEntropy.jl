@@ -34,6 +34,7 @@ function maximum_likelihood(data::CountData)
     sum(xlogx(x[1]) * x[2] for x in eachcol(data.multiplicities))
 end
 
+
 # Jackknife MLE
 
 @doc raw"""
@@ -111,13 +112,14 @@ function schurmann(data::CountData, ξ::Float64=exp(-1 / 2))
     return digamma(data.N) -
            (1.0 / data.N) *
            sum((_schurmann(x[1], x[2], ξ) for x in eachcol(data.multiplicities)))
-
 end
 
 function _schurmann(y, m, ξ=exp(-1 / 2))
     lim = (1.0 / ξ) - 1.0
     return (digamma(y) + (-1.0)^y * quadgk(t -> t^(y - 1.0) / (1.0 + t), 0, lim)[1]) * y * m
 end
+
+# Schurmann Generalised Estimator
 
 @doc raw"""
     schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
@@ -137,13 +139,15 @@ be the same length.
 
 Computes the generalised Schurmann entropy estimation, given a countvector *data* and a distribution *xis*.
 """
-function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
+function schurmann_generalised(data::CountVector, xis::Vector{T}) where {T<:Real}
+#function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
     @assert Base.length(data) == Base.length(xis)
     N = sum(data)
 
-    digamma(N) -
-    (1.0 / N) *
-    sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data))
+    for x in enumerate(data)
+        digamma(N) - (1.0 / N) * sum(_schurmann(x[2], 1, xis[x[1]]))
+    end
+    #digamma(N) - (1.0 / N) * sum(_schurmann(x[2], 1, xis[x[1]]) for x in enumerate(data))
 end
 
 function schurmann_generalised(data::CountVector, xis::T, scalar::Bool=false) where {T<:Distribution}
@@ -156,9 +160,9 @@ function schurmann_generalised(data::CountVector, xis::T, scalar::Bool=false) wh
         # take this as the default case is it seems more likely to occur
         xi_vec = xivector(rand(xis))
     end
-
     schurmann_generalised(data, xi_vec)
 end
+
 
 # Chao Shen Estimator
 
@@ -195,6 +199,7 @@ function chao_shen(data::CountData)
     -sum(xlogx(C * x[1] / data.N) / (1 - (1 - (x[1] / data.N) * C)^data.N) * x[2] for x in eachcol(data.multiplicities))
 end
 
+
 # Zhang Estimator
 
 @doc raw"""
@@ -226,6 +231,7 @@ function zhang(data::CountData)
     ent
 end
 
+
 # Bonachela Estimator
 
 @doc raw"""
@@ -243,14 +249,16 @@ Return the Bonachela estimator of the Shannon entropy of `data` in nats.
 function bonachela(data::CountData)
     acc = 0.0
     for x in eachcol(data.multiplicities)
+        t = 0.0
         ni = x[1] + 1
         for j in ni+1:data.N+2
-            ni += 1 / j
+            t += 1 / j
         end
-        acc += ni * x[2]
+        acc += ni * t * x[2]
     end
-    1.0 / (data.N + 2) * acc
+    return 1.0 / (data.N + 2) * acc
 end
+
 
 # Shrink / James-Stein Estimator
 
@@ -321,6 +329,7 @@ function lambdashrink(data::CountData)
 
     lambda .* t .+ (1 - lambda) .* u
 end
+
 
 # Chao Wang Jost Estimator
 

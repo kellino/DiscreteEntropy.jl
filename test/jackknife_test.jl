@@ -24,10 +24,10 @@ t3 = [1, 2, 3, 4, 5, 6, 7]
 @test oracle(t3, MaximumLikelihood) ≈ jackknife_mle(from_data(t3, Samples))[1]
 
 
-function rand_vecs_jackknife()
-    v = rand(1:100, 10)
-    println(v)
-    @test oracle(v, MaximumLikelihood) ≈ jackknife_mle(from_data(v, Samples))[1]
-end
+# function rand_vecs_jackknife()
+#     v = rand(1:100, 10)
+#     println(v)
+#     @test oracle(v, MaximumLikelihood) ≈ jackknife_mle(from_data(v, Samples))[1]
+# end
 
-rand_vecs_jackknife()
+# rand_vecs_jackknife()

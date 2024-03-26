@@ -4,8 +4,8 @@ using Printf;
 using LinearAlgebra: dot;
 
 @doc """
-     abstract type EntropyData
- """
+    abstract type EntropyData
+"""
 abstract type EntropyData end
 struct Histogram <: EntropyData end
 struct Samples <: EntropyData end
@@ -79,6 +79,7 @@ function from_samples(samples::SampleVector, remove_zeros::Bool)
         return CountData([1.0 N]', N, K)
     end
 
+# <<<<<<< HEAD
     counts::Dict{Int64,Int64} = Dict()
     for x in filter(!iszero, samples.values)
         if haskey(counts, x)
@@ -87,6 +88,13 @@ function from_samples(samples::SampleVector, remove_zeros::Bool)
             counts[x] = 1
         end
     end
+# ||||||| b7da174
+#     counts = filter(!iszero, fit(Hgm, samples.values, nbins=K).weights)
+# =======
+#     #counts = filter(!iszero, fit(Hgm, samples.values, nbins=K).weights)
+#     counts = filter(!iszero, fit(Hgm, samples.values, nbins=100*K).weights)
+
+# >>>>>>> 0168efc627b05a3bebb711f60a185c4de4aee4f8
 
     # k = collect(keys(counts))
     v = collect(values(counts))
@@ -96,14 +104,14 @@ function from_samples(samples::SampleVector, remove_zeros::Bool)
 end
 
 @doc """
-     from_data(data::AbstractVector, ::Type{Samples})
-     from_data(data::AbstractVector, ::Type{SampleHistogram})
- """
+    from_data(data::AbstractVector, ::Type{Samples})
+    from_data(data::AbstractVector, ::Type{Histogram})
+"""
 function from_data(data::AbstractVector, ::Type{Samples}; remove_zeros=true)
     from_samples(svector(data), remove_zeros)
 end
 
-function from_data(data::AbstractVector, ::Type{Histogram}; remove_zeros=true)
+function from_data(data::AbstractVector, ::Type{Histogram}, remove_zeros=true)
     from_counts(cvector(data), remove_zeros)
 end
 

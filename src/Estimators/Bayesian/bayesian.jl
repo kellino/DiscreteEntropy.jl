@@ -28,6 +28,8 @@ In addition to setting your own α, we have the following suggested choices
 4) minimax: α = √{n} / K
 
 """
+
+
 function bayes(data::CountData, α::AbstractFloat, K)
     weight = α * K + data.N
 
