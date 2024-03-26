@@ -67,9 +67,6 @@ Compute the jackknifed estimate of *statistic* on data.
 function jackknife(data::CountData, statistic::Function; corrected=false)
     entropies = ((statistic(c), mm) for (c, mm) in jk(data))
     len = sum(mm for (_, mm) in entropies)
-    for e in entropies
-        println(e)
-    end
 
     μ = 1 / len * sum(h * mm for (h, mm) in entropies)
 

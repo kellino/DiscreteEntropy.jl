@@ -1,5 +1,5 @@
 using CSV;
-using StatsBase: countmap, fit, Histogram as Hgm;
+# using StatsBase: countmap, fit, Histogram as Hgm;
 using Printf;
 using LinearAlgebra: dot;
 
@@ -88,17 +88,7 @@ function from_samples(samples::SampleVector, remove_zeros::Bool)
             counts[x] = 1
         end
     end
-# ||||||| b7da174
-#     counts = filter(!iszero, fit(Hgm, samples.values, nbins=K).weights)
-# =======
-#     #counts = filter(!iszero, fit(Hgm, samples.values, nbins=K).weights)
-#     counts = filter(!iszero, fit(Hgm, samples.values, nbins=100*K).weights)
-
-# >>>>>>> 0168efc627b05a3bebb711f60a185c4de4aee4f8
-
-    # k = collect(keys(counts))
     v = collect(values(counts))
-    # counts = filter(!iszero, fit(Hgm, samples.values, nbins=K).weights)
 
     _from_counts(v, remove_zeros)
 end
