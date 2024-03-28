@@ -5,42 +5,46 @@ using StatsBase: weights, sample, Weights, mean, var
 # https://towardsdatascience.com/the-bayesian-bootstrap-6ca4a1d45148
 
 function reduce(i, mat::Matrix)
-    d = Dict()
+    loc = deepcopy(mat)
+    col = mat[:, i]
 
-    if mat[:, i][2] > 1
-        remainder = mat[:, i][2] - 1
-        # 3
-        for (j, x) in enumerate(eachcol(mat))
-            if j == i
-                update_or_insert!(d, x[1], x[2] - 1)
-            else
-                update_or_insert!(d, x[1], x[2])
-            end
-        end
-        if remainder - mat[:, i][1] != 0
-            update_or_insert!(d, 1, 1)
-        end
+    loc[2, i] -= 1
 
-    elseif mat[:, i][2] == 1
-        for (j, x) in enumerate(eachcol(mat))
-            if j != i
-                update_or_insert!(d, x[1], x[2])
-            end
+    # reducing it deletes the column
+    if loc[2, i] == 0
+        new = loc[1, i] - 1.0
+        loc = loc[:, setdiff(1:end, i)]
+        ind = findall(x-> (x == new), loc[1, :])
+        if length(ind) == 0
+            loc = hcat(loc, [new, 1.0])
+        else
+            loc[2, ind[1]] += 1.0
         end
-
-        update_or_insert!(d, mat[:, i][1] - 1, 1)
+    # reducing it does *not* delete the column
+    else
+        new = loc[1, i] - 1.0
+        ind = findall(x-> (x == loc[1, i] - 1.0), loc[1, :])
+        if length(ind) == 0
+            loc = hcat(loc, [new, 1.0])
+        else
+            loc[2, ind[1]] += 1.0
+        end
     end
 
-    mm = prod(mat[:, i])
-    ks = collect(keys(d))
-    vs = collect(values(d))
-    hist = [ks vs]'
-    cd = CountData(hist, dot(ks, vs), sum(hist[2, :]))
+    inds = findall(x-> (x == 0.0), loc[1, :])
+    loc = loc[:, setdiff(1:end, inds)]
+
+    mm = prod(col)
+    cd = CountData(sortslices(loc, dims=2), sum(prod.(eachcol(loc))), sum(loc[2, :]))
     return (cd, mm)
 end
 
 function jk(data::CountData)
-    res::Dict{CountData,Int64} = Dict()
+    res = Dict{CountData, Int64}()
+
+    if data.N == 0.0 || data.K == 0
+        return res
+    end
 
     if data.N == data.K
         # if N == K then we only have unique values, ie something like [1,2,3,4] with no repetition
@@ -65,7 +69,8 @@ end
 Compute the jackknifed estimate of *statistic* on data.
 """
 function jackknife(data::CountData, statistic::Function; corrected=false)
-    entropies = ((statistic(c), mm) for (c, mm) in jk(data))
+    reduced = jk(data)
+    entropies = ((statistic(c), mm) for (c, mm) in reduced)
     len = sum(mm for (_, mm) in entropies)
 
     μ = 1 / len * sum(h * mm for (h, mm) in entropies)

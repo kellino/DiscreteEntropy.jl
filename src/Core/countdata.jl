@@ -27,6 +27,14 @@ Base.:(==)(x::CountData, y::CountData) = Base.:(==)(x.multiplicities, y.multipli
 
 Base.copy(x::CountData) = CountData(x.multiplicities, x.N, x.K)
 
+function Base.hash(g::CountData, h::UInt)
+    hash(g.multiplicities, hash(g.K, hash(g.N, h)))
+end
+
+# function hash(obj::CountData)
+#     return hash((obj.multiplicities, obj.N, obj.K))
+# end
+
 function find_col(data::CountData, target)
     for x in eachcol(data.multiplicities)
         if x[1] == target

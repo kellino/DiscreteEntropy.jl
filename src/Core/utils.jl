@@ -1,4 +1,5 @@
 using SpecialFunctions: loggamma
+using StatsBase: countmap;
 
 @enum Axis X = 2 Y = 1
 
