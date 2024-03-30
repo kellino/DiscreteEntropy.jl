@@ -14,8 +14,7 @@ abstract type ParameterisedEstimator <: AbstractEstimator end
 struct MaximumLikelihood <: NonParameterisedEstimator end
 struct JackknifeMLE <: NonParameterisedEstimator end
 struct MillerMadow <: NonParameterisedEstimator end
-struct Grassberger88 <: NonParameterisedEstimator end
-struct Grassberger03 <: NonParameterisedEstimator end
+struct Grassberger <: NonParameterisedEstimator end
 struct ChaoShen <: NonParameterisedEstimator end
 struct Zhang <: NonParameterisedEstimator end
 struct Bonachela <: NonParameterisedEstimator end
@@ -43,7 +42,8 @@ struct Minimax <: AbstractEstimator end
 # Other
 struct PERT <: AbstractEstimator end
 
-"""
+
+@doc raw"""
     estimate_h(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
 
 Return the estimate in nats of Shannon entropy of `data` using `estimator`.
@@ -67,12 +67,8 @@ function estimate_h(data::CountData, ::Type{MillerMadow})
     miller_madow(data)
 end
 
-function estimate_h(data::CountData, ::Type{Grassberger88})
-    grassberger1988(data)
-end
-
-function estimate_h(data::CountData, ::Type{Grassberger03})
-    grassberger2003(data)
+function estimate_h(data::CountData, ::Type{Grassberger})
+    grassberger(data)
 end
 
 function estimate_h(data::CountData, ::Type{Schurmann}, xi=nothing)

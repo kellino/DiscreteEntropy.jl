@@ -341,8 +341,11 @@ function lgwt(N, a, b)
     return (x, w, y, Lp[:, 1])
 end
 
-#------------------------------------------------------------#
 
+@doc raw"""
+     pym(_mm::Vector{Int64}, _icts::Vector{Int64})
+
+"""
 function pym(_mm::Vector{Int64}, _icts::Vector{Int64})
     Hbls = 0.0
 

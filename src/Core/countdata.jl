@@ -71,6 +71,10 @@ function _from_counts(counts::AbstractVector{T}, zeros) where {T<:Real}
     return CountData(mm', dot(x1, x2), sum(mm[:, 2]))
 end
 
+@doc raw"""
+     from_counts(counts::CountVector, remove_zeros::Bool)
+
+"""
 function from_counts(counts::CountVector, remove_zeros::Bool)
     _from_counts(counts.values, remove_zeros)
 end

@@ -1,3 +1,11 @@
+```@meta
+CurrentModule = DiscreteEntropy
+DocTestSetup = quote
+    using DiscreteEntropy
+end
+
+```
+
 # DiscreteEntropy
 
 A [Julia](http://julialang.org) package for the estimation of Shannon entropy of discrete distributions.
@@ -5,80 +13,7 @@ A [Julia](http://julialang.org) package for the estimation of Shannon entropy of
 ## Multiplicities
 DiscreteEntropy uses the multiplicities representation of data. Given a histogram of samples
 
-## Types
-```@docs
-AbstractEstimator
-estimate_h
-```
-
-## Data
-```@docs
-from_data
-from_samples
-from_counts
-
-EntropyData
-CountData
-```
-
-## Frequentist Estimators
-
-```@docs
-maximum_likelihood
-jackknife_mle
-miller_madow
-grassberger
-schurmann
-schurmann_generalised
-zhang
-chao_shen
-chao_wang_jost
-bonachela
-shrink
-```
-
-## Bayesian Estimators
-
-```@docs
-bayes
-nsb
-ansb
-pym
-```
-
-## Resampling
-We can also resample data
-
-```@docs
-jackknife
-```
-
-## Divergence
-```@docs
-kl_divergence
-jeffreys_divergence
-jensen_shannon_divergence
-jensen_shannon_distance
-```
-
-## Conditional Entropy and Conditional Mutual Information
-[Conditional Entropy](https://en.wikipedia.org/wiki/Conditional_entropy)
-```@docs
-conditional_entropy
-```
-
-## Other Useful Measures
-```@docs
-redundancy
-uncertainty_coefficient
-```
-
-## Utilities
-
-```@docs
-logx
-xlogx
-to_bits
-to_bans
+```@autodocs
+Modules = [DiscreteEntropy]
 ```
 

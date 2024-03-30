@@ -12,15 +12,13 @@ between two discrete distributions. Both distributions needs to be defined over 
 so length(p) == length(q). If the distributions are not normalised, they will be.
 """
 function kl_divergence(P::CountVector, Q::CountVector)
-    # TODO
-    # @assert length(p) == length(q)
+    @assert length(p) == length(q)
 
     # check that both distributions are normalised
-    # freqs1 = to_pmf(p)
-    # freqs2 = to_pmf(q)
+    freqs1 = to_pmf(p)
+    freqs2 = to_pmf(q)
 
-    # return sum(freqs1 .* logx.(freqs1 ./ freqs2))
-
+    return sum(freqs1 .* logx.(freqs1 ./ freqs2))
 end
 
 @doc raw"""

@@ -4,13 +4,13 @@ import Base: length, size, sum, show
 using Base: @propagate_inbounds
 
 export Axis
-export CountVector, SampleVector, XiVector, cvector, svector, xivector
+export CountVector, SampleVector, XiVector, cvector, svector, xivector, EntropyData
 export Histogram, Samples
 
 export CountData, from_data, from_samples, from_counts, singletons, doubletons, marginal_counts, print_data
 
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
-export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger88, Grassberger03,
+export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger,
     Schurmann, SchurmannGeneralised,
     ChaoShen, Zhang, Bonachela, Shrink, BUB, ChaoWangJost, PERT
 
@@ -18,20 +18,19 @@ export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger88, Grassberger0
 export estimate_h, estimate_h_and_var
 
 # estimators
-export maximum_likelihood, miller_madow, jackknife_mle, grassberger1988, schurmann, schurmann_generalised,
+export maximum_likelihood, miller_madow, jackknife_mle, grassberger, schurmann, schurmann_generalised,
     chao_shen, zhang, bonachela, shrink, chao_wang_jost, bub
 
 export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, AutoNSB, ANSB, PYM
 
 # estimators
-export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb
-# pym, cdm
+export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
 
 # export conditional_entropy
-# export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
+export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
 
 # tools for changing the estimators
-# export jackknife, bayesian_bootstrap, bootstrap
+export jackknife #, bayesian_bootstrap, bootstrap
 
 # utilities
 export to_bits, to_bans, xlogx, logx
@@ -48,7 +47,7 @@ include("Estimators/Bayesian/nsb.jl")
 include("Estimators/Bayesian/pym.jl")
 include("Estimators/resample.jl")
 
-# include("conditional_entropy.jl")
-# include("divergence.jl")
+include("InfoTheory/conditional_entropy.jl")
+include("InfoTheory/divergence.jl")
 
 end

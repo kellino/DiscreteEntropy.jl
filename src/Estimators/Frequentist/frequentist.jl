@@ -17,16 +17,6 @@ or equivalently
 ```math
 \hat{H}_{\tiny{ML}} = \log(N) - \frac{1}{N} \sum_{i=1}^{K}h_i \log(h_i)
 ```
-
-# Examples
-```jldoctest
-
-julia> data = from_data([1,2,3,2,1], Histogram)
-CountData([2.0 3.0 1.0; 2.0 1.0 2.0], 9.0, 6)
-
-julia> maximum_likelihood(data)
-1.522955067
-```
 """
 function maximum_likelihood(data::CountData)
     log(data.N) -
@@ -81,14 +71,14 @@ Return the Grassberger (1988) estimation of Shannon entropy of `data` in nats
 Equation 13 from
 [Finite sample corrections to entropy and dimension estimate](https://www.academia.edu/download/47091312/0375-9601_2888_2990193-420160707-16069-1k3ppo7.pdf)
 """
-function grassberger1988(data::CountData)
+function grassberger(data::CountData)
     log_n = log(data.N)
     sum((x[1] / data.N * (log_n - digamma(x[1]) - (-1)^x[1] / (x[1] + 1))) * x[2] for x in eachcol(data.multiplicities))
 end
 
-function grassberger2003(data::CountData)
-    schurmann(data, 1.0)
-end
+# function grassberger2003(data::CountData)
+#     schurmann(data, 1.0)
+# end
 
 
 # Schurmann Estimator
