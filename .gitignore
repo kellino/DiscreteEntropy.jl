@@ -1,3 +1,4 @@
 /Manifest.toml
 *.csv
 .DS_Store
+docs/
