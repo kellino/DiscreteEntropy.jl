@@ -10,11 +10,11 @@ abstract type EntropyData end
 struct Histogram <: EntropyData end
 struct Samples <: EntropyData end
 
-@doc """
+@doc raw"""
     CountData
-    an 2 x m matrix where m[1, :] is counts and m[2, :] the number of bins with those counts
-    [[2 3 1] => counts / icts
-    [2 1 2]] => bins / mm
+    a 2 x m matrix where m[1, :] is counts and m[2, :] the number of bins with those counts
+    [2 3 1] => counts / icts
+    [2 1 2] => bins / mm
     so we have two bins with two, 1 bin with 3, and 2 bins with 1
 """
 mutable struct CountData

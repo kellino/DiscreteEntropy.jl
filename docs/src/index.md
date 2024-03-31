@@ -16,4 +16,3 @@ DiscreteEntropy uses the multiplicities representation of data. Given a histogra
 ```@autodocs
 Modules = [DiscreteEntropy]
 ```
-
