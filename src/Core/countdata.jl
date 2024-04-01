@@ -31,9 +31,13 @@ function Base.hash(g::CountData, h::UInt)
     hash(g.multiplicities, hash(g.K, hash(g.N, h)))
 end
 
-# function hash(obj::CountData)
-#     return hash((obj.multiplicities, obj.N, obj.K))
-# end
+function counts(x::CountData)
+    return x.multiplicities[1,:]
+end
+
+function multiplicities(x::CountData)
+    return x.multiplicities[2,:]
+end
 
 function find_col(data::CountData, target)
     for x in eachcol(data.multiplicities)

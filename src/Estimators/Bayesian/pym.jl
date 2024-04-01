@@ -7,10 +7,6 @@ using Optim;
     identity
 end
 
-const ComplexOrReal{T} = Union{T,Complex{T}}
-global mm
-global icts
-
 ψ₂(x) = polygamma(2, x)
 
 struct Prior
@@ -22,13 +18,6 @@ struct Prior
     ddprior::Array{Float64,2}
 end
 
-@doc raw"""
-    pym(mm::Vector{Int64}, icts::Vector{Int64})::Float64
-
-A more or less faithful port of the original [matlab code](https://github.com/pillowlab/PYMentropy)
-to Julia
-
-"""
 
 function convert_from_py_params(α::Float64, δ::Float64)
     digamma_1_minus_delta = digamma(1.0 - δ)
@@ -87,56 +76,60 @@ end
 
 # p -> param: pym's free parameter which is a distribution over gamma
 # n_oa -> n_outarg: number of output arguments specified in the call to the currently executing function 
-pymPrior(a::Number, d::Number, p::Number, t::PriorType, n_oa::Integer) = _pymPrior(float(a), float(d), float(p), t, n_oa)
+# pymPrior(a::Number, d::Number, p::Number, t::PriorType, n_oa::Integer) = _pymPrior(float(a), float(d), float(p), t, n_oa)
 
-function _pymPrior(α::ComplexOrReal{Float64}, δ::ComplexOrReal{Float64}, param::Float64, type::PriorType, n_outarg::Integer)
-    a = real(α)
-    d = real(δ)
-    p = real(param)
-    t = type
-    n_oa = Integer(n_outarg)
+# function _pymPrior(α::Float64, δ::Float64, param::Float64, t::PriorType, n_outarg::Integer)
+#     # a = real(α)
+#     # d = real(δ)
+#     # p = real(param)
+#     # t = type
+#     # n_oa = Integer(n_outarg)
 
-    return computePrior(a, d, p, t, n_oa)
-end
+#     return computePrior(a, d, p, t, n_oa)
+# end
 
 # n_oa -> n_outarg:: number of output arguments specified in the call to the currently executing function 
-logliPyOccupancy(a::Number, d::Number, n_oa::Integer) = _logliPyOccupancy(float(a), float(d), n_oa)
+# logliPyOccupancy(a::Number, d::Number, n_oa::Integer) = _logliPyOccupancy(float(a), float(d), n_oa)
 
-function _logliPyOccupancy(α::ComplexOrReal{Float64}, δ::ComplexOrReal{Float64}, n_outarg::Integer)
+function logliPyOccupancy(data::CountData, α::Float64, δ::Float64, n_outarg::Integer)
     # Via the derivative of the Kölbig digamma formulation
-    a = real(α)
-    d = real(δ)
-    n_oa = Integer(n_outarg)
+    # a = real(α)
+    # d = real(δ)
+    # n_oa = Integer(n_outarg)
 
-    N = dot(mm, icts)
-    K = sum(mm)
+    icts = data.multiplicities[1, :]
+    mm = data.multiplicities[2, :]
+    # N = dot(mm, icts)
+    # K = sum(mm)
 
-    logp = -gammalndiff(a + 1.0, N - 1.0) + sum(map(x -> logx(a + x * d), 1:K-1)) + dot(mm, map(x -> gammalndiff(1.0 - d, Float64(x)), icts .- 1))
+    logp = -gammalndiff(α + 1.0, data.N - 1.0) +
+        sum(map(x -> logx(α + x * δ), 1:data.K-1)) +
+        dot(mm, map(x -> gammalndiff(1.0 - δ, Float64(x)), icts .- 1))
     
-    if n_oa == 1
+    if n_outarg == 1
         return logp
     else 
-        KK = 1:K - 1
+        KK = 1:data.K - 1
         dlogp = zeros(1, 2)
-        Z = 1.0 ./ (a .+ KK .* d)
-        dlogp[:1] = sum(Z) - digamma(a + N) + digamma(a + 1.0)
-        dlogp[:2] = dot(KK, Z) - dot(mm, digamma.(icts .- d) .- digamma.(1.0 - d))
+        Z = 1.0 ./ (α .+ KK .* δ)
+        dlogp[:1] = sum(Z) - digamma(α + data.N) + digamma(α + 1.0)
+        dlogp[:2] = dot(KK, Z) - dot(mm, digamma.(icts .- δ) .- digamma.(1.0 - δ))
 
         return logp, dlogp
     end
 end
 
-function hessian(α::Float64, δ::Float64)
-    N = dot(mm, icts)
-    K = sum(mm)
-    KK = 1:K-1
+function hessian(data::CountData, α::Float64, δ::Float64)
+    icts = data.multiplicities[1, :]
+    mm = data.multiplicities[2, :]
+    KK = 1:data.K-1
     Z = 1.0 ./ (α .+ KK .* δ)
 
-    prior = pymPrior(α, δ, 0.1, default, 3)
+    prior = computePrior(α, δ, 0.1, default, 3)
 
     ddlogp = zeros(2, 2)
     Z2 = Z .^ 2.0
-    ddlogp[1, 1] = trigamma(1.0 + α) - trigamma(α + N) - sum(Z2)
+    ddlogp[1, 1] = trigamma(1.0 + α) - trigamma(α + data.N) - sum(Z2)
     diag = -sum(KK .* Z2)
     ddlogp[1, :2] = diag
     ddlogp[2, :1] = diag
@@ -145,14 +138,15 @@ function hessian(α::Float64, δ::Float64)
     return -ddlogp - (prior.prior * prior.ddprior .- prior.dprior' .* prior.dprior) ./ prior.prior^2
 end
 
-function nlogPostPyoccupancy(α::Float64, δ::Float64)
+function nlogPostPyoccupancy(data::CountData, α::Float64, δ::Float64)
     if α < 0.0 || δ < 0.0 || δ > 1.0
         return (Inf, -[α, δ])
     end
 
-    (logp, dlogp) = logliPyOccupancy(α, δ, 2)
+    (logp, dlogp) = logliPyOccupancy(data, α, δ, 2)
 
-    prior = pymPrior(α, δ, 0.1, default, 2)
+    prior = computePrior(α, δ, 0.1, default, 2)
+    # prior = pymPrior(α, δ, 0.1, default, 2)
 
     nlogp = -logp - logx(prior.prior)
 
@@ -170,7 +164,9 @@ function meshgrid(x, y)
     return X, Y
 end
 
-function condH(a, d)
+function condH(data, a, d)
+    icts = data.multiplicities[1, :]
+    mm = data.multiplicities[2, :]
     m = computeHpy(mm, icts, a[:], d[:])
     m = reshape(m, size(a))
 
@@ -343,15 +339,15 @@ end
 
 
 @doc raw"""
-     pym(_mm::Vector{Int64}, _icts::Vector{Int64})
+    pym(mm::Vector{Int64}, icts::Vector{Int64})::Float64
+
+A more or less faithful port of the original [matlab code](https://github.com/pillowlab/PYMentropy)
+to Julia
 
 """
-function pym(_mm::Vector{Int64}, _icts::Vector{Int64})
-    Hbls = 0.0
+function pym(data::CountData; param=nothing)
+    # Hbls = 0.0
 
-    global mm = _mm
-    global icts = _icts
- 
     if !any(x -> x > 1, icts)
         return Inf64
     end
@@ -359,28 +355,27 @@ function pym(_mm::Vector{Int64}, _icts::Vector{Int64})
     eps = 2.2204e-16
     min_alpha = 10 * eps
 
-    # N = dot(mm, icts)
-    K = sum(mm)
-
-    if K == 1
+    if data.K == 1
         Hbls = NaN64
     end
 
     mpt = [1.0, 0.01]
-    nlpy(x) = nlogPostPyoccupancy(x[1], x[2])[1]
+    nlpy(x) = nlogPostPyoccupancy(data, x[1], x[2])[1]
     res = optimize(nlpy, mpt)
 
     # New mpt
     params = Optim.minimizer(res)
     fval = Optim.minimum(res)
 
-    hess = hessian(params[1], params[2])
+    hess = hessian(data, params[1], params[2])
+
 
     fval = -fval
 
     if params[1] < min_alpha
         @warn("MAP α is very small, this might be unstable")
     end
+
 
     p::Bool = false
     if any(i -> isnan(i) || isinf(i), hess)
@@ -402,20 +397,38 @@ function pym(_mm::Vector{Int64}, _icts::Vector{Int64})
         du = min(1 - eps, max(params[2] + invHessian[2, 2], eps))
     end
 
+
     (ax, aw, Na) = gq100(al, au)
     (dx, dw, Nd) = gq100(dl, du)
 
     if Nd * Na < 1e4
-        (aa, dd) = meshgrid(ax, dx)
-        loglik = logliPyOccupancy.(aa[:], dd[:], 1)
-        lik = exp.(loglik .- maximum(loglik))
-        prior = pymPrior.(aa[:], dd[:], 0.1, default, 1)
-        mc = condH(aa[:], dd[:])
-        A = ((lik .* prior) .* vec(dw * aw'))
-        Z = sum(A)
-        Hbls = sum(A .* mc)
-        Hbls = Hbls / Z
-    end
+            (aa, dd) = meshgrid(ax, dx)
+            loglik = logliPyOccupancy.(aa[:], dd[:], 1)
+            lik = exp.(loglik .- maximum(loglik))
+            prior = []
+
+            # prior = .(aa[:], dd[:], 0.1, default, 1)
+            mc = condH(aa[:], dd[:])
+            A = ((lik .* prior) .* vec(dw * aw'))
+            Z = sum(A)
+            Hbls = sum(A .* mc)
+            Hbls = Hbls / Z
+        end
+
+    # if Nd * Na < 1e4
+    #     loglik::Vector{Float64} = []
+    #     for i in 1:length(ax)
+    #         lip = logliPyOccupancy(data, ax[i], dx[i], 1)
+    #         push!(loglik, lip)
+    #     end
+    #     lik = exp.(loglik .- maximum(loglik))
+    #     priors = computePrior.(ax, dx, 0.1, default, 1)
+    #     mc = condH(data, ax, dx)
+    #     A = ((lik .* priors) .* vec(dw * aw'))
+    #     Z = sum(A)
+    #     Hbls = sum(A .* mc)
+    #     Hbls = Hbls / Z
+    # end
 
     return Hbls
 end

@@ -28,7 +28,12 @@ struct SchurmannGeneralised <: ParameterisedEstimator end
 
 # Bayesian with Parameter(s)
 struct Bayes <: ParameterisedEstimator end
-struct NSB <: ParameterisedEstimator end
+struct NSB <: ParameterisedEstimator
+    K::Int64
+end
+
+# NSB <: ParameterisedEstimator end
+# struct NSB <: ParameterisedEstimator end
 struct PYM <: ParameterisedEstimator end
 
 struct AutoNSB <: NonParameterisedEstimator end
@@ -131,29 +136,20 @@ function estimate_h(data::CountData, ::Type{Minimax}; K=data.K)
     minimax(data, K)
 end
 
-function estimate_h(data::CountData, ::Type{PYM}, param=nothing)
-    #@warn("not yet finished")
-    #0.0
-    mm = data.multiplicities[2:2, :]
-    icts = data.multiplicities[1:1, :]
-    mm = vec(round.(Int, mm))
-    icts = vec(round.(Int, icts))
-    icts = sort(icts)
-
-    Hbls = pym(mm, icts)
-
-    return Hbls
+function estimate_h(data::CountData, ::Type{PYM}; param=nothing)
+    pym(data; param=param)
 end
 
 function estimate_h(data::CountData, ::Type{NSB}, guess=false)
-    print()
-    if guess
-        gk = guess_k(data)
-        
-        return nsb(data, gk)
-    end
-    nsb(data, data.K)
+    println(NSB)
+    # if guess
+    #     gk = guess_k(data)
+
+    #     return nsb(data, gk)
+    # end
+    # nsb(data, data.K)
 end
+
 
 function estimate_h(data::CountData, ::Type{ANSB})
     ansb(data)
@@ -166,6 +162,7 @@ end
 
 @doc raw"""
     pert(data::CountData, estimator)
+    pert(data::CountData, e1::Type{T}, e2::Type{T}) where {T<:AbstractEstimator}
 
 A Pert estimate of entropy, where
 
@@ -173,8 +170,24 @@ A Pert estimate of entropy, where
 H = \frac{a + 4b + c}{6}
 ```
 
-where a is the minimum (maximum_likelihood), c is the maximum (log(k)) and $b$ is the most likely value (ChaoShen)
+where a is the minimum (maximum_likelihood), c is the maximum (log(k)) and $b$ is the most likely value, but default ChaoShen
 """
 function pert(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
     return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, estimator) + estimate_h(data, ANSB)) / 6.0
+end
+
+function pert(data::CountData, e1::Type{T1}, e2::Type{T2}) where {T1, T2 <:AbstractEstimator}
+    return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, e1) + estimate_h(data, e2)) / 6.0
+end
+
+function estimate_h(data::CountData, ::Type{PERT}, e::Type{T}) where {T<:AbstractEstimator}
+    pert(data, e)
+end
+
+function estimate_h(data::CountData, ::Type{PERT}, e1::Type{T1}, e2::Type{T2}) where {T1, T2<:AbstractEstimator}
+    if typeof(e1) == PERT || typeof(e2) == PERT
+        @warn("argument error")
+        return
+    end
+    pert(data, e1, e2)
 end
