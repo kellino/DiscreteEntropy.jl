@@ -28,12 +28,12 @@ struct SchurmannGeneralised <: ParameterisedEstimator end
 
 # Bayesian with Parameter(s)
 struct Bayes <: ParameterisedEstimator end
+
 struct NSB <: ParameterisedEstimator
     K::Int64
 end
+NSB() = NSB(0)
 
-# NSB <: ParameterisedEstimator end
-# struct NSB <: ParameterisedEstimator end
 struct PYM <: ParameterisedEstimator end
 
 struct AutoNSB <: NonParameterisedEstimator end
@@ -53,9 +53,8 @@ struct PERT <: AbstractEstimator end
 
 Return the estimate in nats of Shannon entropy of `data` using `estimator`.
 
+Wrapper function indended to make using the libary easier.
 """
-
-
 function estimate_h(data::CountData, ::Type{MaximumLikelihood})
     maximum_likelihood(data)
 end
@@ -140,14 +139,18 @@ function estimate_h(data::CountData, ::Type{PYM}; param=nothing)
     pym(data; param=param)
 end
 
-function estimate_h(data::CountData, ::Type{NSB}, guess=false)
-    println(NSB)
-    # if guess
-    #     gk = guess_k(data)
+function estimate_h(data::CountData, t::Type{NSB}; guess=false)
+    println(t.K)
+    if guess
+        gk = guess_k(data)
+        return nsb(data, gk)
+    end
 
-    #     return nsb(data, gk)
-    # end
-    # nsb(data, data.K)
+    if NSB.K == 0
+        return nsb(data, data.K)
+    else
+        return nsb(data, data.K)
+    end
 end
 
 

@@ -1,3 +1,4 @@
+using DiscreteEntropy: CountData
 using DiscreteEntropy
 using Test
 
@@ -16,5 +17,14 @@ using Test
 
 c = from_data([1,2,3,4,3,2,1], Histogram)
 
-@test DiscreteEntropy.counts(c) == [4.0, 2.0, 3.0, 1.0]
+@test DiscreteEntropy.bins(c) == [4.0, 2.0, 3.0, 1.0]
 @test DiscreteEntropy.multiplicities(c) == [1.0, 2.0, 2.0, 2.0]
+
+# remove zeros from histogram
+d = from_data([1,2,3,4,0,3,2,1,0], Histogram)
+@test DiscreteEntropy.bins(d) == [4.0, 2.0, 3.0, 1.0]
+@test DiscreteEntropy.multiplicities(d) == [1.0, 2.0, 2.0, 2.0]
+
+v = [1,2,3,4,0,3,2,1,0]
+@test from_counts(v) == d
+# @test from_counts(v, remove_zeros=false) == CountData(0.0)

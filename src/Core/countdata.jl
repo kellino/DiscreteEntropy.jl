@@ -13,8 +13,10 @@ struct Samples <: EntropyData end
 @doc raw"""
     CountData
     a 2 x m matrix where m[1, :] is counts and m[2, :] the number of bins with those counts
+
     [2 3 1] => counts / icts
     [2 1 2] => bins / mm
+
     so we have two bins with two, 1 bin with 3, and 2 bins with 1
 """
 mutable struct CountData
@@ -31,7 +33,7 @@ function Base.hash(g::CountData, h::UInt)
     hash(g.multiplicities, hash(g.K, hash(g.N, h)))
 end
 
-function counts(x::CountData)
+function bins(x::CountData)
     return x.multiplicities[1,:]
 end
 
@@ -95,7 +97,6 @@ function from_samples(samples::SampleVector, remove_zeros::Bool)
         return CountData([1.0 N]', N, K)
     end
 
-# <<<<<<< HEAD
     counts::Dict{Int64,Int64} = Dict()
     for x in filter(!iszero, samples.values)
         if haskey(counts, x)
@@ -110,14 +111,18 @@ function from_samples(samples::SampleVector, remove_zeros::Bool)
 end
 
 @doc """
-    from_data(data::AbstractVector, ::Type{Samples})
-    from_data(data::AbstractVector, ::Type{Histogram})
+    from_data(data::AbstractVector, ::Type{Samples}; remove_zeros=true)
+    from_data(data::AbstractVector, ::Type{Histogram}; remove_zeros=true)
+    from_data(count_matrix::Matrix, ::Type{Histogram}; remove_zeros=true)
+
+Create a CountData object from a vector or matrix. The function is parameterised on whether
+the vector contains samples or the histogram.
 """
 function from_data(data::AbstractVector, ::Type{Samples}; remove_zeros=true)
     from_samples(svector(data), remove_zeros)
 end
 
-function from_data(data::AbstractVector, ::Type{Histogram}, remove_zeros=true)
+function from_data(data::AbstractVector, ::Type{Histogram}; remove_zeros=true)
     from_counts(cvector(data), remove_zeros)
 end
 
