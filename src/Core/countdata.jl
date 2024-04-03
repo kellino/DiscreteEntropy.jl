@@ -74,7 +74,7 @@ function Base.hash(g::CountData, h::UInt)
     hash(g.multiplicities, hash(g.K, hash(g.N, h)))
 end
 
-@doc"""
+@doc raw"""
     bins(x::CountData)
 Return the bins (top row) of x.multiplicities
 """
@@ -82,7 +82,7 @@ function bins(x::CountData)
     return x.multiplicities[1,:]
 end
 
-@doc"""
+@doc raw"""
     bins(x::CountData)
 Return the bin multiplicities (bottom row) of x.multiplicities
 """
