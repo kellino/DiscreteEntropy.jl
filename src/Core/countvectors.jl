@@ -1,5 +1,21 @@
 using Base: @propagate_inbounds
 
+@doc raw"""
+AbstractCounts{T<:Real,V<:AbstractVector{T}} <: AbstractVector{T}
+
+Enforced type incompatibility between vectors of samples, vectors of counts, and
+vectors of xi.
+
+# CountVector
+A vector representing a histogram
+
+# SampleVector
+A vector of samples
+
+# XiVector
+A vector of xi values for use with the [`schurmann_generalised`](@ref) estimator.
+
+"""
 abstract type AbstractCounts{T<:Real,V<:AbstractVector{T}} <: AbstractVector{T} end
 
 macro counts(name)
@@ -50,7 +66,6 @@ cvector(vs::AbstractArray{<:Real}) = CountVector(vec(vs))
 svector(vs::AbstractVector{<:Integer}) = SampleVector(convert(Vector{Float64}, vs))
 svector(vs::AbstractVector{<:Real}) = SampleVector(vs)
 svector(vs::AbstractArray{<:Real}) = SampleVector(vec(vs))
-
 
 @counts XiVector
 xivector(vs::AbstractVector{<:Real}) = XiVector(vs)

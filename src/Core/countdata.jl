@@ -12,12 +12,53 @@ struct Samples <: EntropyData end
 
 @doc raw"""
     CountData
-    a 2 x m matrix where m[1, :] is counts and m[2, :] the number of bins with those counts
 
-    [2 3 1] => counts / icts
-    [2 1 2] => bins / mm
+# Fields
+- multiplicities::Matrix{Float64}  : multiplicity representation of data
+- N::Float64 : total number of samples
+- K::Int64   : observed support size
 
-    so we have two bins with two, 1 bin with 3, and 2 bins with 1
+
+# Multiplicities
+
+All of the estimators operate over a multiplicity representation of raw data. Raw data
+takes the form either of a vector of samples, or a vector of counts (ie a histogram).
+
+histogram = [1,2,3,2,1,4]
+
+The multiplicity representation of histogram is
+
+   [1.0, 2.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 2
+
+   [2.0, 3.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 2
+
+   [3.0, 4.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1
+
+   [4.0, 5.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1
+
+
+which we represent as
+
+```math
+\begin{pmatrix}
+4 & 2 & 3 & 1 \\
+1 & 2 & 1 & 2
+\end{pmatrix}
+```
+
+The top row represents bin contents, and the bottom row the number of bins.
+We have 1 bin with a 4 elements, 2 bins with 2 elements, 1 bin with 3 elements
+and 2 bins with only 1 element.
+
+The advantages of the multiplicity representation are compactness and efficiency.
+Instead of calculating the surprisal of a bin of 2 twice, we can calculate it once and
+multiply by the multiplicity. The downside of the representation may be floating point creep due
+to multiplication.
+
+# Constructor
+
+CountData is not expected to be called directly, nor is it advised to directly manipulate the fields. Use either [`from_data`](@ref), [`from_counts`](@ref) or
+[`from_samples`](@ref) instead.
 """
 mutable struct CountData
     multiplicities::Matrix{Float64}
@@ -33,10 +74,18 @@ function Base.hash(g::CountData, h::UInt)
     hash(g.multiplicities, hash(g.K, hash(g.N, h)))
 end
 
+@doc"""
+    bins(x::CountData)
+Return the bins (top row) of x.multiplicities
+"""
 function bins(x::CountData)
     return x.multiplicities[1,:]
 end
 
+@doc"""
+    bins(x::CountData)
+Return the bin multiplicities (bottom row) of x.multiplicities
+"""
 function multiplicities(x::CountData)
     return x.multiplicities[2,:]
 end
@@ -78,8 +127,11 @@ function _from_counts(counts::AbstractVector{T}, zeros) where {T<:Real}
 end
 
 @doc raw"""
+     from_counts(counts::AbstractVector; remove_zeros::Bool=true)
      from_counts(counts::CountVector, remove_zeros::Bool)
 
+Return a [`CountData`](@ref) object from a vector or CountVector. Many estimators
+cannot handle a histogram with a 0 value bin, so there are filtered out unless remove_zeros is set to false.
 """
 function from_counts(counts::CountVector, remove_zeros::Bool)
     _from_counts(counts.values, remove_zeros)
@@ -89,6 +141,11 @@ function from_counts(counts::AbstractVector; remove_zeros::Bool=true)
     from_counts(CountVector(counts), remove_zeros)
 end
 
+@doc raw"""
+     from_samples(sample::SampleVector, remove_zeros::Bool)
+
+Return a [`CountData`](@ref) object from a vector of samples. See [`AbstractCounts`](@ref).
+"""
 function from_samples(samples::SampleVector, remove_zeros::Bool)
     K = length(unique(samples.values))
 
@@ -118,7 +175,7 @@ end
 Create a CountData object from a vector or matrix. The function is parameterised on whether
 the vector contains samples or the histogram.
 """
-function from_data(data::AbstractVector, ::Type{Samples}; remove_zeros=true)
+function from_data(data::AbstractVector, ::Type{Samples}; remove_zeros=false)
     from_samples(svector(data), remove_zeros)
 end
 
@@ -130,9 +187,6 @@ function from_data(count_matrix::Matrix, ::Type{Histogram}; remove_zeros=true)
     from_counts(cvector(vec(count_matrix)), remove_zeros)
 end
 
-@doc raw"""
-    from_samples
-"""
 function from_samples(file::String, field; remove_zeros=true)
     csv = CSV.File(file)
     from_samples(csv[field], remove_zeros)

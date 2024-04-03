@@ -1,10 +1,18 @@
 using Documenter, DiscreteEntropy
 
-makedocs(
+makedocs(;
     modules=[DiscreteEntropy],
     sitename="DiscreteEntropy.jl",
     highlightsig=true,
+    checkdocs=:none,
+    format=Documenter.HTML(;
+        prettyurls=true,
+        edit_link="main",
+        assets=String[],
+        size_threshold=nothing
+    ),
     pages=[
-        "Home" => "index.md"
+        "Overview" => "index.md",
+        "Estimators" => "estimators.md"
     ]
 )

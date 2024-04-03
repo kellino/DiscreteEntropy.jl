@@ -29,10 +29,7 @@ struct SchurmannGeneralised <: ParameterisedEstimator end
 # Bayesian with Parameter(s)
 struct Bayes <: ParameterisedEstimator end
 
-struct NSB <: ParameterisedEstimator
-    K::Int64
-end
-NSB() = NSB(0)
+struct NSB <: ParameterisedEstimator end
 
 struct PYM <: ParameterisedEstimator end
 
@@ -131,28 +128,29 @@ function estimate_h(data::CountData, ::Type{SchurmannGrassberger}; K=data.K)
     schurmann_grassberger(data, K)
 end
 
-function estimate_h(data::CountData, ::Type{Minimax}; K=data.K)
-    minimax(data, K)
+function estimate_h(data::CountData, ::Type{Minimax}; K=nothing)
+    if K === nothing
+        minimax(data, data.K)
+    else
+        minimax(data, K)
+    end
 end
 
 function estimate_h(data::CountData, ::Type{PYM}; param=nothing)
     pym(data; param=param)
 end
 
-function estimate_h(data::CountData, t::Type{NSB}; guess=false)
-    println(t.K)
+function estimate_h(data::CountData, ::Type{NSB}; guess=false, K=nothing)
+    if K !== nothing
+        return nsb(data, K)
+    end
     if guess
         gk = guess_k(data)
         return nsb(data, gk)
-    end
-
-    if NSB.K == 0
-        return nsb(data, data.K)
     else
         return nsb(data, data.K)
     end
 end
-
 
 function estimate_h(data::CountData, ::Type{ANSB})
     ansb(data)
@@ -163,11 +161,23 @@ function estimate_h(data::CountData, ::Type{PERT})
     pert(data, ChaoShen)
 end
 
+@enum Pert_Type begin
+    Pert
+    Triangular
+end
+
+# E = (a + m + b) / 3.
 @doc raw"""
     pert(data::CountData, estimator)
     pert(data::CountData, e1::Type{T}, e2::Type{T}) where {T<:AbstractEstimator}
 
 A Pert estimate of entropy, where
+
+```
+a = best estimate
+b = most likely estimate
+c = worst case estimate
+```
 
 ```
 H = \frac{a + 4b + c}{6}

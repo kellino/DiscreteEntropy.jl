@@ -10,9 +10,18 @@ end
 
 A [Julia](http://julialang.org) package for the estimation of Shannon entropy of discrete distributions.
 
-## Multiplicities
-DiscreteEntropy uses the multiplicities representation of data. Given a histogram of samples
+## Data Representation
+DiscreteEntropy uses the multiplicities representation of data. 
 
-```@autodocs
-Modules = [DiscreteEntropy]
+```@docs
+CountData
+from_counts
+from_data
+from_samples
+```
+
+## Vector Types
+
+```@docs
+AbstractCounts
 ```

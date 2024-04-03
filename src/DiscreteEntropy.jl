@@ -7,7 +7,7 @@ export Axis
 export CountVector, SampleVector, XiVector, cvector, svector, xivector, EntropyData
 export Histogram, Samples
 
-export CountData, from_data, from_samples, from_counts, singletons, doubletons, marginal_counts, print_data
+export CountData, from_data, from_samples, from_counts, singletons, doubletons, marginal_counts, print_data, bins, multiplicities
 
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
 export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger,
