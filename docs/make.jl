@@ -17,3 +17,7 @@ makedocs(;
         "Estimators" => "estimators.md",
     ]
 )
+
+deploydocs(
+    repo = "github.com/kellino/DiscreteEntropy.jl.git",
+)
