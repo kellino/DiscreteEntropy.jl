@@ -28,6 +28,8 @@ d = from_data([1,2,3,4,0,3,2,1,0], Histogram)
 v = [1,2,3,4,0,3,2,1,0]
 @test from_data(v, Histogram, remove_zeros=true) == CountData([4.0 2.0 3.0 1.0; 1.0 2.0 2.0 2.0], 16.0, 7)
 @test from_data(v, Histogram, remove_zeros=false) == CountData([0.0 4.0 2.0 3.0 1.0; 2.0 1.0 2.0 2.0 2.0], 16.0, 9)
+@test from_data(v, Samples, remove_zeros=true) == CountData([2.0 1.0; 3.0 1.0], 7.0, 4)
+@test from_data(v, Samples, remove_zeros=false) == CountData([2.0 1.0; 4.0 1.0], 9.0, 5)
 
 @test from_counts(v) == d
 

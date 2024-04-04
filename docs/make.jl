@@ -13,6 +13,7 @@ makedocs(;
     ),
     pages=[
         "Overview" => "index.md",
-        "Estimators" => "estimators.md"
+        "Data" => "data.md",
+        "Estimators" => "estimators.md",
     ]
 )

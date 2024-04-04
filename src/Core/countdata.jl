@@ -163,7 +163,7 @@ end
 @doc raw"""
      from_samples(sample::SampleVector, remove_zeros::Bool)
 
-Return a [`CountData`](@ref) object from a vector of samples. See [`AbstractCounts`](@ref).
+Return a [`CountData`](@ref) object from a vector of samples.
 """
 function from_samples(samples::SampleVector; remove_zeros::Bool=false)
     if isempty(samples)
@@ -192,20 +192,22 @@ function from_samples(samples::SampleVector; remove_zeros::Bool=false)
     _from_counts(v, remove_zeros)
 end
 
-@doc """
-    from_data(data::AbstractVector, ::Type{Samples}; remove_zeros=true)
-    from_data(data::AbstractVector, ::Type{Histogram}; remove_zeros=true)
-    from_data(count_matrix::Matrix, ::Type{Histogram}; remove_zeros=true)
+@doc raw"""
+    from_data(data::AbstractVector, ::Type{T}; remove_zeros=true) where {T<:EntropyData}
 
 Create a CountData object from a vector or matrix. The function is parameterised on whether
 the vector contains samples or the histogram.
-"""
-function from_data(data::AbstractVector, ::Type{Samples}; remove_zeros=false)
-    from_samples(svector(data), remove_zeros=remove_zeros)
-end
 
-function from_data(data::AbstractVector, ::Type{Histogram}; remove_zeros=true)
-    from_counts(cvector(data), remove_zeros)
+while ``remove_zeros`` defaults to ``true``, this might not be the desired behaviour for Samples.
+A 0 value in the histgram causes problems for the estimators, but a 0 value in a vector of samples may be
+perfectly legitimate.
+"""
+function from_data(data::AbstractVector, t::Type{T}; remove_zeros=true) where {T<:EntropyData}
+    if t == Samples
+        from_samples(svector(data), remove_zeros=remove_zeros)
+    else
+        from_counts(cvector(data), remove_zeros)
+    end
 end
 
 function from_data(count_matrix::Matrix, ::Type{Histogram}; remove_zeros=true)

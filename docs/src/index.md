@@ -6,25 +6,35 @@ end
 
 ```
 
-# DiscreteEntropy
+# [DiscreteEntropy](@id index)
 
-A [Julia](http://julialang.org) package for the estimation of Shannon entropy of discrete distributions.
+## Summary
+`DiscreteEntropy` is a Julia package to estimate the Shannon entropy of discrete data.
 
-## Data Representation
-DiscreteEntropy uses the multiplicities representation of data. 
+DiscreteEntropy implements a large collection of entropy estimators.
 
-```@docs
-EntropyData
-CountData
-from_counts
-from_data
-from_samples
+## [Installing DiscreteEntropy](@id installing-DiscreteEntropy)
+
+1. If you have not done so already, install [Julia](https://julialang.org/downloads/). Julia 1.8 and
+higher are supported. Nightly is not (yet) supported.
+
+2. Install `DiscreteEntropy` using
+
+```
+using Pkg; Pkg.add("DiscreteEntropy")
 ```
 
-## Vector Types
+or 
 
-```@docs
-AbstractCounts
-cvector
-svector
+```
+] add DiscreteEntropy
+```
+
+## Basic Usage
+
+```@example examples
+using DiscreteEntropy
+
+data = [1,2,3,4,3,2,1]
+h = estimate_h(from_data(data, Histogram), ChaoShen)
 ```
