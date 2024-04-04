@@ -14,6 +14,7 @@ A [Julia](http://julialang.org) package for the estimation of Shannon entropy of
 DiscreteEntropy uses the multiplicities representation of data. 
 
 ```@docs
+EntropyData
 CountData
 from_counts
 from_data
@@ -24,4 +25,6 @@ from_samples
 
 ```@docs
 AbstractCounts
+cvector
+svector
 ```

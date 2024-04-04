@@ -3,8 +3,18 @@ using StatsBase: countmap;
 using Printf;
 using LinearAlgebra: dot;
 
-@doc """
+@doc raw"""
     abstract type EntropyData
+    Histogram <: EntropyData
+    Samples <: EntropyData
+
+It is very easy, when confronted with a vector such as ``[1,2,3,4,5,4]`` to forget
+whether it represents samples from a distribution, or a histogram of a (discrete) distribution. ``DiscreteEntropy.jl``
+attemps to make this a difficult mistake to make by enforcing a type difference between a vector of
+samples and a vector of counts.
+
+See [`svector`](@ref) and [`cvector`](@ref).
+
 """
 abstract type EntropyData end
 struct Histogram <: EntropyData end

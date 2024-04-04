@@ -10,4 +10,7 @@ using Test
     @testset "resampling tests" begin
         include("jackknife_test.jl")
     end
+    @testset "util_tests" begin
+        include("util_test.jl")
+    end
 end

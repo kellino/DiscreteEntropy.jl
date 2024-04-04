@@ -22,11 +22,16 @@ function xlogx(x)
     return x * logx(x)
 end
 
+@doc raw"""
+     xFx(f::Function, x)
+
+Returns `x * f(x)` for `x ≥ 0`, or 0.0 if x is zero
+"""
 function xFx(f::Function, x)
     if iszero(x)
         return zero(x)
     else
-        return f(x)
+        return x * f(x)
     end
 end
 
@@ -46,6 +51,12 @@ function to_bans(h::Float64)
     return h / log(10)
 end
 
+@doc raw"""
+     gammalndiff(x::Float64, dx::Float64)
+
+Return ``\log \Gamma(x + δx) - \log Γ(x)``
+
+"""
 function gammalndiff(x::Float64, dx::Float64)
     return loggamma(x + dx) - loggamma(x)
 end
