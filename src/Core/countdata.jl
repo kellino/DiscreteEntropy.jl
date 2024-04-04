@@ -202,19 +202,23 @@ function from_data(count_matrix::Matrix, ::Type{Histogram}; remove_zeros=true)
     from_counts(cvector(vec(count_matrix)), remove_zeros)
 end
 
-@doc"""
-    from_file_samples(file::String, field; remove_zeros=false, header=nothing)
+@doc raw"""
+    from_csv(file::String, field, ::Type{T}; remove_zeros=false, header=nothing) where {T<:EntropyData}
 
 Simple wrapper around ``CSV.File`` which returns a ``CountData`` object. For more complex
 requirements, it is best to call CSV directly.
 """
-function from_file_samples(file::Union{String, IOBuffer}, field; remove_zeros=false, header=false)
-    samples::Vector{Int64} = []
+function from_csv(file::Union{String, IOBuffer}, field, t::Type{T}; remove_zeros=false, header=false) where {T<:EntropyData}
+    data::Vector{Int64} = []
     for row in CSV.File(file; header=header)
-        push!(samples, row[field])
+        push!(data, row[field])
     end
-    from_samples(svector(samples), remove_zeros=remove_zeros)
-    # from_samples(csv[field], remove_zeros)
+
+    if t == Samples
+        from_samples(svector(data), remove_zeros=remove_zeros)
+    else
+        from_counts(cvector(data), remove_zeros=remove_zeros)
+    end
 end
 
 
@@ -232,6 +236,7 @@ function to_csv_string(data::CountData)::String
 
     return @sprintf("%s,%d,%d", join(dict, ','), data.N, data.K)
 end
+
 
 function set_K(data::CountData, K::Integer)
     ret = copy(data)

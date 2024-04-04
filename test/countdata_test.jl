@@ -54,6 +54,6 @@ col1,col2
 file = IOBuffer(data)
 
 # CSV
-@test from_file_samples(file, 1, header=1) == CountData([2.0 1.0; 3.0 1.0], 7.0, 4)
-@test from_file_samples(file, 2, header=1) == CountData([2.0 1.0; 1.0 5.0], 7.0, 6)
-@test from_file_samples(file, 2, header=1, remove_zeros=true) == CountData([2.0 1.0; 1.0 4.0], 6.0, 5)
+@test from_csv(file, 1, Samples, header=1) == CountData([2.0 1.0; 3.0 1.0], 7.0, 4)
+@test from_csv(file, 2, Samples, header=1) == CountData([2.0 1.0; 1.0 5.0], 7.0, 6)
+@test from_csv(file, 2, Samples, header=1, remove_zeros=true) == CountData([2.0 1.0; 1.0 4.0], 6.0, 5)
