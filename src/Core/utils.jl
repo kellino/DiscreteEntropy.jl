@@ -50,17 +50,6 @@ function gammalndiff(x::Float64, dx::Float64)
     return loggamma(x + dx) - loggamma(x)
 end
 
-function update_or_insert!(d::Dict, k, v)
-    if k == 0
-        return d
-    end
-    if haskey(d, k)
-        d[k] += v
-    else
-        d[k] = v
-    end
-end
-
 @doc raw"""
     marginal_counts(contingency_matrix::Matrix, dim)
 
@@ -102,4 +91,12 @@ end
 
 function print_data(data::Int)
     println(data)
+end
+
+function update_dict!(d, k; v=1)
+    if haskey(d, k)
+        d[k] += v
+    else
+        d[k] = v
+    end
 end

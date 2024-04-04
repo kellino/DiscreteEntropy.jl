@@ -2,6 +2,17 @@ using DiscreteEntropy
 using StatsBase: countmap;
 using Test
 
+function update_or_insert!(d::Dict, k, v)
+    if k == 0
+        return d
+    end
+    if haskey(d, k)
+        d[k] += v
+    else
+        d[k] = v
+    end
+end
+
 function simple_jackknife(samples)
     d = Dict{CountData, Int64}()
     for i in 1:length(samples)
@@ -11,7 +22,7 @@ function simple_jackknife(samples)
         countdata = DiscreteEntropy.from_data(new, Samples)
         mm = countdata.multiplicities
         countdata.multiplicities = sortslices(mm, dims=2)
-        DiscreteEntropy.update_or_insert!(d, countdata, 1)
+        update_or_insert!(d, countdata, 1)
         samples[i] = orig
     end
 

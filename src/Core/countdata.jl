@@ -70,6 +70,11 @@ Base.:(==)(x::CountData, y::CountData) = Base.:(==)(x.multiplicities, y.multipli
 
 Base.copy(x::CountData) = CountData(x.multiplicities, x.N, x.K)
 
+function empty_countdata()
+    x::Matrix{Float64} = [;;]
+    CountData(x, 0.0, 0)
+end
+
 function Base.hash(g::CountData, h::UInt)
     hash(g.multiplicities, hash(g.K, hash(g.N, h)))
 end
@@ -134,6 +139,10 @@ Return a [`CountData`](@ref) object from a vector or CountVector. Many estimator
 cannot handle a histogram with a 0 value bin, so there are filtered out unless remove_zeros is set to false.
 """
 function from_counts(counts::CountVector, remove_zeros::Bool)
+    if isempty(counts)
+        @warn("returning empty CountData object")
+        return empty_countdata()
+    end
     _from_counts(counts.values, remove_zeros)
 end
 
@@ -146,7 +155,11 @@ end
 
 Return a [`CountData`](@ref) object from a vector of samples. See [`AbstractCounts`](@ref).
 """
-function from_samples(samples::SampleVector, remove_zeros::Bool)
+function from_samples(samples::SampleVector; remove_zeros::Bool=false)
+    if isempty(samples)
+        return empty_countdata()
+    end
+
     K = length(unique(samples.values))
 
     if K == 1
@@ -155,11 +168,13 @@ function from_samples(samples::SampleVector, remove_zeros::Bool)
     end
 
     counts::Dict{Int64,Int64} = Dict()
-    for x in filter(!iszero, samples.values)
-        if haskey(counts, x)
-            counts[x] += 1
-        else
-            counts[x] = 1
+    if remove_zeros
+        for x in filter(!iszero, samples.values)
+            update_dict!(counts, x)
+        end
+    else
+        for x in samples.values
+            update_dict!(counts, x)
         end
     end
     v = collect(values(counts))
@@ -176,7 +191,7 @@ Create a CountData object from a vector or matrix. The function is parameterised
 the vector contains samples or the histogram.
 """
 function from_data(data::AbstractVector, ::Type{Samples}; remove_zeros=false)
-    from_samples(svector(data), remove_zeros)
+    from_samples(svector(data), remove_zeros=remove_zeros)
 end
 
 function from_data(data::AbstractVector, ::Type{Histogram}; remove_zeros=true)
@@ -187,9 +202,19 @@ function from_data(count_matrix::Matrix, ::Type{Histogram}; remove_zeros=true)
     from_counts(cvector(vec(count_matrix)), remove_zeros)
 end
 
-function from_samples(file::String, field; remove_zeros=true)
-    csv = CSV.File(file)
-    from_samples(csv[field], remove_zeros)
+@doc"""
+    from_file_samples(file::String, field; remove_zeros=false, header=nothing)
+
+Simple wrapper around ``CSV.File`` which returns a ``CountData`` object. For more complex
+requirements, it is best to call CSV directly.
+"""
+function from_file_samples(file::Union{String, IOBuffer}, field; remove_zeros=false, header=false)
+    samples::Vector{Int64} = []
+    for row in CSV.File(file; header=header)
+        push!(samples, row[field])
+    end
+    from_samples(svector(samples), remove_zeros=remove_zeros)
+    # from_samples(csv[field], remove_zeros)
 end
 
 
