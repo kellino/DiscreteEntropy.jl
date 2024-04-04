@@ -59,7 +59,7 @@ Base.getindex(wv::W, ::Colon) where {W<:AbstractCounts} = W(copy(wv.values), sum
 
 
 @counts CountVector
-@doc"""
+@doc raw"""
     cvector
 """
 cvector(vs::AbstractVector{<:Integer}) = CountVector(convert(Vector{Float64}, vs))
@@ -67,7 +67,7 @@ cvector(vs::AbstractVector{<:Real}) = CountVector(vs)
 cvector(vs::AbstractArray{<:Real}) = CountVector(vec(vs))
 
 @counts SampleVector
-@doc"""
+@doc raw"""
     svector
 """
 svector(vs::AbstractVector{<:Integer}) = SampleVector(convert(Vector{Float64}, vs))
@@ -75,7 +75,7 @@ svector(vs::AbstractVector{<:Real}) = SampleVector(vs)
 svector(vs::AbstractArray{<:Real}) = SampleVector(vec(vs))
 
 @counts XiVector
-@doc"""
+@doc raw"""
     xivector
 """
 xivector(vs::AbstractVector{<:Real}) = XiVector(vs)
