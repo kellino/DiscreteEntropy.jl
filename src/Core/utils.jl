@@ -1,7 +1,7 @@
 using SpecialFunctions: loggamma
 using StatsBase: countmap;
 
-@enum Axis X = 2 Y = 1
+# @enum Axis X = 2 Y = 1
 
 @doc raw"""
     logx(x)::Float64
@@ -62,21 +62,31 @@ function gammalndiff(x::Float64, dx::Float64)
 end
 
 @doc raw"""
-    marginal_counts(contingency_matrix::Matrix, dim)
+    marginal_counts(contingency_matrix::Matrix, dim; normalise=false)
 
-Return the *unnormalised* marginal counts of `contingency_matrix` along dimension `dim`.
+Return the marginal counts of `contingency_matrix` along dimension `dim`.
+
+If normalised = true, return as probability distribution.
 
 """
-function marginal_counts(joint::Matrix, dim)
+function marginal_counts(joint::Matrix, dim; normalise=false)
+    p = nothing
     if dim == 1
-        return [sum(x) for x in eachrow(joint)]
+        p = [sum(x) for x in eachrow(joint)]
+    end
+    if dim == 2
+        p = [sum(x) for x in eachcol(joint)]
     end
 
-    if dim != 2
-        @warn("unexpected dimension, returning dim=2")
+    if p === nothing
+        return p
+    else
+        if normalise
+            return p ./ sum(p)
+        end
     end
 
-    return [sum(x) for x in eachcol(joint)]
+    return p
 
 end
 
@@ -87,22 +97,6 @@ end
 function round_data(data::Float64)
     return round(data; digits=4)
 end 
-
-function print_data(arg1::String, arg2::Float64)
-    println(arg1 * " " * string(round_data(arg2)))
-end
-
-function print_data(arg1, arg2::Float64)
-    println(string(arg1) * " " * string(round_data(arg2)))
-end
-
-function print_data(data::Float64)
-    println(round_data(data))
-end
-
-function print_data(data::Int)
-    println(data)
-end
 
 function update_dict!(d, k; v=1)
     if haskey(d, k)
