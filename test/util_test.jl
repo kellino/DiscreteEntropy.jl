@@ -35,5 +35,3 @@ m = [1 2 3; 4 5 6]
 @test DiscreteEntropy.logspace(0, 0, 1) == [1.0]
 @test DiscreteEntropy.logspace(0, 1, 5) ==
     [1.0, 1.7782794100389228, 3.1622776601683795, 5.623413251903491, 10.0]
-
-@test DiscreteEntropy.round_data(1.22299) == 1.223

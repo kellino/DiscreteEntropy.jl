@@ -13,4 +13,7 @@ using Test
     @testset "util_tests" begin
         include("util_test.jl")
     end
+    @testset "estimator_tests" begin
+        include("estimator_test.jl")
+    end
 end

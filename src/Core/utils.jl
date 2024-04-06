@@ -94,10 +94,6 @@ function logspace(start, stop, steps::Integer)
     return 10 .^ range(start, stop, length=steps)
 end
 
-function round_data(data::Float64)
-    return round(data; digits=4)
-end 
-
 function update_dict!(d, k; v=1)
     if haskey(d, k)
         d[k] += v
