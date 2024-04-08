@@ -28,7 +28,7 @@ export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, AutoNSB, ANS
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
 
 # export conditional_entropy
-export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance
+export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance, cross_entropy
 
 # tools for changing the estimators
 export jackknife #, bayesian_bootstrap, bootstrap

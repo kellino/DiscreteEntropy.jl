@@ -16,4 +16,7 @@ using Test
     @testset "estimator_tests" begin
         include("estimator_test.jl")
     end
+    @testset "divergence_tests" begin
+        include("divergence_test.jl")
+    end
 end

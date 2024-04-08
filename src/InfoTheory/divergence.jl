@@ -89,12 +89,12 @@ their histograms. If no estimator is specified, it defaults to MaximumLikelihood
 ```
 """
 function jensen_shannon_divergence(P::CountVector, Q::CountVector)
-    0.5 * kl_divergence(P, Q, MaximumLikelihood) + 0.5 *
-        kl_divergence(Q, P, MaximumLikelihood)
+    abs(0.5 * kl_divergence(P, Q, MaximumLikelihood) + 0.5 *
+        kl_divergence(Q, P, MaximumLikelihood))
 end
 
 function jensen_shannon_divergence(P::CountVector, Q::CountVector, estimator::Type{T}) where {T<:AbstractEstimator}
-    0.5 * kl_divergence(P, Q, estimator) + 0.5 * kl_divergence(Q, P, estimator)
+    abs(0.5 * kl_divergence(P, Q, estimator) + 0.5 * kl_divergence(Q, P, estimator))
 end
 
 @doc raw"""
@@ -115,6 +115,10 @@ end
 J(p, q) = D_{KL}(p \Vert q) + D_{KL}(q \Vert p)
 ```
 """
+function jeffreys_divergence(P, Q)
+    return kl_divergence(P, Q, MaximumLikelihood) + kl_divergence(P, Q, MaximumLikelihood)
+end
+
 function jeffreys_divergence(P, Q, estimator::Type{T}) where {T<:AbstractEstimator}
-    return kl_divergence(P, Q) + kl_divergence(P, Q)
+    return kl_divergence(P, Q, estimator) + kl_divergence(P, Q, estimator)
 end
