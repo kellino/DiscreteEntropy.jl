@@ -233,10 +233,18 @@ function from_csv(file::Union{String, IOBuffer}, field, t::Type{T}; remove_zeros
     end
 end
 
+function pmf(histogram::CountVector)
+    histogram ./ sum(histogram)
+end
 
 function pmf(histogram::CountVector, x)
+    if x > length(histogram)
+        @warn("out of bounds")
+        return nothing
+    end
+    normed = histogram ./ sum(histogram)
     # TODO bounds checking required
-    return histogram[x]
+    return normed[x]
 end
 
 function to_csv_string(data::CountData)::String
