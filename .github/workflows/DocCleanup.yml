@@ -10,8 +10,8 @@ concurrency:
 
 jobs:
   doc-preview-cleanup:
-    runs-on: ubuntu-latestpermissions:
-    premissions:
+    runs-on: ubuntu-latest
+    permissions:
       contents: write
     steps:
       - name: Checkout gh-pages branch
