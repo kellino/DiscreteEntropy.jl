@@ -20,3 +20,4 @@ c = from_data([1,2,3,2,1], Histogram)
 @test round(estimate_h(c, Bayes, 0.2), digits=6) == 1.539698
 
 # from author implementation
+@test round(estimate_h(c, PYM), digits=3) == 2.674
