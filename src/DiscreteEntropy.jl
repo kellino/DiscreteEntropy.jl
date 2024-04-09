@@ -31,7 +31,8 @@ export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
 export mutual_information
 
 # export conditional_entropy
-export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance, cross_entropy
+export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance, cross_entropy,
+    conditional_entropy
 
 # tools for changing the estimators
 export jackknife #, bayesian_bootstrap, bootstrap

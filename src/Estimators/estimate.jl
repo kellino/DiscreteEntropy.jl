@@ -112,7 +112,10 @@ function estimate_h(data::CountData, ::Type{BUB})
     bub(data)
 end
 
-function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=data.K)
+function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=nothing)
+    if K === nothing
+        K = data.K
+    end
     bayes(data, α, K)
 end
 
@@ -141,15 +144,14 @@ function estimate_h(data::CountData, ::Type{PYM}; param=nothing)
 end
 
 function estimate_h(data::CountData, ::Type{NSB}; guess=false, K=nothing)
-    if K !== nothing
-        return nsb(data, K)
-    end
     if guess
-        gk = guess_k(data)
-        return nsb(data, gk)
+        K = guess_k(data)
     else
-        return nsb(data, data.K)
+        if K === nothing
+            K = data.K
+        end
     end
+    nsb(data, K)
 end
 
 function estimate_h(data::CountData, ::Type{ANSB})

@@ -1,7 +1,7 @@
 @doc raw"""
-    conditional_entropy(pmfX::AbstractVector{AbstractFloat}, pmfXY::AbstractVector{AbstractFloat})
     conditional_entropy(X::CountData, XY::CountData, estimator::Type{T}) where {T<:NonParameterisedEstimator}
-    conditional_entropy(X::CountData, XY::CountData, estimator::Type{T}, param) where {T<:ParameterisedEstimator}
+    conditional_entropy(joint::Matrix{R}, estimator::Type{NSB}; dim=1, guess=false, KJ=nothing, KX=nothing) where {R<:Real}
+    conditional_entropy(joint::Matrix{R}, estimator::Type{Bayes}, α; dim=1, KJ=nothing, KX=nothing) where {R<:Real}
 
 Compute the conditional entropy of Y conditioned on X
 
@@ -16,25 +16,21 @@ estimator *estimator*
 \hat{H}(Y \mid X) = \hat{H}(X, Y) - \hat{H}(X)
 ```
  """
-function conditional_entropy(X::CountVector, Y::CountVector)
-    @assert length(X) == length(Y)
-
-end
-# function conditional_entropy(pmfX::AbstractVector{AbstractFloat}, pmfXY::AbstractVector{AbstractFloat})
-#     @assert length(pmfX) == length(pmfXY)
-
-#     if sum(pmfX) != 1.0
-#         @warn("Normalising X")
-#         pmfX = to_pmf(pmfX)
-#     end
-#     if sum(pmfXY) != 1.0
-#         @warn("Normalising the joint probability distribution P(X, Y)")
-#         pmfXY = to_pmf(pmfXY)
-#     end
-
-#     -sum([pxy * logx(pxy / px) for (pxy, px) in collect(zip(pmfXY, pmfX))])
-# end
-
 function conditional_entropy(X::CountData, XY::CountData, estimator::Type{T}) where {T<:NonParameterisedEstimator}
     estimate_h(XY, estimator) - estimate_h(X, estimator)
+end
+
+function conditional_entropy(joint::Matrix{R}, estimator::Type{T}; dim=1) where {T<:NonParameterisedEstimator, R<:Real}
+    X = from_counts(marginal_counts(joint, 1))
+    estimate_h(from_counts(cvector(joint)), estimator) - estimate_h(X, estimator)
+end
+
+function conditional_entropy(joint::Matrix{R}, estimator::Type{NSB}; dim=1, guess=false, KJ=nothing, KX=nothing) where {R<:Real}
+    X = from_counts(marginal_counts(joint, 1))
+    estimate_h(from_counts(cvector(joint)), estimator, guess=guess, K=KJ) - estimate_h(X, estimator, KX)
+end
+
+function conditional_entropy(joint::Matrix{R}, estimator::Type{Bayes}, α; dim=1, KJ=nothing, KX=nothing) where {R<:Real}
+    X = from_counts(marginal_counts(joint, 1))
+    estimate_h(from_counts(cvector(joint)), Bayes, α, K=KJ) - estimate_h(X, estimator, α, K=KX)
 end

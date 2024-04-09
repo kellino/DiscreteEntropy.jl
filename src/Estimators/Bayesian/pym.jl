@@ -346,7 +346,7 @@ to Julia
 
 """
 function pym(data::CountData; param=nothing)
-    # Hbls = 0.0
+    icts = bins(data)
 
     if !any(x -> x > 1, icts)
         return Inf64
@@ -402,18 +402,18 @@ function pym(data::CountData; param=nothing)
     (dx, dw, Nd) = gq100(dl, du)
 
     if Nd * Na < 1e4
-            (aa, dd) = meshgrid(ax, dx)
-            loglik = logliPyOccupancy.(aa[:], dd[:], 1)
-            lik = exp.(loglik .- maximum(loglik))
-            prior = []
+        (aa, dd) = meshgrid(ax, dx)
+        loglik = logliPyOccupancy(aa[:], dd[:], 1)
+        lik = exp.(loglik .- maximum(loglik))
+        prior = []
 
-            # prior = .(aa[:], dd[:], 0.1, default, 1)
-            mc = condH(aa[:], dd[:])
-            A = ((lik .* prior) .* vec(dw * aw'))
-            Z = sum(A)
-            Hbls = sum(A .* mc)
-            Hbls = Hbls / Z
-        end
+        # prior = .(aa[:], dd[:], 0.1, default, 1)
+        mc = condH(aa[:], dd[:])
+        A = ((lik .* prior) .* vec(dw * aw'))
+        Z = sum(A)
+        Hbls = sum(A .* mc)
+        Hbls = Hbls / Z
+    end
 
     # if Nd * Na < 1e4
     #     loglik::Vector{Float64} = []
