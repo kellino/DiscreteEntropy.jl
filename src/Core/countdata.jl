@@ -77,8 +77,8 @@ mutable struct CountData
 end
 
 Base.:(==)(x::CountData, y::CountData) = Base.:(==)(x.multiplicities, y.multiplicities) && x.N == y.N && x.K == y.K
-
 Base.copy(x::CountData) = CountData(x.multiplicities, x.N, x.K)
+Base.Broadcast.broadcastable(q::CountData) = Ref(q)
 
 function empty_countdata()
     x::Matrix{Float64} = [;;]
