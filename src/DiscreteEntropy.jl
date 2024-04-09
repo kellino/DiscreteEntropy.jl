@@ -27,6 +27,9 @@ export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, AutoNSB, ANS
 # estimators
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
 
+# export mutual_info
+export mutual_information
+
 # export conditional_entropy
 export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance, cross_entropy
 
@@ -48,6 +51,7 @@ include("Estimators/Bayesian/nsb.jl")
 include("Estimators/Bayesian/pym.jl")
 include("Estimators/resample.jl")
 
+include("InfoTheory/mutual_info.jl")
 include("InfoTheory/conditional_entropy.jl")
 include("InfoTheory/divergence.jl")
 

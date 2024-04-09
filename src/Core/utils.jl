@@ -72,10 +72,10 @@ If normalised = true, return as probability distribution.
 function marginal_counts(joint::Matrix, dim; normalise=false)
     p = nothing
     if dim == 1
-        p = [sum(x) for x in eachrow(joint)]
+        p = [sum(x) for x in eachcol(joint)]
     end
     if dim == 2
-        p = [sum(x) for x in eachcol(joint)]
+        p = [sum(x) for x in eachrow(joint)]
     end
 
     if p === nothing
