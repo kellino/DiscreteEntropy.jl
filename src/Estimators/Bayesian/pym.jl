@@ -158,15 +158,17 @@ end
 function meshgrid(x, y)
     X = [i for i in x, j in 1:length(y)]
     X = transpose(X)
-    Y = [j for i in 1:length(x), j in y]
+    Y = [j for j in 1:length(x), j in y]
     Y = transpose(Y)
 
     return X, Y
 end
 
 function condH(data, a, d)
-    icts = data.multiplicities[1, :]
-    mm = data.multiplicities[2, :]
+    icts = bins(data)
+    mm = multiplicities(data)
+    # icts = data.multiplicities[1, :]
+    # mm = data.multiplicities[2, :]
     m = computeHpy(mm, icts, a[:], d[:])
     m = reshape(m, size(a))
 
@@ -403,32 +405,15 @@ function pym(data::CountData; param=nothing)
 
     if Nd * Na < 1e4
         (aa, dd) = meshgrid(ax, dx)
-        loglik = logliPyOccupancy(aa[:], dd[:], 1)
+        loglik = logliPyOccupancy.(data, aa[:], dd[:], 1)
         lik = exp.(loglik .- maximum(loglik))
-        prior = []
-
-        # prior = .(aa[:], dd[:], 0.1, default, 1)
-        mc = condH(aa[:], dd[:])
+        prior = computePrior.(aa[:], dd[:], 0.1, default, 1)
+        mc = condH(data, aa[:], dd[:])
         A = ((lik .* prior) .* vec(dw * aw'))
         Z = sum(A)
         Hbls = sum(A .* mc)
         Hbls = Hbls / Z
     end
-
-    # if Nd * Na < 1e4
-    #     loglik::Vector{Float64} = []
-    #     for i in 1:length(ax)
-    #         lip = logliPyOccupancy(data, ax[i], dx[i], 1)
-    #         push!(loglik, lip)
-    #     end
-    #     lik = exp.(loglik .- maximum(loglik))
-    #     priors = computePrior.(ax, dx, 0.1, default, 1)
-    #     mc = condH(data, ax, dx)
-    #     A = ((lik .* priors) .* vec(dw * aw'))
-    #     Z = sum(A)
-    #     Hbls = sum(A .* mc)
-    #     Hbls = Hbls / Z
-    # end
 
     return Hbls
 end
