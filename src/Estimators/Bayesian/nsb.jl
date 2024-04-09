@@ -48,35 +48,6 @@ function ansb(data::CountData; undersampled::Float64=0.1, std_dev=false, verbose
     end
 end
 
-function var1(data::CountData, α, ν)
-    digamma(ν + 1) - sum(digamma(x[1] + α + 1) * ((x[1] + α + 1) / ν) * x[2] for x in eachcol(data.multiplicities))
-end
-
-# TODO doesn't yet take into account the multiplicies, need to figure that one out
-function var2(data::CountData, α, ν)
-    phi(n) = digamma(n + α + 1) - digamma(ν + 2)
-    jf(n) = (digamma(n + 2) - digamma(ν + 2))^2 + trigamma(n + 2) - trigamma(ν + 2)
-    c = trigamma(ν + 2)
-    norm = (ν + 1) * ν
-
-    var = 0.0
-    for i in 1:length(data.multiplicities[1, :])
-        ni = data.multiplicities[1, i]
-        for k in 1:length(data.multiplicities[1, :])
-            nk = data.multiplicities[1, k]
-            temp = 0.0
-            if i != k
-                temp += (ni * nk) / norm * (phi(nk) * phi(ni) - c)
-                temp += (ni + 1) * ni / norm * jf(ni)
-                temp *= data.multiplicities[2, k]
-            end
-            var += temp
-        end
-        var *= data.multiplicities[2, i]
-    end
-    return var
-end
-
 function dlogrho(K0, K1, N)
     # equation 15 from Inference of Entropies of Discrete Random Variables with Unknown Cardinalities,
     # rearranged to make solving for 0 easier
