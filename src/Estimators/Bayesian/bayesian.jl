@@ -2,7 +2,7 @@ using SpecialFunctions
 using QuadGK
 
 @doc raw"""
-    bayes(data::CountData, α::AbstractFloat)
+    bayes(data::CountData, α::AbstractFloat; K=nothing)
 
 Returns an estimate of Shannon entropy given data and a concentration parameter ``α``.
 
@@ -12,7 +12,7 @@ Returns an estimate of Shannon entropy given data and a concentration parameter 
 where
 
 ```math
-p_k^{\text{Bayes}} = \frac{k + α}{n + A}
+p_k^{\text{Bayes}} = \frac{K + α}{n + A}
 ```
 
 and
@@ -28,26 +28,39 @@ In addition to setting your own α, we have the following suggested choices
 4) minimax: α = √{n} / K
 
 """
-
-
-function bayes(data::CountData, α::AbstractFloat, K)
+function bayes(data::CountData, α::AbstractFloat; K=nothing)
+    if K === nothing
+        K = data.K
+    end
     weight = α * K + data.N
 
     logx(weight) - (1.0 / weight) * sum(xlogx(x[1] + α) * x[2] for x in eachcol(data.multiplicities))
 end
 
-function jeffrey(data::CountData, K)
-    return bayes(data, 0.5, K)
+@doc raw"""
+     jeffrey(data::CountData; K=nothing)
+
+Compute [`bayes`](@ref) estimate of entropy, with $α = 0.5$
+
+"""
+function jeffrey(data::CountData; K=nothing)
+    return bayes(data, 0.5, K=K)
 end
 
-function laplace(data::CountData, K)
-    return bayes(data, 1.0, K)
+function laplace(data::CountData; K=nothing)
+    return bayes(data, 1.0, K=K)
 end
 
-function schurmann_grassberger(data::CountData, K)
-    return bayes(data, 1.0 / K, K)
+function schurmann_grassberger(data::CountData; K=nothing)
+    if K === nothing
+        K = data.K
+    end
+    return bayes(data, 1.0 / K, K=K)
 end
 
-function minimax(data::CountData, K)
-    return bayes(data, sqrt(data.N) / K, K)
+function minimax(data::CountData; K=nothing)
+    if K === nothing
+        K = data.K
+    end
+    return bayes(data, sqrt(data.N) / K, K=K)
 end
