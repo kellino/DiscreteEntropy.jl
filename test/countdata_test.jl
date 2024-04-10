@@ -24,6 +24,12 @@ d = from_data([1,2,3,4,0,3,2,1,0], Histogram)
 @test DiscreteEntropy.bins(d) == [4.0, 2.0, 3.0, 1.0]
 @test DiscreteEntropy.multiplicities(d) == [1.0, 2.0, 2.0, 2.0]
 
+dk = d.K
+dc = copy(d)
+dc.K = 20
+@test DiscreteEntropy.set_K(d, 20) == dc
+@test DiscreteEntropy.set_K!(dc, dk) == d
+
 
 v = [1,2,3,4,0,3,2,1,0]
 @test from_data(v, Histogram, remove_zeros=true) == CountData([4.0 2.0 3.0 1.0; 1.0 2.0 2.0 2.0], 16.0, 7)
@@ -36,12 +42,13 @@ v = [1,2,3,4,0,3,2,1,0]
 @test from_samples(svector(v), remove_zeros=true) == CountData([2.0 1.0; 3.0 1.0], 7.0, 4)
 @test from_samples(svector(v), remove_zeros=false) == CountData([2.0 1.0; 4.0 1.0], 9.0, 5)
 
+
+
 e::Vector{Float64} = []
 
 @test from_data(e, Histogram) == CountData([;;], 0.0, 0)
 @test from_samples(svector(e)) == CountData([;;], 0.0, 0)
 @test from_counts(e) == CountData([;;], 0.0, 0)
-
 
 data = """
 col1,col2
@@ -59,3 +66,11 @@ file = IOBuffer(data)
 @test from_csv(file, 1, Samples, header=1) == CountData([2.0 1.0; 3.0 1.0], 7.0, 4)
 @test from_csv(file, 2, Samples, header=1) == CountData([2.0 1.0; 1.0 5.0], 7.0, 6)
 @test from_csv(file, 2, Samples, header=1, remove_zeros=true) == CountData([2.0 1.0; 1.0 4.0], 6.0, 5)
+
+p = cvector([4,5,4,3,2,3,4,3,2,1,2,32,9])
+
+@test DiscreteEntropy.pmf(p, 20) === nothing
+@test round(sum(DiscreteEntropy.pmf(p)), digits=10) == 1.0
+
+@test DiscreteEntropy.to_csv_string(from_counts(p)) ==
+    "[5.0,1.0,4.0,3.0,32.0,1.0,2.0,3.0,9.0,1.0,3.0,3.0,1.0,1.0],74,13"

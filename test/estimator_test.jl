@@ -19,5 +19,7 @@ c = from_data([1,2,3,2,1], Histogram)
 @test round(estimate_h(c, Bayes, 3.0), digits=6) == 1.597417
 @test round(estimate_h(c, Bayes, 0.2), digits=6) == 1.539698
 
+@test estimate_h(c, Schurmann, 0.7) ==
+    estimate_h(cvector([1,2,3,2,1]), SchurmannGeneralised, xivector([0.7, 0.7, 0.7, 0.7, 0.7]))
 # from author implementation
 @test round(estimate_h(c, PYM), digits=3) == 2.674

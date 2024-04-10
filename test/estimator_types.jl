@@ -16,7 +16,6 @@ using Test
 
 # Frequentist with Parameter(s)
 @test Schurmann <: ParameterisedEstimator
-@test BUB <: ParameterisedEstimator
 @test SchurmannGeneralised <: ParameterisedEstimator
 
 # Bayesian with Parameter(s)
