@@ -127,29 +127,33 @@ be the same length.
 
     schurmann_generalised(data::CountVector, xis::Distribution, scalar=false)
 
-Computes the generalised Schurmann entropy estimation, given a countvector *data* and a distribution *xis*.
+Computes the generalised Schurmann entropy estimation, given a countvector *data* and a vector of *xi* values.
 """
-function schurmann_generalised(data::CountVector, xis::Vector{T}) where {T<:Real}
+function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
     @assert Base.length(data) == Base.length(xis)
     N = sum(data)
 
+
+    r = 0.0
     for x in enumerate(data)
-        digamma(N) - (1.0 / N) * sum(_schurmann(x[2], 1, xis[x[1]]))
+        r += sum(_schurmann(x[2], 1, xis[x[1]]))
     end
+
+    digamma(N) - (1.0 / N) * r
 end
 
-function schurmann_generalised(data::CountVector, xis::T, scalar::Bool=false) where {T<:Distribution}
-    if scalar
-        # TODO this doesn't work for some reason.
-        # if rand(xis) is a scalar, then we sample from it length(data) times
-        xi_vec = rand(xis, length(data))
-    else
-        # some distributions, such as Dirichlet, return a vector when sampled, we
-        # take this as the default case is it seems more likely to occur
-        xi_vec = xivector(rand(xis))
-    end
-    schurmann_generalised(data, xi_vec)
-end
+# function schurmann_generalised(data::CountVector, xis::T; scalar::Bool=false) where {T<:Distribution}
+#     if scalar
+#         # TODO this doesn't work for some reason.
+#         # if rand(xis) is a scalar, then we sample from it length(data) times
+#         xi_vec = rand(xis, length(data))
+#     else
+#         # some distributions, such as Dirichlet, return a vector when sampled, we
+#         # take this as the default case is it seems more likely to occur
+#         xi_vec = xivector(rand(xis))
+#     end
+#     schurmann_generalised(data, xi_vec)
+# end
 
 
 # Chao Shen Estimator
