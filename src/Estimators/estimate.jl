@@ -23,7 +23,6 @@ struct ChaoWangJost <: NonParameterisedEstimator end
 
 # Frequentist with Parameter(s)
 struct Schurmann <: ParameterisedEstimator end
-struct BUB <: ParameterisedEstimator end
 struct SchurmannGeneralised <: ParameterisedEstimator end
 
 # Bayesian with Parameter(s)
@@ -84,10 +83,6 @@ function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::XiVect
     schurmann_generalised(data, xis)
 end
 
-function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::Distribution)
-    schurmann_generalised(data, xis, true)
-end
-
 function estimate_h(data::CountData, ::Type{ChaoShen})
     chao_shen(data)
 end
@@ -108,35 +103,24 @@ function estimate_h(data::CountData, ::Type{ChaoWangJost})
     chao_wang_jost(data)
 end
 
-function estimate_h(data::CountData, ::Type{BUB})
-    bub(data)
-end
-
 function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=nothing)
-    if K === nothing
-        K = data.K
-    end
-    bayes(data, α, K)
+    bayes(data, α, K=K)
 end
 
-function estimate_h(data::CountData, ::Type{LaPlace}; K=data.K)
-    laplace(data, K)
+function estimate_h(data::CountData, ::Type{LaPlace}; K=nothing)
+    laplace(data, K=K)
 end
 
-function estimate_h(data::CountData, ::Type{Jeffrey}; K=data.K)
-    jeffrey(data, K)
+function estimate_h(data::CountData, ::Type{Jeffrey}; K=nothing)
+    jeffrey(data, K=K)
 end
 
-function estimate_h(data::CountData, ::Type{SchurmannGrassberger}; K=data.K)
-    schurmann_grassberger(data, K)
+function estimate_h(data::CountData, ::Type{SchurmannGrassberger}; K=nothing)
+    schurmann_grassberger(data, K=K)
 end
 
 function estimate_h(data::CountData, ::Type{Minimax}; K=nothing)
-    if K === nothing
-        minimax(data, data.K)
-    else
-        minimax(data, K)
-    end
+    minimax(data, K=K)
 end
 
 function estimate_h(data::CountData, ::Type{PYM}; param=nothing)
