@@ -243,18 +243,16 @@ function pmf(histogram::CountVector, x)
         return nothing
     end
     normed = histogram ./ sum(histogram)
-    # TODO bounds checking required
     return normed[x]
 end
 
-function to_csv_string(data::CountData)::String
-    # TODO check this still works
+function to_csv_string(data::CountData; sep=',')::String
     dict = []
     for x in eachcol(data.multiplicities)
         push!(dict, x[1], x[2])
     end
 
-    return @sprintf("%s,%d,%d", join(dict, ','), data.N, data.K)
+    return @sprintf("[%s],%d,%d", join(dict, sep), data.N, data.K)
 end
 
 
