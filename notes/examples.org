@@ -1,0 +1,153 @@
+#+title: Schurmann Summary
+
+* The Schurmann estimator is for discrete distribution only
+
+\begin{equation}
+\hat{H}_{SHU} = \psi(n) - \frac{1}{n} \sum_{k=1}^{K} \, y_x \big( \psi(y_x) + (-1)^{y_x} ∫_0^{\frac{1}{\xi} - 1} \frac{t^{y_x}-1}{1+t}dt \big)
+\end{equation}
+
+where $y_{x}$ is the count in bin $x$, and $\psi$ is the [[https://en.wikipedia.org/wiki/Digamma_function][digamma]] function, and $\xi$ is the parameter we are trying to estimate
+
+* Ground Truth
+
+We know the entropy of a target distribution, so we can optimize
+
+\begin{equation}
+\mid \hat{H}_{SHU}(s, \xi) - H(P) \mid
+\end{equation}
+
+to get the value of $\xi$ that gets us closest to 0
+
+* Multiplicities
+
+For reasons of efficiency, we use the multiplicities representation of samples drawn from a discrete distribution. I store this in
+a struct
+
+CountData(
+Dict(key = count, value = no. of bins with that count)
+N = no. samples
+K = support size (unique items in sample)
+f1 = no. of singleton bins
+f2 = no. of doubleton bins
+)
+
+f1 and f2 are not essential, but I've included them because there's an estimator (Chao-Wong-Jost) which requires them. They might be useful features to learn from.
+
+** Example Bernoulli
+
+samples = [1,1,2,1,2,2,1,1,2,2,1,1]
+
+CountData(Dict(5 => 1, 7 => 1), 12, 2, 0, 0)
+
+*** The is 1 bin with size 5, and 1 bin with size 7
+
+| count | bins | histogram |
+|-------+------+-----------|
+|     5 |    1 | *****     |
+|     7 |    1 | *******   |
+
+** Example BetaBinomial
+
+*** bb = BetaBinomial(3, 1.0, 1.0) # support size is 3, $\alpha$ = 1.0, $\beta$ = 1.0
+
+samples = [1, 0, 1, 1, 2, 3, 1, 2, 2, 1]
+
+CountData(Dict(5 => 1, 3 => 1, 1 => 2), 10, 4, 2, 0)
+
+| count | bins | histogram |
+|-------+------+-----------|
+|     5 |    1 | *****     |
+|     3 |    1 | ***       |
+|     1 |    2 | *         |
+|       |      | *         |
+
+** Another BetaBinomial
+
+*** bb = BetaBinomial(100, 5.0, 2.0)
+
+let's draw a 1000 samples
+
+
+CountData(Dict(5 => 3, 16 => 2, 20 => 1, 12 => 4, 24 => 1, 28 => 2, 8 => 2, 17 => 2, 1 => 7, 19 => 1…), 1000, 78, 7, 5)
+
+| count | bins | histogram                    |
+|-------+------+------------------------------|
+|     5 |    3 | *****                        |
+|       |      | *****                        |
+|       |      | *****                        |
+|    16 |    2 | ****************             |
+|       |      | ****************             |
+|    20 |    1 | ********************         |
+|    12 |    4 | ************                 |
+|       |      | ************                 |
+|       |      | ************                 |
+|       |      | ************                 |
+|    24 |    1 | ************************     |
+|    28 |    2 | **************************** |
+|     8 |    2 | ********                     |
+|       |      | ********                     |
+|    17 |    2 | *****************            |
+|       |      | *****************            |
+|     1 |    7 | *                            |
+|       |      | *                            |
+|       |      | *                            |
+|       |      | *                            |
+|       |      | *                            |
+|       |      | *                            |
+|       |      | *                            |
+|    19 |    1 | *******************          |
+|    22 |    2 | **********************       |
+|       |      | **********************       |
+|    23 |    2 | ***********************      |
+|       |      | ***********************      |
+|     6 |    4 | ******                       |
+|       |      | ******                       |
+|       |      | ******                       |
+|       |      | ******                       |
+|    11 |    4 | ***********                  |
+|       |      | ***********                  |
+|       |      | ***********                  |
+|       |      | ***********                  |
+|     9 |    3 | *********                    |
+|       |      | *********                    |
+|       |      | *********                    |
+|    14 |    2 | **************               |
+|       |      | **************               |
+|     3 |    4 | ***                          |
+|       |      | ***                          |
+|       |      | ***                          |
+|       |      | ***                          |
+|    29 |    2 | **************************** |
+|     7 |    1 | *******                      |
+|    25 |      | ************************     |
+|       |      | ************************     |
+|       |      | ************************     |
+|       |      | ************************     |
+|     4 |    1 | ****                         |
+|    13 |    1 | *************                |
+|    15 |    2 | ***************              |
+|       |      | ***************              |
+|     2 |    5 | **                           |
+|       |      | **                           |
+|       |      | **                           |
+|       |      | **                           |
+|       |      | **                           |
+|    10 |    5 | **********                   |
+|       |      | **********                   |
+|       |      | **********                   |
+|       |      | **********                   |
+|       |      | **********                   |
+|    18 |    4 | ******************           |
+|       |      | ******************           |
+|       |      | ******************           |
+|       |      | ******************           |
+|    21 |    4 | *********************        |
+|       |      | *********************        |
+|       |      | *********************        |
+|       |      | *********************        |
+|    26 |    3 | *************************    |
+|       |      | *************************    |
+|       |      | *************************    |
+|    27 |    1 | **************************   |
+
+* We need to feed the CountData information (which changes its width massively) to an ML algorithm that expects a fixed size data
