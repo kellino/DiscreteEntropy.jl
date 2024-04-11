@@ -42,14 +42,35 @@ struct Minimax <: AbstractEstimator end
 
 # Other
 struct PERT <: AbstractEstimator end
+struct Bootstrap end
 
 
 @doc raw"""
     estimate_h(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
+    estimate_h(data::CountData, ::Type{JackknifeMLE}; corrected=false)
+    estimate_h(data::CountData, ::Type{Schurmann}, xi=nothing)
+
+    estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::XiVector)
 
 Return the estimate in nats of Shannon entropy of `data` using `estimator`.
 
-Wrapper function indended to make using the libary easier.
+
+# Example
+```@example
+import Random # hide
+Random.seed!(1) # hide
+
+X = rand(1:10, 1000)
+estimate_h(from_data(X, Samples), Schurmann)
+```
+
+
+Note: while most calls to estimate_h take a CountData struct, this is not true for every estimator, especially those that
+work directly over samples, or need to original structure of the histogram.
+
+This function is a wrapper indended to make using the libary easier. For finer control over some of the estimators,
+it is advisable to call them directly, rather than through this function.
+
 """
 function estimate_h(data::CountData, ::Type{MaximumLikelihood})
     maximum_likelihood(data)
@@ -189,4 +210,8 @@ function estimate_h(data::CountData, ::Type{PERT}, e1::Type{T1}, e2::Type{T2}) w
         return
     end
     pert(data, e1, e2)
+end
+
+function estimate_h(data::SampleVector, estimator::Type{T}, ::Type{Bootstrap}; seed=1, reps=1000, concentration=4) where {T<:AbstractEstimator}
+    bayesian_bootstrap(data, estimator, reps, seed, concentration)[1]
 end
