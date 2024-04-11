@@ -4,7 +4,7 @@ makedocs(;
     modules=[DiscreteEntropy],
     sitename="DiscreteEntropy.jl",
     highlightsig=true,
-    checkdocs=:none,
+    # checkdocs=:none,
     format=Documenter.HTML(;
         prettyurls=true,
         edit_link="main",
@@ -14,9 +14,12 @@ makedocs(;
     pages=[
         "Overview" => "index.md",
         "Data" => "data.md",
-        "Estimators" => "estimators.md",
         "Estimate_H" => "est_h.md",
-        "Utility Functions" => "utilities.md"
+        "Estimators" => "estimators.md",
+        "Utility Functions" => "utilities.md",
+        "Divergence and Distance" => "divergence.md",
+        "Mutual Information and Conditional Entropy" => "mutual.md"
+
     ]
 )
 
