@@ -14,6 +14,7 @@ export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
 export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger,
     Schurmann, SchurmannGeneralised,
     ChaoShen, Zhang, Bonachela, Shrink, BUB, ChaoWangJost, PERT
+export Bootstrap
 
 # convenience function to create a unified interface
 export estimate_h, estimate_h_and_var
