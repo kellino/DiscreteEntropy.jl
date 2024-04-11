@@ -103,7 +103,7 @@ where
 function nsb(data::CountData, K)
     l0 = find_l0(K, data)
 
-    numerator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K) * bayes(data, β, K), 0, log(K))[1]
+    numerator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K) * bayes(data, β, K=K), 0, log(K))[1]
     denominator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K), 0, log(K))[1]
 
     h = numerator / denominator
