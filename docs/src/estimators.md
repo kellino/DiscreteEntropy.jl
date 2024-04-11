@@ -34,6 +34,5 @@ pym
 ```@docs
 pert
 jackknife
-bootstrap
-
+bayesian_bootstrap
 ```
