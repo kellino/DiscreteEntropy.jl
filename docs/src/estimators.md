@@ -1,5 +1,7 @@
 # Estimators
 
+We split the estimators into two broad categories, which we call *Frequentist* and *Bayesian*.
+
 ## Frequentist
 
 ```@docs
@@ -20,5 +22,18 @@ chao_wang_jost
 ```@docs
 bayes
 jeffrey
+laplace
+schurmann_grassberger
+minimax
+nsb
+pym
 ```
 
+## Mixed Estimators
+
+```@docs
+pert
+jackknife
+bootstrap
+
+```
