@@ -3,7 +3,7 @@
      mutual_information(joint::Matrix{I}, estimator::Type{T}) where {T<:AbstractEstimator, I<:Real}
 
 ```math
-I(X;Y) = \sum_{y \in Y} \sum_{x \in X} p(x, y) \log(\frac{p_{X,Y}(x,y)}{p_X(x) p_Y(y)})
+I(X;Y) = \sum_{y \in Y} \sum_{x \in X} p(x, y) \log \left(\frac{p_{X,Y}(x,y)}{p_X(x) p_Y(y)}\right)
 ```
 
 But we use the identity
