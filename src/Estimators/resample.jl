@@ -89,24 +89,21 @@ function jackknife(data::CountData, statistic::Function; corrected=false)
 
 end
 
-# TODO add bootstrap resampling
+function bayesian_bootstrap(samples::SampleVector, estimator::Type{T}, reps, seed, concentration) where {T<:AbstractEstimator}
+    out = zeros(reps)
 
-function bootstrap(samples::AbstractVector, method, statistic; K=1000)
-    # How do we do this directly over multiplicities. It should be much more efficient
-    out = zeros(K)
-
-    Threads.@threads for i = 1:K
-        out[i] = method(samples, statistic)
+    Threads.@threads for i = 1:reps
+        out[i] = _bbstrap(samples, estimator, seed, concentration)
     end
 
     return mean(out), var(out)
 
 end
 
-function bayesian_bootstrap(samples::AbstractVector, statistic::Function; seed=1, concentration=4)
+function _bbstrap(samples::SampleVector, estimator::Type{T}, seed, concentration) where {T<:AbstractEstimator}
     Random.seed!(seed)
     weights = Weights(rand(Dirichlet(ones(length(samples)) .* concentration)))
     boot = sample(samples, weights, length(samples))
 
-    return statistic(boot)
+    return estimate_h(from_data(boot, Samples), estimator)
 end
