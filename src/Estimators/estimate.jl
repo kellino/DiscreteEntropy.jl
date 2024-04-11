@@ -7,7 +7,18 @@ Supertype for NonParameterised and Parameterised entropy estimators.
 """
 abstract type AbstractEstimator end
 
+"""
+    NonParameterisedEstimator
+
+Type for NonParameterised  entropy estimators.
+"""
 abstract type NonParameterisedEstimator <: AbstractEstimator end
+
+"""
+    ParameterisedEstimator
+
+Type for Parameterised  entropy estimators.
+"""
 abstract type ParameterisedEstimator <: AbstractEstimator end
 
 # Frequentist
@@ -56,6 +67,7 @@ Return the estimate in nats of Shannon entropy of `data` using `estimator`.
 
 
 # Example
+
 ```@example
 import Random # hide
 Random.seed!(1) # hide
