@@ -2,6 +2,7 @@
 
 ```@docs
 EntropyData
+DiscreteEntropy.AbstractCounts
 CountData
 from_counts
 from_data
@@ -13,4 +14,5 @@ from_samples
 ```@docs
 cvector
 svector
+xivector
 ```

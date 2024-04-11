@@ -3,12 +3,19 @@
 We split the estimators into two broad categories, which we call *Frequentist* and *Bayesian*. We also
 have a few composite estimators that either take an averaging or resampling approach to estimation.
 
+```@docs
+AbstractEstimator
+NonParameterisedEstimator
+ParameterisedEstimator
+```
+
 ## Frequentist Estimators
 
 ```@docs
 maximum_likelihood
 jackknife_mle
 miller_madow
+grassberger
 schurmann
 schurmann_generalised
 chao_shen
@@ -27,6 +34,7 @@ laplace
 schurmann_grassberger
 minimax
 nsb
+ansb
 pym
 ```
 
