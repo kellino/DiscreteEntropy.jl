@@ -32,14 +32,16 @@ or
 
 ## Basic Usage
 
-```@example examples
+```@example quick
 using DiscreteEntropy
 
 data = [1,2,3,4,3,2,1]
 
 # treating data as a vector of counts
 h = estimate_h(from_data(data, Histogram), ChaoShen)
+```
 
+```@example quick
 # treating data as a vector of samples
 h = estimate_h(from_data(data, Samples), ChaoShen)
 ```
