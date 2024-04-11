@@ -173,9 +173,8 @@ end
     Triangular
 end
 
-# E = (a + m + b) / 3.
 @doc raw"""
-    pert(data::CountData, estimator)
+    pert(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
     pert(data::CountData, e1::Type{T}, e2::Type{T}) where {T<:AbstractEstimator}
 
 A Pert estimate of entropy, where
@@ -190,7 +189,7 @@ c = worst case estimate
 H = \frac{a + 4b + c}{6}
 ```
 
-where a is the minimum (maximum_likelihood), c is the maximum (log(k)) and $b$ is the most likely value, but default ChaoShen
+where the default estimators are: a = maximum_likelihood, c = ANSB and $b$ is the most likely value = ChaoShen
 """
 function pert(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
     return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, estimator) + estimate_h(data, ANSB)) / 6.0
