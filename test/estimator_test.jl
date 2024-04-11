@@ -37,5 +37,6 @@ xi = ℯ^(-1/2)
 # testing NSB is difficult, as every implementation I've seen gives a different answer, so instead
 # we settle for a regression test approach
 @test round(estimate_h(c, NSB), digits=6) == 1.569751
+@test round(estimate_h(c, ANSB), digits=6) == 3.0224
 
 @test estimate_h(c, MaximumLikelihood) ≈ estimate_h(c, PERT, MaximumLikelihood, MaximumLikelihood)
