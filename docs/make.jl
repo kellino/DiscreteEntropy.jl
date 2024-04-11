@@ -4,7 +4,6 @@ makedocs(;
     modules=[DiscreteEntropy],
     sitename="DiscreteEntropy.jl",
     highlightsig=true,
-    # checkdocs=:none,
     format=Documenter.HTML(;
         prettyurls=true,
         edit_link="main",
