@@ -89,6 +89,9 @@ function jackknife(data::CountData, statistic::Function; corrected=false)
 
 end
 
+@doc raw"""
+     bayesian_bootstrap(samples::SampleVector, estimator::Type{T}, reps, seed, concentration) where {T<:AbstractEstimator}
+"""
 function bayesian_bootstrap(samples::SampleVector, estimator::Type{T}, reps, seed, concentration) where {T<:AbstractEstimator}
     out = zeros(reps)
 
