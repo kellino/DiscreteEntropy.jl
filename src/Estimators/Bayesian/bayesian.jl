@@ -47,10 +47,22 @@ function jeffrey(data::CountData; K=nothing)
     return bayes(data, 0.5, K=K)
 end
 
+@doc raw"""
+     laplace(data::CountData; K=nothing)
+
+Compute [`bayes`](@ref) estimate of entropy, with $α = 1.0$
+
+"""
 function laplace(data::CountData; K=nothing)
     return bayes(data, 1.0, K=K)
 end
 
+@doc raw"""
+     schurmann_grassberger(data::CountData; K=nothing)
+
+Compute [`bayes`](@ref) estimate of entropy, with $α = \frac{1}{K}$.
+If K is nothing, then use data.K
+"""
 function schurmann_grassberger(data::CountData; K=nothing)
     if K === nothing
         K = data.K
@@ -58,6 +70,12 @@ function schurmann_grassberger(data::CountData; K=nothing)
     return bayes(data, 1.0 / K, K=K)
 end
 
+@doc raw"""
+     minimax(data::CountData; K=nothing)
+
+Compute [`bayes`](@ref) estimate of entropy, with $α = √\frac{data.N}$ where
+K = data.K if K is nothing.
+"""
 function minimax(data::CountData; K=nothing)
     if K === nothing
         K = data.K
