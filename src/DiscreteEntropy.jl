@@ -26,7 +26,7 @@ export maximum_likelihood, miller_madow, jackknife_mle, grassberger, schurmann, 
 export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, AutoNSB, ANSB, PYM
 
 # estimators
-export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym
+export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym, pert, bayesian_bootstrap
 
 # export mutual_info
 export mutual_information
