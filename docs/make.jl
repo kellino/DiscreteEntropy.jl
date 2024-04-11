@@ -15,6 +15,8 @@ makedocs(;
         "Overview" => "index.md",
         "Data" => "data.md",
         "Estimators" => "estimators.md",
+        "Estimate_H" => "est_h.md",
+        "Utility Functions" => "utilities.md"
     ]
 )
 

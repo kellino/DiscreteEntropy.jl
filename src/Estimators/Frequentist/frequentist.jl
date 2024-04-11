@@ -7,7 +7,7 @@ using Optim: maximizer
 @doc raw"""
     maximum_likelihood(data::CountData)::Float64
 
-Return the maximum likelihood estimation of Shannon entropy of `data` in nats.
+Compute the maximum likelihood estimation of Shannon entropy of `data` in nats.
 
 ```math
 \hat{H}_{\tiny{ML}} = - \sum_{i=1}^K p_i \log(p_i)
@@ -30,11 +30,13 @@ end
 @doc raw"""
     jackknife_mle(data::CountData; corrected=false)::Tuple{AbstractFloat, AbstractFloat}
 
-Return the *jackknifed* estimate of data and the variance of the jackknifing (not the variance of the estimator itself).
+Compute the *jackknifed* [`maximum_likelihood`](@ref) estimate of data and the variance of the
+jackknifing (not the variance of the estimator itself).
 
 If corrected is true, then the variance is scaled with n-1, else it is scaled with n
 
-As found in the [paper](https://academic.oup.com/biomet/article/65/3/625/234287)
+# External Links
+[Estimation of the size of a closed population when capture probabilities vary among animals](https://academic.oup.com/biomet/article/65/3/625/234287)
 """
 function jackknife_mle(data::CountData; corrected=false)
     return jackknife(data, maximum_likelihood, corrected=corrected)
@@ -46,7 +48,7 @@ end
 @doc raw"""
     miller_madow(data::CountData)
 
-Return the Miller Madow estimation of Shannon entropy, with a positive bias based
+Compute the Miller Madow estimation of Shannon entropy, with a positive bias based
 on the total number of samples seen (N) and the support size (K).
 
 ```math
@@ -63,7 +65,7 @@ end
 @doc raw"""
     grassberger(data::CountData)
 
-Return the Grassberger (1988) estimation of Shannon entropy of `data` in nats
+Compute the Grassberger (1988) estimation of Shannon entropy of `data` in nats
 
 ```math
 \hat{H}_{\tiny{Gr88}} = \sum_i \frac{h_i}{H} \left(\log(N) - \psi(h_i) - \frac{(-1)^{h_i}}{n_i + 1}  \right)
@@ -86,7 +88,7 @@ end
 @doc raw"""
     schurmann(data::CountData, ξ::Float64 = ℯ^(-1/2))
 
-Return the Schurmann estimate of Shannon entropy of `data` in nats.
+Compute the Schurmann estimate of Shannon entropy of `data` in nats.
 
 ```math
 \hat{H}_{SHU} = \psi(N) - \frac{1}{N} \sum_{i=1}^{K} \, h_i \left( \psi(h_i) + (-1)^{h_i} ∫_0^{\frac{1}{\xi} - 1} \frac{t^{h_i}-1}{1+t}dt \right)
@@ -121,7 +123,7 @@ end
 
 ```
 
-Return the generalised Schurmann entropy estimation, given a countvector `data` and a xivector `xis`, which must both
+Compute the generalised Schurmann entropy estimation, given a countvector `data` and a xivector `xis`, which must both
 be the same length.
 
 
@@ -161,7 +163,7 @@ end
 @doc raw"""
     chao_shen(data::CountData)
 
-Return the Chao-Shen estimate of the Shannon entropy of `data` in nats.
+Compute the Chao-Shen estimate of the Shannon entropy of `data` in nats.
 
 ```math
 \hat{H}_{CS} = - \sum_{i=i}^{K} \frac{\hat{p}_i^{CS} \log \hat{p}_i^{CS}}{1 - (1 - \hat{p}_i^{CS})}
@@ -197,7 +199,7 @@ end
 @doc raw"""
     zhang(data::CountData)
 
-Return the Zhang estimate of the Shannon entropy of `data` in nats.
+Compute the Zhang estimate of the Shannon entropy of `data` in nats.
 
 The recommended definition of Zhang's estimator is from [Grabchak *et al.*](https://www.tandfonline.com/doi/full/10.1080/09296174.2013.830551)
 ```math
@@ -206,7 +208,7 @@ The recommended definition of Zhang's estimator is from [Grabchak *et al.*](http
 
 The actual algorithm comes from [Fast Calculation of entropy with Zhang's estimator](https://arxiv.org/abs/1707.08290) by Lozano *et al.*.
 
-# Links
+# Exernal Links
 [Entropy estimation in turing's perspective](https://dl.acm.org/doi/10.1162/NECO_a_00266)
 """
 function zhang(data::CountData)
@@ -229,7 +231,7 @@ end
 @doc raw"""
     bonachela(data::CountData)
 
-Return the Bonachela estimator of the Shannon entropy of `data` in nats.
+Compute the Bonachela estimator of the Shannon entropy of `data` in nats.
 
 ```math
 \hat{H}_{B} = \frac{1}{N+2} \sum_{i=1}^{K} \left( (h_i + 1) \sum_{j=n_i + 2}^{N+2} \frac{1}{j} \right)
@@ -257,7 +259,7 @@ end
 @doc raw"""
     shrink(data::CountData)
 
-Return the Shrinkage, or James-Stein estimator of Shannon entropy for `data` in nats.
+Compute the Shrinkage, or James-Stein estimator of Shannon entropy for `data` in nats.
 
 ```math
 \hat{H}_{\tiny{SHR}} = - \sum_{i=1}^{K} \hat{p}_x^{\tiny{SHR}} \log(\hat{p}_x^{\tiny{SHR}})
@@ -328,7 +330,7 @@ end
 @doc raw"""
     chao_wang_jost(data::CountData)
 
-Return the Chao Wang Jost Shannon entropy estimate of `data` in nats.
+Compute the Chao Wang Jost Shannon entropy estimate of `data` in nats.
 
 ```math
 \hat{H}_{\tiny{CWJ}} = \sum_{1 \leq h_i \leq N-1} \frac{h_i}{N} \left(\sum_{k=h_i}^{N-1} \frac{1}{k} \right) +

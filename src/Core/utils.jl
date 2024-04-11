@@ -16,7 +16,7 @@ end
 
 @doc raw"""
     xlogx(x::Float64)
-Returns `x * log(x)` for `x ≥ 0`, or 0.0 if x is zero
+Returns `x * log(x)` for `x > 0`, or 0.0 if x is zero
 """
 function xlogx(x)
     return x * logx(x)
@@ -25,7 +25,7 @@ end
 @doc raw"""
      xFx(f::Function, x)
 
-Returns `x * f(x)` for `x ≥ 0`, or 0.0 if x is zero
+Returns `x * f(x)` for `x > 0`, or 0.0 if x is zero
 """
 function xFx(f::Function, x)
     if iszero(x)

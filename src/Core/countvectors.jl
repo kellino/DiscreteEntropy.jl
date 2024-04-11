@@ -60,7 +60,11 @@ Base.getindex(wv::W, ::Colon) where {W<:AbstractCounts} = W(copy(wv.values), sum
 
 @counts CountVector
 @doc raw"""
-    cvector
+     cvector(vs::AbstractVector{<:Integer})
+     cvector(vs::AbstractVector{<:Real}) = CountVector(vs)
+     cvector(vs::AbstractArray{<:Real}) = CountVector(vec(vs))
+
+Convert an AbstractVector into a CountVector. A CountVector represents the frequency of sampled values.
 """
 cvector(vs::AbstractVector{<:Integer}) = CountVector(convert(Vector{Float64}, vs))
 cvector(vs::AbstractVector{<:Real}) = CountVector(vs)
@@ -68,7 +72,11 @@ cvector(vs::AbstractArray{<:Real}) = CountVector(vec(vs))
 
 @counts SampleVector
 @doc raw"""
-    svector
+    svector(vs::AbstractVector{<:Integer})
+    svector(vs::AbstractVector{<:Real})
+    svector(vs::AbstractArray{<:Real})
+
+Convert an AbstractVector into a SampleVector. A SampleVector represents a sequence of sampled values.
 """
 svector(vs::AbstractVector{<:Integer}) = SampleVector(convert(Vector{Float64}, vs))
 svector(vs::AbstractVector{<:Real}) = SampleVector(vs)
@@ -76,7 +84,10 @@ svector(vs::AbstractArray{<:Real}) = SampleVector(vec(vs))
 
 @counts XiVector
 @doc raw"""
-    xivector
+     xivector(vs::AbstractVector{<:Real})
+     xivector(vs::AbstractArray{<:Real})
+
+Convert an AbstractVector{Real} into a XiVector. Exclusively for use with [`schurmann_generalised`](@ref).
 """
 xivector(vs::AbstractVector{<:Real}) = XiVector(vs)
 xivector(vs::AbstractArray{<:Real}) = XiVector(vec(vs))

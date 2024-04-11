@@ -36,5 +36,10 @@ or
 using DiscreteEntropy
 
 data = [1,2,3,4,3,2,1]
+
+# treating data as a vector of counts
 h = estimate_h(from_data(data, Histogram), ChaoShen)
+
+# treating data as a vector of samples
+h = estimate_h(from_data(data, Samples), ChaoShen)
 ```

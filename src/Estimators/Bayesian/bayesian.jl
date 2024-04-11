@@ -4,7 +4,8 @@ using QuadGK
 @doc raw"""
     bayes(data::CountData, α::AbstractFloat; K=nothing)
 
-Returns an estimate of Shannon entropy given data and a concentration parameter ``α``.
+Compute an estimate of Shannon entropy given data and a concentration parameter ``α``.
+If K is not provided, then the observed support size in `data` is used.
 
 ```math
 \hat{H}_{\text{Bayes}} = - \sum_{k=1}^{K} \hat{p}_k^{\text{Bayes}} \; \log \hat{p}_k^{\text{Bayes}}

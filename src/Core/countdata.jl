@@ -9,8 +9,8 @@ using LinearAlgebra: dot;
     Samples <: EntropyData
 
 It is very easy, when confronted with a vector such as ``[1,2,3,4,5,4]`` to forget
-whether it represents samples from a distribution, or a histogram of a (discrete) distribution. ``DiscreteEntropy.jl``
-attemps to make this a difficult mistake to make by enforcing a type difference between a vector of
+whether it represents samples from a distribution, or a histogram of a (discrete) distribution. *DiscreteEntropy.jl*
+attempts to make this a difficult mistake to make by enforcing a type difference between a vector of
 samples and a vector of counts.
 
 See [`svector`](@ref) and [`cvector`](@ref).
@@ -34,20 +34,7 @@ struct Samples <: EntropyData end
 All of the estimators operate over a multiplicity representation of raw data. Raw data
 takes the form either of a vector of samples, or a vector of counts (ie a histogram).
 
-histogram = [1,2,3,2,1,4]
-
-The multiplicity representation of histogram is
-
-   [1.0, 2.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 2
-
-   [2.0, 3.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 2
-
-   [3.0, 4.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1
-
-   [4.0, 5.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 1
-
-
-which we represent as
+Given histogram `= [1,2,3,2,1,4]`, the multiplicity representation is
 
 ```math
 \begin{pmatrix}
