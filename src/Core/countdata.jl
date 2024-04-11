@@ -198,7 +198,7 @@ end
 Create a CountData object from a vector or matrix. The function is parameterised on whether
 the vector contains samples or the histogram.
 
-while ``remove_zeros`` defaults to ``true``, this might not be the desired behaviour for Samples.
+While *remove_zeros* defaults to *true*, this might not be the desired behaviour for Samples.
 A 0 value in the histgram causes problems for the estimators, but a 0 value in a vector of samples may be
 perfectly legitimate.
 """
