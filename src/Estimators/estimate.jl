@@ -68,17 +68,17 @@ Return the estimate in nats of Shannon entropy of `data` using `estimator`.
 
 # Example
 
-```@example
-import Random # hide
-Random.seed!(1) # hide
+```@jldoctest
+julia> import Random; Random.seed!(1);
 
-X = rand(1:10, 1000)
-estimate_h(from_data(X, Samples), Schurmann)
+julia> X = rand(1:10, 1000)
+julia> estimate_h(from_data(X, Samples), Schurmann)
+2.3039615201251173
 ```
 
-
-Note: while most calls to estimate_h take a CountData struct, this is not true for every estimator, especially those that
-work directly over samples, or need to original structure of the histogram.
+## Note
+While most calls to estimate_h take a CountData struct, this is not true for every estimator, especially those that
+work directly over samples, or need the original structure of the histogram.
 
 This function is a wrapper indended to make using the libary easier. For finer control over some of the estimators,
 it is advisable to call them directly, rather than through this function.

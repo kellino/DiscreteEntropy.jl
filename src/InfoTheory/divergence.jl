@@ -11,13 +11,14 @@ of a probability distribution, ``P`` with itself is equal to its entropy,
 ie ``H(P, P) = H(P)``.
 
 # Example
+```@jldoctest
 
-P = cvector([1,2,3,4,3,2])
-Q = cvector([2,5,5,4,3,4])
+julia> P = cvector([1,2,3,4,3,2])
+julia> Q = cvector([2,5,5,4,3,4])
 
-ce = cross_entropy(P, Q, MaximumLikelihood)
+julia> ce = cross_entropy(P, Q, MaximumLikelihood)
 1.778564897565542
-
+```
 Note: not every estimator is currently supported.
 """
 function cross_entropy(P::Vector{Int}, Q::Vector{Int}, t::Type{T}) where {T<:AbstractEstimator}

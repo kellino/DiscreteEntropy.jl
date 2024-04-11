@@ -1,6 +1,8 @@
-using Test
+using Test, Documenter, DiscreteEntropy
 
 @testset "DiscreteEntropy.jl" begin
+    doctest(DiscreteEntropy)
+
     @testset "countdata test" begin
         include("countdata_test.jl")
     end

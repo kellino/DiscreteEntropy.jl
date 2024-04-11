@@ -21,16 +21,16 @@ function conditional_entropy(X::CountData, XY::CountData, estimator::Type{T}) wh
 end
 
 function conditional_entropy(joint::Matrix{R}, estimator::Type{T}; dim=1) where {T<:NonParameterisedEstimator, R<:Real}
-    X = from_counts(marginal_counts(joint, 1))
+    X = from_counts(marginal_counts(joint, dim))
     estimate_h(from_counts(cvector(joint)), estimator) - estimate_h(X, estimator)
 end
 
 function conditional_entropy(joint::Matrix{R}, estimator::Type{NSB}; dim=1, guess=false, KJ=nothing, KX=nothing) where {R<:Real}
-    X = from_counts(marginal_counts(joint, 1))
+    X = from_counts(marginal_counts(joint, dim))
     estimate_h(from_counts(cvector(joint)), estimator, guess=guess, K=KJ) - estimate_h(X, estimator, KX)
 end
 
 function conditional_entropy(joint::Matrix{R}, estimator::Type{Bayes}, α; dim=1, KJ=nothing, KX=nothing) where {R<:Real}
-    X = from_counts(marginal_counts(joint, 1))
+    X = from_counts(marginal_counts(joint, dim))
     estimate_h(from_counts(cvector(joint)), Bayes, α, K=KJ) - estimate_h(X, estimator, α, K=KX)
 end
