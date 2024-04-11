@@ -76,11 +76,11 @@ function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; trunc
 end
 
 @doc raw"""
-    jenson_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector)
-    jenson_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector, estimator::Type{T}) where {T<:NonParamterisedEstimator}
-    jenson_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector, estimator::Type{Bayes}, α)
+    jensen_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector)
+    jensen_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector, estimator::Type{T}) where {T<:NonParamterisedEstimator}
+    jensen_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector, estimator::Type{Bayes}, α)
 
-Compute the Jenson Shannon Divergence between discrete distributions $P$ and $q$, as represented by
+Compute the Jensen Shannon Divergence between discrete distributions $P$ and $q$, as represented by
 their histograms. If no estimator is specified, it defaults to MaximumLikelihood.
 
 ```math
