@@ -204,7 +204,7 @@ end
 @doc raw"""
     from_csv(file::String, field, ::Type{T}; remove_zeros=false, header=nothing) where {T<:EntropyData}
 
-Simple wrapper around ``CSV.File`` which returns a ``CountData`` object. For more complex
+Simple wrapper around *CSV.File() which returns a [`CountData`](@ref) object. For more complex
 requirements, it is best to call CSV directly.
 """
 function from_csv(file::Union{String, IOBuffer}, field, t::Type{T}; remove_zeros=false, header=false) where {T<:EntropyData}
