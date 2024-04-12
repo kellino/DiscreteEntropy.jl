@@ -3,6 +3,9 @@ using Test, Documenter, DiscreteEntropy
 @testset "DiscreteEntropy.jl" begin
     doctest(DiscreteEntropy)
 
+    @testset "mi_test" begin
+        include("mi_test.jl")
+    end
     @testset "countdata test" begin
         include("countdata_test.jl")
     end

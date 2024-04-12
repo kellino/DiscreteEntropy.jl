@@ -35,7 +35,7 @@ or
 ```@example quick
 using DiscreteEntropy
 
-data = [1,2,3,4,3,2,1]
+data = [1,2,3,4,3,2,1];
 ```
 
 Most of the estimators take a [`CountData`](@ref) object. This is a compact representation of the histogram of the random variable. The easiest
