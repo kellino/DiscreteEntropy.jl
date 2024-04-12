@@ -1,6 +1,6 @@
 name = "DiscreteEntropy"
 uuid = "940648b6-1797-4129-9403-35667d1f6004"
-authors = ["David Kelly"]
+authors = ["David Kelly <david.a.kelly@kcl.ac.uk> and contributors"]
 version = "0.1.0"
 
 [deps]
