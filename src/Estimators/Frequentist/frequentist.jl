@@ -39,7 +39,7 @@ If corrected is true, then the variance is scaled with n-1, else it is scaled wi
 [Estimation of the size of a closed population when capture probabilities vary among animals](https://academic.oup.com/biomet/article/65/3/625/234287)
 """
 function jackknife_mle(data::CountData; corrected=false)
-    return jackknife(data, maximum_likelihood, corrected=corrected)
+    return jackknife(data, MaximumLikelihood, corrected=corrected)
 end
 
 

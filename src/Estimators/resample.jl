@@ -2,8 +2,6 @@ using Distributions: Dirichlet;
 using Random;
 using StatsBase: weights, sample, Weights, mean, var
 
-# https://towardsdatascience.com/the-bayesian-bootstrap-6ca4a1d45148
-
 function reduce(i, mat::Matrix)
     loc = deepcopy(mat)
     col = mat[:, i]
@@ -64,13 +62,13 @@ function jk(data::CountData)
 end
 
 @doc raw"""
-    jackknife(data::CountData, statistic::Function; corrected=false)
+     jackknife(data::CountData, estimator::Type{T}; corrected=false) where {T<:AbstractEstimator}
 
-Compute the jackknifed estimate of *statistic* on data.
+Compute the jackknifed estimate of `estimator` on `data`.
 """
-function jackknife(data::CountData, statistic::Function; corrected=false)
+function jackknife(data::CountData, estimator::Type{T}; corrected=false) where {T<:AbstractEstimator}
     reduced = jk(data)
-    entropies = ((statistic(c), mm) for (c, mm) in reduced)
+    entropies = ((estimate_h(c, estimator), mm) for (c, mm) in reduced)
     len = sum(mm for (_, mm) in entropies)
 
     μ = 1 / len * sum(h * mm for (h, mm) in entropies)
@@ -91,8 +89,15 @@ end
 
 @doc raw"""
      bayesian_bootstrap(samples::SampleVector, estimator::Type{T}, reps, seed, concentration) where {T<:AbstractEstimator}
+
+Compute a bayesian bootstrap resampling of `samples` for estimation with `estimator`, where
+`reps` is number of resampling to perform, seed is the random seed and concentration is the
+concentration parameter for a Dirichlet distribution.
+
+# Note
+Based on this [link](https://towardsdatascience.com/the-bayesian-bootstrap-6ca4a1d45148
 """
-function bayesian_bootstrap(samples::SampleVector, estimator::Type{T}, reps, seed, concentration) where {T<:AbstractEstimator}
+function bayesian_bootstrap(samples::SampleVector, estimator::Type{T}, reps::Int, seed::Int64, concentration::Real) where {T<:AbstractEstimator}
     out = zeros(reps)
 
     Threads.@threads for i = 1:reps

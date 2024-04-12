@@ -48,7 +48,7 @@ struct ANSB <: NonParameterisedEstimator end
 struct Jeffrey <: NonParameterisedEstimator end
 struct LaPlace <: NonParameterisedEstimator end
 struct SchurmannGrassberger <: NonParameterisedEstimator end
-struct Minimax <: AbstractEstimator end
+struct Minimax <: NonParameterisedEstimator end
 
 
 # Other
@@ -62,6 +62,8 @@ struct Bootstrap end
     estimate_h(data::CountData, ::Type{Schurmann}, xi=nothing)
 
     estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::XiVector)
+    estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=nothing)
+    estimate_h(data::CountData, ::Type{NSB}; guess=false, K=nothing)
 
 Return the estimate in nats of Shannon entropy of `data` using `estimator`.
 
@@ -79,6 +81,12 @@ julia> estimate_h(from_data(X, Samples), Schurmann)
 ## Note
 While most calls to estimate_h take a CountData struct, this is not true for every estimator, especially those that
 work directly over samples, or need the original structure of the histogram.
+
+For a complete list of methods of the function, try
+
+```@jldoctest
+julia> methods(estimate_h)
+```
 
 This function is a wrapper indended to make using the libary easier. For finer control over some of the estimators,
 it is advisable to call them directly, rather than through this function.
@@ -161,14 +169,15 @@ function estimate_h(data::CountData, ::Type{PYM}; param=nothing)
 end
 
 function estimate_h(data::CountData, ::Type{NSB}; guess=false, K=nothing)
+    loc_K = K
     if guess
-        K = guess_k(data)
+        loc_K = guess_k(data)
     else
-        if K === nothing
-            K = data.K
+        if loc_K === nothing
+            loc_K = data.K
         end
     end
-    nsb(data, K)
+    nsb(data, loc_K)
 end
 
 function estimate_h(data::CountData, ::Type{ANSB})
