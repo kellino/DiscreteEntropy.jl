@@ -7,7 +7,7 @@ H(P,Q) = - \sum_x(P(x) \log(Q(x)))
 
 Compute the cross entropy of ``P`` and ``Q``, given an estimator of type ``T``.
 ``P`` and ``Q`` must be the same length. Both vectors are normalised. The cross entropy
-of a probability distribution, ``P`` with itself is equal to its entropy,
+of a probability distribution ``P`` with itself, is equal to its entropy,
 ie ``H(P, P) = H(P)``.
 
 # Example
@@ -81,11 +81,11 @@ end
     jensen_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector, estimator::Type{T}) where {T<:NonParamterisedEstimator}
     jensen_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector, estimator::Type{Bayes}, α)
 
-Compute the Jensen Shannon Divergence between discrete distributions $P$ and $q$, as represented by
+Compute the Jensen Shannon Divergence between discrete distributions $P$ and $Q$, as represented by
 their histograms. If no estimator is specified, it defaults to MaximumLikelihood.
 
 ```math
-\widehat{JS}(p, q) = \hat{H}\left(\frac{p + q}{2} \right) - \left( \frac{H(p) + H(q)}{2} \right)
+\widehat{JS}(P, Q) = \hat{H}\left(\frac{P + Q}{2} \right) - \left( \frac{H(P) + H(Q)}{2} \right)
 
 ```
 """

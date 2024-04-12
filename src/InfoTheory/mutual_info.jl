@@ -43,8 +43,9 @@ U(X \mid Y) =  \frac{I(X;Y)}{H(X)}
 If `symmetric` is `true` then compute the weighted average between `X` and `Y`
 
 ```math
-U(X, Y) = 2 \left[ \frac{H(X) + H(Y) - H(X, Y)} {H(X) + H(Y)} ]
+U(X, Y) = 2 \left[ \frac{H(X) + H(Y) - H(X, Y)} {H(X) + H(Y)} \right]
 ```
+
 """
 function uncertainty_coefficient(joint::Matrix{I}, estimator::Type{T}; symmetric=false) where {T<:AbstractEstimator, I<:Real}
     if symmetric
