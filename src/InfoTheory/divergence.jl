@@ -110,11 +110,14 @@ end
 
 @doc raw"""
     jeffreys_divergence(p, q)
-    (link)[https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7516653/]
 
 ```math
 J(p, q) = D_{KL}(p \Vert q) + D_{KL}(q \Vert p)
 ```
+
+# External Links
+
+[Paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7516653/)
 """
 function jeffreys_divergence(P, Q)
     return kl_divergence(P, Q, MaximumLikelihood) + kl_divergence(P, Q, MaximumLikelihood)
