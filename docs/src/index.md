@@ -36,8 +36,28 @@ or
 using DiscreteEntropy
 
 data = [1,2,3,4,3,2,1]
+```
 
-# treating data as a vector of counts
+Most of the estimators take a [`CountData`](@ref) object. This is a compact representation of the histogram of the random variable. The easiest
+way to create it is via `from_data`
+
+```@example quick
+# if `data` is a histogram already
+cd = from_data(data, Histogram)
+
+# or if `data` is actually a vector of samples
+
+cds = from_data(data, Samples)
+```
+
+```@example quick
+# or if `data` is actually a vector of samples
+
+cds = from_data(data, Samples)
+```
+
+```
+# now we can estimate
 h = estimate_h(from_data(data, Histogram), ChaoShen)
 ```
 
@@ -45,3 +65,11 @@ h = estimate_h(from_data(data, Histogram), ChaoShen)
 # treating data as a vector of samples
 h = estimate_h(from_data(data, Samples), ChaoShen)
 ```
+
+`DiscreteEntropy.jl` outputs Shannon measures in `nats`. 
+
+```@example quick
+h = to_bits(estimate_h(cd, ChaoShen))
+```
+
+
