@@ -35,5 +35,7 @@ given by
 ```math
 H(X) = - \sum_{x \in X} p(x) \log (p(x))
 ```
-However, it is extremely hard when knowledge of the distribution is incomplete.
+However, it is extremely hard when knowledge of the distribution is incomplete. It is well know that 
+the `MaximumLikelihood` (or Plugin) estimator, underestimates the true entropy on average. The entropy of `X` is
+*at least* as large...
 
