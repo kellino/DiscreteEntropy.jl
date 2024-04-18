@@ -76,22 +76,28 @@ function under(data::CountData, upper_bound)
 end
 
 function over(data::CountData, upper_bound, k_max)
-    N = convert(Integer, data.N)
+    # N = convert(Integer, data.N)
 
-    if k_max > N
-        k_max = N - 1
+    if k_max > data.N
+        k_max = data.N - 1
     end
 
     c = 80
     #c = ceil(min(N, c * maximum(N / data.K, 1)))
-    c = ceil(min(N, c * maximum([(N / data.K), 1])))
+    c = ceil(min(data.N, c * maximum([(data.N / data.K), 1])))
     s = 30
     mesh = 200
-    eps = (N^-1) * 10^-10
-    Ni = loggamma(N + 1) .- loggamma.(1:c+1) .- loggamma.(N + 1 .- (0:c))
+    eps = (data.N^-1) * 10^-10
+    Ni = loggamma(data.N + 1) .- loggamma.(1:c+1) .- loggamma.(data.N + 1 .- (0:c))
 
-    #p = logspace(log(1e-4 / N, 10), log(minimum(1, s / N) - eps, 10), mesh)
-    p = logspace(log(1e-4 / N, 10), log(minimum([1, s / N]) - eps, 10), mesh)
+    p = logspace(log10(1e-4 / data.N), log10(min(1, s / data.N) - eps), mesh)
     lp = log.(p)
     lq = log.(1 .- p)
+
+    # P = exp.(Ni' .+ (0:c)' .* lp .+ (data.N .- (0:c))' .* lq)
+    # println(length(P))
+    P = repeat(Ni', length(p)) .+ (0:c)' .* lp .+ (data.N .- (0:c))' .* lq
+    println(length(P) / 26)
+    # return Ni
+    # P = repeat(Ni', 1, length(p)) .+ (0:c)' * lp
 end

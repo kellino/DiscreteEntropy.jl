@@ -12,7 +12,7 @@ export CountData, from_data, from_samples, from_counts, singletons, doubletons,
 
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
 export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger,
-    Schurmann, SchurmannGeneralised,
+    Schurmann, SchurmannGeneralised, BUB,
     ChaoShen, Zhang, Bonachela, Shrink, ChaoWangJost, PERT
 export Bootstrap
 
@@ -26,7 +26,7 @@ export maximum_likelihood, miller_madow, jackknife_mle, grassberger, schurmann, 
 export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, AutoNSB, ANSB, PYM
 
 # estimators
-export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym, pert, bayesian_bootstrap
+export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym, pert, bayesian_bootstrap, bub
 
 # export mutual_info
 export mutual_information, uncertainty_coefficient
@@ -47,6 +47,7 @@ include("Core/utils.jl")
 
 include("Estimators/estimate.jl")
 include("Estimators/Frequentist/frequentist.jl")
+include("Estimators/Frequentist/bub.jl")
 include("Estimators/Bayesian/bayesian.jl")
 include("Estimators/Bayesian/nsb.jl")
 include("Estimators/Bayesian/pym.jl")
