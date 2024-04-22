@@ -94,10 +94,25 @@ function over(data::CountData, upper_bound, k_max)
     lp = log.(p)
     lq = log.(1 .- p)
 
-    # P = exp.(Ni' .+ (0:c)' .* lp .+ (data.N .- (0:c))' .* lq)
-    # println(length(P))
-    P = repeat(Ni', length(p)) .+ (0:c)' .* lp .+ (data.N .- (0:c))' .* lq
-    println(length(P) / 26)
-    # return Ni
-    # P = repeat(Ni', 1, length(p)) .+ (0:c)' * lp
+    P = Ni .+ (i for i in 0:c) .* lp' .+ (data.N .- (i for i in 0:c)) .* lq'
+
+    epsm = (data.K^-1) * 10^-10
+    pm = epsm : min(1, s/data.K) / mesh : min(1, s/data.K) - epsm
+    lpm = log.(pm)
+
+    Pm = exp.(Ni .+ (i for i in 0:c) .* lpm' .+ (data.N .- (i for i in 0:c)) .* lq')
+    # return Pm
+
+    f = zeros(size(Pm))
+
+    inds = findall(x -> x <= 1 / data.K, pm)
+    for i in inds
+        f[i] = pm[i]
+    end
+    println(f)
+    # println(inds)
+
+
+
+
 end
