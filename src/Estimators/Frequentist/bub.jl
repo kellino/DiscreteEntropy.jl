@@ -82,9 +82,9 @@ function over(data::CountData, upper_bound, k_max)
         k_max = data.N - 1
     end
 
-    c = 80
+    # c = 80
     #c = ceil(min(N, c * maximum(N / data.K, 1)))
-    c = ceil(min(data.N, c * maximum([(data.N / data.K), 1])))
+    c = Integer(ceil(min(data.N, 80 * maximum([(data.N / data.K), 1]))))
     s = 30
     mesh = 200
     eps = (data.N^-1) * 10^-10
@@ -94,25 +94,37 @@ function over(data::CountData, upper_bound, k_max)
     lp = log.(p)
     lq = log.(1 .- p)
 
-    P = Ni .+ (i for i in 0:c) .* lp' .+ (data.N .- (i for i in 0:c)) .* lq'
+    P = repeat(Ni', length(p))' .+ (i for i in 0:c) .* lp' .+ (data.N .- (i for i in 0:c)) .* lq'
+    println(P)
 
     epsm = (data.K^-1) * 10^-10
     pm = epsm : min(1, s/data.K) / mesh : min(1, s/data.K) - epsm
     lpm = log.(pm)
 
     Pm = exp.(Ni .+ (i for i in 0:c) .* lpm' .+ (data.N .- (i for i in 0:c)) .* lq')
-    # return Pm
 
-    f = zeros(size(Pm))
+    f = [x <= 1 / data.K ? data.K : x^-1 for x in pm]
 
-    inds = findall(x -> x <= 1 / data.K, pm)
-    for i in inds
-        f[i] = pm[i]
-    end
-    println(f)
-    # println(inds)
+    a =  [i / data.N for i in 0:data.N]
+    a = [-log(x^x) + (1 - x) * (0.5 / data.N) for x in a]
 
+    mda = maximum(abs.(diff(a)))
 
+    best_MM = Inf64
 
+    # println(size(P))
+    # for (i, row) in enumerate(eachrow(P))
+    #     println("$i")
+    #     println("$row")
+    # #     println(" ")
+    # end
 
+    # for k in 1:min(1,Integer(data.N))
+        # h_mm = a[k+1:c+1]' * selectdim(P, )
+        # println(h_mm)
+        # println(P)
+        # println(size(selectdim(P, 1, k+1:size(P)[1])))
+        # println(P[:, k+1:end])
+        # println(selectdim(P, 1, k:size(P)[1]-1))
+    # end
 end
