@@ -94,14 +94,15 @@ function over(data::CountData, upper_bound, k_max)
     lp = log.(p)
     lq = log.(1 .- p)
 
-    P = repeat(Ni', length(p))' .+ (i for i in 0:c) .* lp' .+ (data.N .- (i for i in 0:c)) .* lq'
-    println(P)
+    P = exp.(repeat(Ni, 1, length(p)) .+ (i for i in 0:c) .* lp' .+ (data.N - i for i in 0:c) .* lq')
 
     epsm = (data.K^-1) * 10^-10
     pm = epsm : min(1, s/data.K) / mesh : min(1, s/data.K) - epsm
     lpm = log.(pm)
+    lqm = log.(1 .- pm)
 
-    Pm = exp.(Ni .+ (i for i in 0:c) .* lpm' .+ (data.N .- (i for i in 0:c)) .* lq')
+    # Pm = exp.(Ni .+ (i for i in 0:c) .* lpm' .+ (data.N - i for i in 0:c)) .* lq'
+    Pm = exp.(repeat(Ni, 1, length(pm)) .+ (i for i in 0:c) .* lpm' .+ (data.N - i for i in 0:c) .* lqm')
 
     f = [x <= 1 / data.K ? data.K : x^-1 for x in pm]
 
@@ -112,19 +113,12 @@ function over(data::CountData, upper_bound, k_max)
 
     best_MM = Inf64
 
-    # println(size(P))
-    # for (i, row) in enumerate(eachrow(P))
-    #     println("$i")
-    #     println("$row")
-    # #     println(" ")
-    # end
+    w = size(P)[1]
+    for k in 1:min(1,Integer(data.N))
+        h_mm = a[k+1:c+1]' * selectdim(P, 1, k+1:w)
+        XX = data.K^2 * dot(selectdim(P, 1, 1:k), selectdim(P, 1, 1:k)')
+        XY = data.K^2 * dot(selectdim(P, 1, 1:k), (-log.(p.^p)) .- h_mm'  )
 
-    # for k in 1:min(1,Integer(data.N))
-        # h_mm = a[k+1:c+1]' * selectdim(P, )
-        # println(h_mm)
-        # println(P)
-        # println(size(selectdim(P, 1, k+1:size(P)[1])))
-        # println(P[:, k+1:end])
-        # println(selectdim(P, 1, k:size(P)[1]-1))
-    # end
+        println(XY)
+    end
 end
