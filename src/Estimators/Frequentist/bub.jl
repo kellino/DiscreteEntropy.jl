@@ -1,4 +1,4 @@
-using LinearAlgebra: I, dot
+using LinearAlgebra: I, dot, diagm
 
 # A Julia port of the original code found on
 # Liam Paninski's [homepage](https://www.stat.columbia.edu/~liam/research/code/BUBfunc.m)
@@ -75,7 +75,7 @@ function under(data::CountData, upper_bound)
     h
 end
 
-function over(data::CountData, upper_bound, k_max)
+function over(data::CountData, upper_bound, k_max; lambda_0=1)
     # N = convert(Integer, data.N)
 
     if k_max > data.N
@@ -114,11 +114,18 @@ function over(data::CountData, upper_bound, k_max)
     best_MM = Inf64
 
     w = size(P)[1]
-    for k in 1:min(1,Integer(data.N))
+    for k in 1:min(2,Integer(data.N))
         h_mm = a[k+1:c+1]' * selectdim(P, 1, k+1:w)
-        XX = data.K^2 * dot(selectdim(P, 1, 1:k), selectdim(P, 1, 1:k)')
-        XY = data.K^2 * dot(selectdim(P, 1, 1:k), (-log.(p.^p)) .- h_mm'  )
+        XX = data.K^2 * selectdim(P, 1, 1:k) * selectdim(P, 1, 1:k)'
+        XY = data.K^2 * selectdim(P, 1, 1:k) * ((-log.(p.^p)) .- h_mm')
+        XY[k] += data.N * a[k]
+        DD = 2 * I(k) - diagm(1 => ones(k-1)) - diagm(-1 => ones(k-1))
+        DD[1] = 1
+        DD[k, k] = 1
+        AA = XX .+ data.N .* DD
+        AA[1] += lambda_0
+        AA[k, k] += data.N
+        a[1:k] = pinv(AA) * XY
 
-        println(XY)
     end
 end
