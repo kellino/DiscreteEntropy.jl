@@ -114,7 +114,7 @@ function over(data::CountData, upper_bound, k_max; lambda_0=1)
     best_MM = Inf64
 
     w = size(P)[1]
-    for k in 1:min(2,Integer(data.N))
+    for k in 1:min(1,Integer(data.N))
         h_mm = a[k+1:c+1]' * selectdim(P, 1, k+1:w)
         XX = data.K^2 * selectdim(P, 1, 1:k) * selectdim(P, 1, 1:k)'
         XY = data.K^2 * selectdim(P, 1, 1:k) * ((-log.(p.^p)) .- h_mm')
@@ -126,6 +126,12 @@ function over(data::CountData, upper_bound, k_max; lambda_0=1)
         AA[1] += lambda_0
         AA[k, k] += data.N
         a[1:k] = pinv(AA) * XY
+
+        B = data.K * (a[1:c+1]' * (P .+ log.(p.^p)'))
+        println(B)
+        # B = data.K .* (a[1:c+1]' * P .+ log.(p.^p))
+        # print(size(B))
+        # println(size(P .+ log.(p.^p))
 
     end
 end
