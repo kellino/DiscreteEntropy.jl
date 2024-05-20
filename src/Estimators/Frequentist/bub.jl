@@ -3,7 +3,7 @@ using LinearAlgebra: I, dot, diagm
 # A Julia port of the original code found on
 # Liam Paninski's [homepage](https://www.stat.columbia.edu/~liam/research/code/BUBfunc.m)
 
-function bub(data::CountData; upper_bound=false, k_max=1)
+function bub(data::CountData; upper_bound=false, k_max=11)
     if data.N < 20.0
         return under(data, upper_bound)
     else
@@ -111,6 +111,10 @@ function over(data::CountData, upper_bound, k_max; lambda_0=1)
     mda = maximum(abs.(diff(a)))
 
     best_MM = Inf64
+    best_a = nothing
+    best_B = nothing
+    best_V1 = nothing
+
 
     w = size(P)[1]
     for k in 1:min(k_max,Integer(data.N))
@@ -131,10 +135,17 @@ function over(data::CountData, upper_bound, k_max; lambda_0=1)
         V1 = V1' * Pm
         l = minimum((k+2, length(a)))
         mmda = max(mda , maximum(abs.(diff(a[1 : l])) ))
-        MM = maximum(f .* V1)
-        # MM = (mmda^2, 4 * max(f. * V1))
-        # MM = sqrt(maxbias^2 + data.N * minimum(  mmda^2, 4 * maximum(f .* V1) )) ./log(2)
-        println(MM)
+        MM = sqrt(maxbias^2 + data.N * minimum((mmda^2, 4 * maximum(f .* V1')))) / log(2)
 
+
+        if MM < best_MM
+            best_MM = MM
+            best_a = a
+            best_B = B
+            best_V1 = V1
+        end
     end
+
+
+    return (best_a, best_MM)
 end
