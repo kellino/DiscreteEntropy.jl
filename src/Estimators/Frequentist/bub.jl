@@ -3,7 +3,7 @@ using LinearAlgebra: I, dot, diagm
 # A Julia port of the original code found on
 # Liam Paninski's [homepage](https://www.stat.columbia.edu/~liam/research/code/BUBfunc.m)
 
-function bub(data::CountData; upper_bound=false, k_max=11)
+function bub(data::CountData; upper_bound=false, k_max=1)
     if data.N < 20.0
         return under(data, upper_bound)
     else
@@ -49,7 +49,6 @@ function under(data::CountData, upper_bound)
     N = convert(Integer, data.N)
     p, P = get_mesh(N, 5)
 
-    # f = [x <= 1 / data.K ? 5 : x^-1 for x in q] # why is this not used?
     X = data.K * P'
     XX = X' * X
     XY = data.K * X' * (-log.(p .^ p))
@@ -114,7 +113,7 @@ function over(data::CountData, upper_bound, k_max; lambda_0=1)
     best_MM = Inf64
 
     w = size(P)[1]
-    for k in 1:min(1,Integer(data.N))
+    for k in 1:min(k_max,Integer(data.N))
         h_mm = a[k+1:c+1]' * selectdim(P, 1, k+1:w)
         XX = data.K^2 * selectdim(P, 1, 1:k) * selectdim(P, 1, 1:k)'
         XY = data.K^2 * selectdim(P, 1, 1:k) * ((-log.(p.^p)) .- h_mm')
@@ -126,12 +125,16 @@ function over(data::CountData, upper_bound, k_max; lambda_0=1)
         AA[1] += lambda_0
         AA[k, k] += data.N
         a[1:k] = pinv(AA) * XY
-
-        B = data.K * (a[1:c+1]' * (P .+ log.(p.^p)'))
-        println(B)
-        # B = data.K .* (a[1:c+1]' * P .+ log.(p.^p))
-        # print(size(B))
-        # println(size(P .+ log.(p.^p))
+        B = data.K .* (a[1:c+1]' * P .+ log.(p.^p)')
+        maxbias = maximum(abs.(B))
+        V1 = ((0:c)./data.N) .* (a[1:c+1] .- [0; a[1:c]]).^2
+        V1 = V1' * Pm
+        l = minimum((k+2, length(a)))
+        mmda = max(mda , maximum(abs.(diff(a[1 : l])) ))
+        MM = maximum(f .* V1)
+        # MM = (mmda^2, 4 * max(f. * V1))
+        # MM = sqrt(maxbias^2 + data.N * minimum(  mmda^2, 4 * maximum(f .* V1) )) ./log(2)
+        println(MM)
 
     end
 end
