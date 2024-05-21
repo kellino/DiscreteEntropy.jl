@@ -71,8 +71,11 @@ function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; trunc
     c = cross_entropy(P, Q, estimator) - estimate_h(from_counts(P), estimator)
     if truncate
         round(c, digits=10)
+    end
+    if c < 0.0
+        return Inf
     else
-        c
+        return c
     end
 end
 
