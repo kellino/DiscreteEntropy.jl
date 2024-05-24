@@ -59,7 +59,7 @@ end
 
 
 @doc raw"""
-    kl_divergence(p::AbstractVector, q::AbstractVector)::Float64
+    kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; truncate::Union{Nothing, Int} = nothing) where {T<:AbstractEstimator}
 
 ```math
 D_{KL}(P ‖ Q) = \sum_{x \in X} P(x) \log \left( \frac{P(x)}{Q(x)} \right)
@@ -70,22 +70,20 @@ between two discrete distributions. Both distributions needs to be defined over 
 so length(p) == length(q). If the distributions are not normalised, they will be.
 
 If the distributions are not over the same space, then it return Inf.
+
+If truncate is set to some integer value, ```x```, return kl_divergence rounded to ```x``` decimal places.
 """
-function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; truncate=true) where {T<:AbstractEstimator}
+function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; truncate::Union{Nothing, Int}=nothing) where {T<:AbstractEstimator}
     cr = cross_entropy(P, Q, estimator)
     if cr <= 0.0
         return Inf
     end
 
     c = cr - estimate_h(from_counts(P), estimator)
-    if truncate
-        round(c, digits=10)
+    if truncate !== nothing
+        c = round(c, digits=truncate)
     end
-    if c < 0.0
-        return Inf
-    else
-        return c
-    end
+    c < 0.0 ? Inf : c
 end
 
 @doc raw"""
