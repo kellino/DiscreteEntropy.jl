@@ -24,13 +24,26 @@ Note: not every estimator is currently supported.
 function cross_entropy(P::Vector{Int}, Q::Vector{Int}, t::Type{T}) where {T<:AbstractEstimator}
     @warn("assuming P and Q are count vectors")
     cross_entropy(cvector(P), cvector(Q), t)
+    # if c == -0.0
+    #     c = 0.0
+    # end
+    # c
 end
 
 function cross_entropy(P::CountVector, Q::CountVector, ::Type{MaximumLikelihood})
     @assert length(P) == length(Q)
     freqs1 = pmf(P)
     freqs2 = pmf(Q)
-    - sum(freqs1 .* logx.(freqs2))
+    c = freqs1 .* logx.(freqs2)
+    if 0.0 in c
+        return Inf
+    else
+        c = - sum(c)
+    end
+    if c == -0.0
+        return 0.0
+    end
+    c
 end
 
 function cross_entropy(P::CountVector, Q::CountVector, ::Type{MillerMadow})
@@ -66,9 +79,16 @@ D_{KL}(P ‖ Q) = \sum_{x \in X} P(x) \log \left( \frac{P(x)}{Q(x)} \right)
 Compute the [Kullback-Lebler Divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence#Interpretations)
 between two discrete distributions. Both distributions needs to be defined over the same space,
 so length(p) == length(q). If the distributions are not normalised, they will be.
+
+If the distributions are not over the same space, then it return Inf.
 """
 function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; truncate=true) where {T<:AbstractEstimator}
-    c = cross_entropy(P, Q, estimator) - estimate_h(from_counts(P), estimator)
+    cr = cross_entropy(P, Q, estimator)
+    if cr <= 0.0
+        return Inf
+    end
+
+    c = cr - estimate_h(from_counts(P), estimator)
     if truncate
         round(c, digits=10)
     end
