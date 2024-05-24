@@ -21,19 +21,16 @@ julia> ce = cross_entropy(P, Q, MaximumLikelihood)
 ```
 Note: not every estimator is currently supported.
 """
-function cross_entropy(P::Vector{Int}, Q::Vector{Int}, t::Type{T}) where {T<:AbstractEstimator}
-    @warn("assuming P and Q are count vectors")
-    cross_entropy(cvector(P), cvector(Q), t)
-    # if c == -0.0
-    #     c = 0.0
-    # end
-    # c
+function cross_entropy(P::CountVector, Q::CountVector, ::Type{MillerMadow})
+    N = sum(P) + sum(Q)
+    K = ((length(P) + length(Q)) / 2.0) - 1.0
+    cross_entropy(P, Q, MaximumLikelihood) + K / N
 end
 
-function cross_entropy(P::CountVector, Q::CountVector, ::Type{MaximumLikelihood})
+function cross_entropy(P::AbstractVector{R}, Q::AbstractVector{R}, ::Type{MaximumLikelihood}) where {R <: Real}
     @assert length(P) == length(Q)
-    freqs1 = pmf(P)
-    freqs2 = pmf(Q)
+    freqs1 = P ./ sum(P)
+    freqs2 = Q ./ sum(Q)
     c = freqs1 .* logx.(freqs2)
     if 0.0 in c
         return Inf
@@ -46,18 +43,10 @@ function cross_entropy(P::CountVector, Q::CountVector, ::Type{MaximumLikelihood}
     c
 end
 
-function cross_entropy(P::CountVector, Q::CountVector, ::Type{MillerMadow})
-    N = sum(P) + sum(Q)
-    K = ((length(P) + length(Q)) / 2.0) - 1.0
-    cross_entropy(P, Q, MaximumLikelihood) + K / N
-end
-
 function cross_entropy(P::CountVector, Q::CountVector, ::Type{Bayes}, α::Float64)
     p = pmf(cvector(P .+ α))
     q = pmf(cvector(Q .+ α))
-    pa = p ./ sum(p)
-    qa = q ./ sum(q)
-    - sum(pa .* logx.(qa))
+    cross_entropy(p, q, MaximumLikelihood)
 end
 
 function cross_entropy(P::CountVector, Q::CountVector, ::Type{LaPlace}) cross_entropy(P, Q, Bayes, 1.0) end

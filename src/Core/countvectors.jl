@@ -60,12 +60,20 @@ Base.getindex(wv::W, ::Colon) where {W<:AbstractCounts} = W(copy(wv.values), sum
 
 @counts CountVector
 @doc raw"""
+     cvector(vs::AbstractVector; filter=false)
      cvector(vs::AbstractVector{<:Integer})
      cvector(vs::AbstractVector{<:Real}) = CountVector(vs)
      cvector(vs::AbstractArray{<:Real}) = CountVector(vec(vs))
 
 Convert an AbstractVector into a CountVector. A CountVector represents the frequency of sampled values.
+If filter = true, remove 0 counts
 """
+cvector(vs::AbstractVector; filter=false) =
+    if filter
+        cvector(filter!(p -> !iszero(p), vs))
+    else
+        cvector(vs)
+end
 cvector(vs::AbstractVector{<:Integer}) = CountVector(convert(Vector{Float64}, vs))
 cvector(vs::AbstractVector{<:Real}) = CountVector(vs)
 cvector(vs::AbstractArray{<:Real}) = CountVector(vec(vs))
