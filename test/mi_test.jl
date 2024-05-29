@@ -6,7 +6,7 @@ x = DiscreteEntropy.marginal_counts(m, 1)
 y = DiscreteEntropy.marginal_counts(m, 2)
 
 @test mutual_information(m, MaximumLikelihood) ≈ kl_divergence(cvector(m), cvector(y * x'), MaximumLikelihood)
-# @test mutual_information(m, MillerMadow) ≈ kl_divergence(cvector(m), cvector(y * x'), MillerMadow)
+@test mutual_information(Matrix([0.2 0.4; 0.2 0.4]), MaximumLikelihood) == 0.0
 
 @test mutual_information(m, MaximumLikelihood) == estimate_h(from_data(y, Histogram), MaximumLikelihood) - conditional_entropy(m, MaximumLikelihood)
 @test mutual_information(m, ChaoWangJost) == estimate_h(from_data(y, Histogram), ChaoWangJost) - conditional_entropy(m, ChaoWangJost)
@@ -17,3 +17,7 @@ y = DiscreteEntropy.marginal_counts(m, 2)
 
 # I don't have a good test for conditional_entropy with NSB, so will just go for regression for the moment
 @test conditional_entropy(m, NSB) == 1.4536388136068217
+
+@test uncertainty_coefficient(Matrix([0.2 0.4; 0.2 0.4]), MaximumLikelihood) == 0.0
+@test uncertainty_coefficient(m, MaximumLikelihood) == 0.12637968128410482
+@test uncertainty_coefficient(m, MaximumLikelihood, symmetric=true) == 0.12677798482043318
