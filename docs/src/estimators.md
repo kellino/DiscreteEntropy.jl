@@ -18,6 +18,7 @@ miller_madow
 grassberger
 schurmann
 schurmann_generalised
+bub
 chao_shen
 zhang
 bonachela
