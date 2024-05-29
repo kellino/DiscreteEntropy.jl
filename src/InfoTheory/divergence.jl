@@ -31,16 +31,11 @@ function cross_entropy(P::AbstractVector{R}, Q::AbstractVector{R}, ::Type{Maximu
     @assert length(P) == length(Q)
     freqs1 = P ./ sum(P)
     freqs2 = Q ./ sum(Q)
-    c = freqs1 .* logx.(freqs2)
-    if 0.0 in c
+    if 0.0 in freqs2
         return Inf
-    else
-        c = - sum(c)
     end
-    if c == -0.0
-        return 0.0
-    end
-    c
+    c = - sum(freqs1 .* logx.(freqs2))
+    abs(c)
 end
 
 function cross_entropy(P::CountVector, Q::CountVector, ::Type{Bayes}, α::Float64)
@@ -75,7 +70,7 @@ If truncate is set to some integer value, ```x```, return kl_divergence rounded 
 """
 function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; truncate::Union{Nothing, Int}=nothing) where {T<:AbstractEstimator}
     cr = cross_entropy(P, Q, estimator)
-    if cr <= 0.0
+    if cr < 0.0
         return Inf
     end
 
@@ -83,7 +78,7 @@ function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; trunc
     if truncate !== nothing
         c = round(c, digits=truncate)
     end
-    c < 0.0 ? Inf : c
+    c < 0.0 ? 0.0 : c
 end
 
 @doc raw"""
@@ -109,7 +104,7 @@ function jensen_shannon_divergence(P::CountVector, Q::CountVector, estimator::Ty
 end
 
 @doc raw"""
-    jensen_shannon_distance(P::AbstractVector, Q::AbstractVector, estimator)
+    jensen_shannon_distance(P::AbstractVector, Q::AbstractVector, estimator::Type{T}) where T<:AbstractEstimator
 
 Compute the Jensen Shannon Distance
 
@@ -119,12 +114,14 @@ function jensen_shannon_distance(P::AbstractVector, Q::AbstractVector, estimator
 end
 
 @doc raw"""
-    jeffreys_divergence(p, q)
+    jeffreys_divergence(P, Q)
+    jeffreys_divergence(P, Q, estimator::Type{T}) where T<:AbstractEstimator
 
 ```math
 J(p, q) = D_{KL}(p \Vert q) + D_{KL}(q \Vert p)
 ```
 
+If no estimator is specified, then we calculate using maximum likelihood
 # External Links
 
 [Paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7516653/)

@@ -14,6 +14,7 @@ Q = cvector([10,4,3,9,12,14,8,4,10,32])
 @test kl_divergence(P, P, Jeffrey) == 0.0
 @test kl_divergence(P, P, SchurmannGrassberger) == 0.0
 @test kl_divergence(P, P, Minimax) == 0.0
+@test kl_divergence(cvector([1,2,3,4]), cvector([0,0,0,1000]), MaximumLikelihood) == Inf
 
 @test jensen_shannon_distance(P, P, MillerMadow) == 0.0
 @test jeffreys_divergence(P, P, MaximumLikelihood) == 0.0

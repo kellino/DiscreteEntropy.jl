@@ -33,6 +33,13 @@ xi = ℯ^(-1/2)
 @test round(estimate_h(c, Bonachela), digits=6) == 1.54045
 @test round(estimate_h(c, ChaoWangJost), digits=6) == 1.84787
 
+# we test BUB against the author's own implemention, though we have to do a little bit of manual rounding as julia's precision
+# is quite different from matlab's
+@test round(estimate_h(from_counts([1,2,3,4,5,4,3,2,1]), BUB, truncate=true), digits=4) == 2.2388
+@test round(estimate_h(from_counts([1,2,3,2,1]), BUB, truncate=true), digits=4) == 1.7089
+@test round(estimate_h(from_counts([1]), BUB, truncate=true), digits=4) == 0.1812
+
+
 
 # testing NSB is difficult, as every implementation I've seen gives a different answer, so instead
 # we settle for a regression test approach

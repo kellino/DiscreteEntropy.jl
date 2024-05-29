@@ -145,8 +145,9 @@ function estimate_h(data::CountData, ::Type{ChaoWangJost})
     chao_wang_jost(data)
 end
 
-function estimate_h(data::CountData, ::Type{BUB}; upper_bound=false, k_max=11)
-    DiscreteEntropy.bub(data, upper_bound=upper_bound, k_max=k_max)
+function estimate_h(data::CountData, ::Type{BUB}; k_max=11, truncate=false, lambda=0.0)
+    (h, _ ) = bub(data, k_max=k_max, truncate=truncate, lambda=lambda)
+    return h
 end
 
 function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=nothing)
