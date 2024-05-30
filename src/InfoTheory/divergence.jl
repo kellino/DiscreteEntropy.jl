@@ -39,8 +39,11 @@ function cross_entropy(P::AbstractVector{R}, Q::AbstractVector{R}, ::Type{Maximu
 end
 
 function cross_entropy(P::CountVector, Q::CountVector, ::Type{Bayes}, α::Float64)
+    println("here")
     p = pmf(cvector(P .+ α))
+    println(p)
     q = pmf(cvector(Q .+ α))
+    println(q)
     cross_entropy(p, q, MaximumLikelihood)
 end
 
@@ -68,18 +71,28 @@ If the distributions are not over the same space, then it return Inf.
 
 If truncate is set to some integer value, ```x```, return kl_divergence rounded to ```x``` decimal places.
 """
-function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; truncate::Union{Nothing, Int}=nothing) where {T<:AbstractEstimator}
-    cr = cross_entropy(P, Q, estimator)
+function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; truncate::Union{Nothing, Int}=nothing, α=0.0) where {T<:AbstractEstimator}
+    if estimator == Bayes
+        cr = cross_entropy(P, Q, Bayes, α)
+        c = cr - estimate_h(from_counts(P), Bayes, α)
+    else
+        cr = cross_entropy(P, Q, estimator)
+        c = cr - estimate_h(from_counts(P), estimator)
+    end
     if cr < 0.0
         return Inf
     end
 
-    c = cr - estimate_h(from_counts(P), estimator)
     if truncate !== nothing
         c = round(c, digits=truncate)
     end
     c < 0.0 ? 0.0 : c
 end
+function kl_divergence(P::CountVector, Q::CountVector; truncate::Union{Nothing, Int}=nothing) kl_divergence(P, Q, MaximumLikelihood, truncate=truncate) end
+function kl_divergence(P::CountVector, Q::CountVector, ::Type{Bayes}, α::Float64; truncate::Union{Nothing, Int}=nothing)
+    kl_divergence(P, Q, Bayes, truncate=truncate)
+end
+
 
 @doc raw"""
     jensen_shannon_divergence(countsP::AbstractVector, countsQ::AbstractVector)
@@ -94,14 +107,15 @@ their histograms. If no estimator is specified, it defaults to MaximumLikelihood
 
 ```
 """
-function jensen_shannon_divergence(P::CountVector, Q::CountVector)
-    abs(0.5 * kl_divergence(P, Q, MaximumLikelihood) + 0.5 *
-        kl_divergence(Q, P, MaximumLikelihood))
-end
+# function jensen_shannon_divergence(P::CountVector, Q::CountVector)
+#     abs(0.5 * kl_divergence(P, Q, MaximumLikelihood) + 0.5 *
+#         kl_divergence(Q, P, MaximumLikelihood))
+# end
 
 function jensen_shannon_divergence(P::CountVector, Q::CountVector, estimator::Type{T}) where {T<:AbstractEstimator}
     abs(0.5 * kl_divergence(P, Q, estimator) + 0.5 * kl_divergence(Q, P, estimator))
 end
+function jensen_shannon_divergence(P::CountVector, Q::CountVector) jensen_shannon_divergence(P, Q, MaximumLikelihood) end
 
 @doc raw"""
     jensen_shannon_distance(P::AbstractVector, Q::AbstractVector, estimator::Type{T}) where T<:AbstractEstimator

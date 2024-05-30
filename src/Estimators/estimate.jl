@@ -31,6 +31,7 @@ struct Zhang <: NonParameterisedEstimator end
 struct Bonachela <: NonParameterisedEstimator end
 struct Shrink <: NonParameterisedEstimator end
 struct ChaoWangJost <: NonParameterisedEstimator end
+struct Unseen <: NonParameterisedEstimator end
 
 # Frequentist with Parameter(s)
 struct Schurmann <: ParameterisedEstimator end
