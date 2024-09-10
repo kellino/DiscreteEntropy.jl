@@ -8,25 +8,21 @@ authors:
     orcid: 0000-0002-5368-6769
     corresponding: true
     affiliation: 1
-  - name: Ilaria Pia La Torre
-    affiliation: 2
 affiliation:
   - name: King's College London
     index: 1
-  - name: University College London
-    index: 2
 data: 15 April 2024
 bibliography: paper.bib
 ---
 
 # Summary
 `DiscreteEntropy` is Julia package to facilitate entropy estimation of discrete random variables. `DiscreteEntropy`
-provides a comprehensive collection of entropy estimators and utilities for working with other Shannon measures.
+provides a comprehensive collection of popular entropy estimators and utilities for working with other Shannon measures.
 `DiscreteEntropy` implements a variety of different entropy estimators, which were previously scattered over 
-different languages and libraries. Some of these scattered implementations are very slow, very hard to find, or difficult to compile.
+different languages and libraries. Some of these scattered implementations are slow, hard to find, or difficult to compile.
 `DiscreteEntropy` removes all of these problems. `DiscreteEntropy` also provides functions for computing cross entropy, 
-KL divergence, mutual information and many other Shannon measures. `DiscreteEntropy` is intended to be efficient, with
-an easy, flexible but type safe interface.
+KL divergence, mutual information and many other Shannon measures. `DiscreteEntropy` is intended to be
+easy to use, with a flexible but type safe interface.
 
 # Statement of need
 The entropy of a random variable, `X`, is the average amount of surprise associated with
@@ -54,3 +50,5 @@ are numerous, cross-domain, applications for entropy and mutual information, suc
 machine learning [@MacKay2003] and software engineering [@bohme:fse:2020, @blackwell2023hyperfuzzing]. `DiscreteEntropy` makes
 it easy to apply different estimators to the problem of mutual information, cross entropy and KL divergence, amonst other
 measures.
+
+# Library

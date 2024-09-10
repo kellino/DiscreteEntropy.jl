@@ -49,9 +49,12 @@ include("Estimators/estimate.jl")
 include("Estimators/Frequentist/frequentist.jl")
 include("Estimators/Frequentist/bub.jl")
 include("Estimators/Frequentist/unseen.jl")
+include("Estimators/Frequentist/polynomial.jl")
+
 include("Estimators/Bayesian/bayesian.jl")
 include("Estimators/Bayesian/nsb.jl")
 include("Estimators/Bayesian/pym.jl")
+
 include("Estimators/resample.jl")
 
 include("InfoTheory/mutual_info.jl")
