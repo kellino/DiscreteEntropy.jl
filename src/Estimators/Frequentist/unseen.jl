@@ -3,45 +3,27 @@ using Distributions: Poisson, pdf;
 using JuMP;
 using GLPK;
 
-function linprog(c, A, sense, b, l, u)
-    N = length(c)
-    model = Model(GLPK.Optimizer)
-    @variable(model, l[i] <= x[i=1:N] <= u[i])
-    @objective(model, Min, c' * x)
-    # eq_rows, ge_rows, le_rows = sense .== '=', sense .== '>', sense .== '<'
-    # @constraint(model, A[eq_rows, :] * x .== b[eq_rows])
-    # @constraint(model, A[ge_rows, :] * x .>= b[ge_rows])
-    # @constraint(model, A[le_rows, :] * x .<= b[le_rows])
-    # optimize!(model)
-    return (
-        status = termination_status(model),
-        objval = objective_value(model),
-        sol = value.(x)
-    )
+function linprog(c, A, b, Aeq, beq, lb, ub)
+  model = Model(GLPK.Optimizer)
+  N = length(lb)
+  @variable(model, lb[i] <= x[i=1:N] <= ub[i])
+  @objective(model, Min, c'x)
+  @constraint(model, A * x .<= b)
+  @constraint(model, Aeq' * x .== beq)
+  optimize!(model)
+
+  sol = value.(x)
+  val = objective_value(model)
+  return sol, val
 end
-
-
-# function linprog(c, A, b, Aeq, beq, l, u)
-#     N = length(c)
-#     model = Model(GLPK.Optimizer)
-#     @variable(model, l[i] <= x[i=1:N] <= u[i])
-#     @objective(model, Min, c' * x)
-#     @constraint(model, A * x .<= b)
-#     @constraint(model, Aeq * x = beq)
-#     optimize!(model)
-#     return (
-#         status = termination_status(model),
-#         objval = objective_value(model),
-#         sol = value.(x)
-#     )
-# end
 
 function unseen(data::CountData)
   finger_dict = countmap(data.multiplicities[2, :])
-  finger = zeros(findmax(finger_dict)[1])
+  finger = zeros(convert(Int, findmax(collect(keys(finger_dict)))[1]))
+  # finger = zeros(findmax(finger_dict)[1])
 
   for (k, v) in finger_dict
-    finger[convert(Int, k)+1] = v
+    finger[convert(Int, k)] = v
   end
 
   finger = finger[2:end]
@@ -49,12 +31,12 @@ function unseen(data::CountData)
 
   grid_factor = 1.05
   alpha = 0.5
-  #
+
   xLPmin = 1 / (data.K * max(10, data.K))
-  #
+
   min_i = minimum(filter(x -> x > 0, finger))
-  #
-  #
+
+
   if min_i > 1
     xLPmin = min_i / data.K
   end
@@ -116,8 +98,39 @@ function unseen(data::CountData)
     Aeq[i] = Aeq[i] / xLP[i]
   end
 
-  return objf, A, b, Aeq, LP_mass
+  lb = zeros(length(xLP) + 2 * length(f_lp))
+  ub = Inf * ones(length(xLP) + 2 * length(f_lp))
+  _, fval = linprog(objf, A, b, Aeq, LP_mass, lb, ub)
+
+  objf2 = 0 .* objf
+  objf2[1:length((xLP))] .= 1
+
+  A2 = [A; objf']
+  b2 = [b; fval + alpha]
 
 
+  for i in 1:length(xLP)
+    objf2[i] = objf2[i] / xLP[i]
+  end
+
+  sol2, fval2 = linprog(objf2, A2, b2, Aeq, LP_mass, lb, ub)
+
+  sol2[1:length(xLP)] .= sol2[1:length(xLP)] ./ xLP
+ 
+  x = [x; xLP]
+  histx = [histx; sol2]
+  inds = sortperm(x)
+  x = sort(x)
+  histx = histx[inds]
+  println(histx)
+  ind = findall(x -> x > 0.0, histx)
+
+  println("ind", ind)
+  h = histx[ind] 
+  x = x[ind]
+
+  # println(h)
+  # println(x)
+  return -h .* (x .* log.(x))
 end
 
