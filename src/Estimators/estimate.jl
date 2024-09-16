@@ -151,6 +151,10 @@ function estimate_h(data::CountData, ::Type{BUB}; k_max=11, truncate=false, lamb
     return h
 end
 
+function estimate_h(data::CountData, ::Type{Unseen})
+  return unseen(data)
+end
+
 function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=nothing)
     bayes(data, α, K=K)
 end

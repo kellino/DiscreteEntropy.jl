@@ -39,11 +39,8 @@ function cross_entropy(P::AbstractVector{R}, Q::AbstractVector{R}, ::Type{Maximu
 end
 
 function cross_entropy(P::CountVector, Q::CountVector, ::Type{Bayes}, α::Float64)
-    println("here")
     p = pmf(cvector(P .+ α))
-    println(p)
     q = pmf(cvector(Q .+ α))
-    println(q)
     cross_entropy(p, q, MaximumLikelihood)
 end
 

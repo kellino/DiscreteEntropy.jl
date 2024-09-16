@@ -13,7 +13,7 @@ export CountData, from_data, from_samples, from_counts, singletons, doubletons,
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
 export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger,
     Schurmann, SchurmannGeneralised, BUB,
-    ChaoShen, Zhang, Bonachela, Shrink, ChaoWangJost, PERT
+    ChaoShen, Zhang, Bonachela, Shrink, ChaoWangJost, PERT, Unseen
 export Bootstrap
 
 # convenience function to create a unified interface

@@ -19,6 +19,11 @@ c = from_data([1,2,3,2,1], Histogram)
 @test round(estimate_h(c, Bayes, 3.0), digits=6) == 1.597417
 @test round(estimate_h(c, Bayes, 0.2), digits=6) == 1.539698
 
+
+# tested against authors' matlab code
+@test round(estimate_h(c, Unseen), digits=4) == 0.887
+
+
 xi = ℯ^(-1/2)
 
 @test estimate_h(c, Schurmann, 0.7) ==

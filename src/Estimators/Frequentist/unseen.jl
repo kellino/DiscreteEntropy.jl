@@ -17,24 +17,35 @@ function linprog(c, A, b, Aeq, beq, lb, ub)
   return sol, val
 end
 
+@doc raw"""
+  unseen(data::CountData)
+
+Compute the Unseen estimatation of Shannon entropy.
+
+# Example
+
+``@jldoctest
+n = [1,2,3,4,5,4,3,2,1]
+h = unseen(from_counts(n))
+1.4748194918254784
+
+# External Links
+[Estimating the Unseen: Improved Estimators for Entropy and Other Properties](https://drive.google.com/file/d/1mdmbAZm22uH-Shr18YQTtKeMnlwypnpp/view)
+"""
 function unseen(data::CountData)
   finger_dict = countmap(data.multiplicities[2, :])
   finger = zeros(convert(Int, findmax(collect(keys(finger_dict)))[1]))
-  # finger = zeros(findmax(finger_dict)[1])
 
   for (k, v) in finger_dict
     finger[convert(Int, k)] = v
   end
-
-  finger = finger[2:end]
-
 
   grid_factor = 1.05
   alpha = 0.5
 
   xLPmin = 1 / (data.K * max(10, data.K))
 
-  min_i = minimum(filter(x -> x > 0, finger))
+  min_i = minimum(findall(x -> x > 0, finger))
 
 
   if min_i > 1
@@ -42,16 +53,16 @@ function unseen(data::CountData)
   end
 
   x = 0
-  histx = 0
+  histx = [0]
 
   f_lp = zeros(Int, length(finger))
 
   for i in 1:length(finger)
     if finger[i] > 0
       wind = [max(1, i - ceil(Int, sqrt(i))), min(i + ceil(Int, sqrt(i)), length(finger))]
-      if sum(finger[wind]) < sqrt(i)
+      if sum(finger[wind[1]:wind[2]]) < sqrt(i)
         x = [x, i / data.K]
-        histx = [histx, finger[i]]
+        append!(histx, finger[i])
         f_lp[i] = 0
       else
         f_lp[i] = finger[i]
@@ -59,25 +70,27 @@ function unseen(data::CountData)
     end
   end
 
-  f_max = argmax(f_lp)
 
-  if f_max <= 0
+  f_max_list = findall(x -> x > 0, f_lp)
+
+  if isempty(f_max_list)
     return -1
+  else
+    f_max = maximum(f_max_list)
   end
 
 
-  LP_mass = 1 - x * histx
+  LP_mass = 1 - (sum(x .* histx))
 
   f_lp = append!(f_lp[1:f_max], zeros(ceil(Int, sqrt(f_max))))
 
   xLPmax = f_max / data.K
 
-  xLP = xLPmin .* grid_factor .^ (0:ceil(log(xLPmax / xLPmin) / log(grid_factor)))
+  xLP = xLPmin * grid_factor .^ (0:ceil(log(xLPmax / xLPmin) / log(grid_factor)))
 
   objf = zeros(length(xLP) + 2 * length(f_lp))
   objf[length(xLP)+1:2:end] .= 1 ./ sqrt.(f_lp .+ 1)
   objf[length(xLP)+2:2:end] .= 1 ./ sqrt.(f_lp .+ 1)
-
 
   A = zeros(2 * length(f_lp), length(xLP) + 2 * length(f_lp))
   b = zeros(2 * length(f_lp))
@@ -106,6 +119,7 @@ function unseen(data::CountData)
   objf2[1:length((xLP))] .= 1
 
   A2 = [A; objf']
+
   b2 = [b; fval + alpha]
 
 
@@ -116,21 +130,17 @@ function unseen(data::CountData)
   sol2, fval2 = linprog(objf2, A2, b2, Aeq, LP_mass, lb, ub)
 
   sol2[1:length(xLP)] .= sol2[1:length(xLP)] ./ xLP
- 
+
   x = [x; xLP]
   histx = [histx; sol2]
   inds = sortperm(x)
   x = sort(x)
   histx = histx[inds]
-  println(histx)
   ind = findall(x -> x > 0.0, histx)
 
-  println("ind", ind)
   h = histx[ind] 
   x = x[ind]
 
-  # println(h)
-  # println(x)
-  return -h .* (x .* log.(x))
+  return sum(-h .* (x .* log.(x)))
 end
 
