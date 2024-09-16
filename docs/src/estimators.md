@@ -1,6 +1,6 @@
 # Estimators
 
-We split the estimators into two broad categories, which we call *Frequentist* and *Bayesian*. We also
+We split the estimators into two broad categories, which we call _Frequentist_ and _Bayesian_. We also
 have a few composite estimators that either take an averaging or resampling approach to estimation.
 
 ```@docs
@@ -24,6 +24,7 @@ zhang
 bonachela
 shrink
 chao_wang_jost
+unseen
 ```
 
 ## Bayesian Estimators
