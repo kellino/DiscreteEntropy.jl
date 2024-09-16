@@ -1,6 +1,5 @@
 using SpecialFunctions: digamma
 using QuadGK
-# using Optim: maximizer
 
 # Maximum Likelihood
 

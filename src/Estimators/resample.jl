@@ -84,8 +84,6 @@ function jackknife(data::CountData, estimator::Type{T}; corrected=false) where {
     v = denom * sum([(h - μ)^2 * mm for (h, mm) in entropies])
 
     return μ, v
-
-
 end
 
 @doc raw"""

@@ -16,13 +16,18 @@ c = from_data([1,2,3,2,1], Histogram)
 @test round(estimate_h(c, Jeffrey), digits=6) == 1.556911
 @test round(estimate_h(c, Minimax), digits=6) == 1.561237
 @test round(estimate_h(c, SchurmannGrassberger), digits=6) == 1.539698
+@test round(estimate_h(c, Grassberger), digits=6) == 1.876292
 @test round(estimate_h(c, Bayes, 3.0), digits=6) == 1.597417
 @test round(estimate_h(c, Bayes, 0.2), digits=6) == 1.539698
-
 
 # tested against authors' matlab code
 @test round(estimate_h(c, Unseen), digits=4) == 0.887
 
+# jackknife
+estimate_h(c, JackknifeMLE) == 1.477468967581723
+
+
+estimate_h(c, JackknifeMLE, corrected=true)
 
 xi = ℯ^(-1/2)
 
