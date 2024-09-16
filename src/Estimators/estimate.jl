@@ -31,6 +31,7 @@ struct Zhang <: NonParameterisedEstimator end
 struct Bonachela <: NonParameterisedEstimator end
 struct Shrink <: NonParameterisedEstimator end
 struct ChaoWangJost <: NonParameterisedEstimator end
+struct Unseen <: NonParameterisedEstimator end
 
 # Frequentist with Parameter(s)
 struct Schurmann <: ParameterisedEstimator end
@@ -148,6 +149,10 @@ end
 function estimate_h(data::CountData, ::Type{BUB}; k_max=11, truncate=false, lambda=0.0)
     (h, _ ) = bub(data, k_max=k_max, truncate=truncate, lambda=lambda)
     return h
+end
+
+function estimate_h(data::CountData, ::Type{Unseen})
+  return unseen(data)
 end
 
 function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=nothing)

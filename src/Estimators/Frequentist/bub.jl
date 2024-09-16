@@ -165,6 +165,5 @@ function over(data::CountData, k_max, truncate; lambda_0=0.0)
     end
     h = sum(a[floor(Int, col[1])+1] * col[2] for col in eachcol(data.multiplicities))
 
-
     return (h, best_MM)
 end

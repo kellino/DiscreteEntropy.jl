@@ -2,6 +2,7 @@ using Distributions: Dirichlet;
 using Random;
 using StatsBase: weights, sample, Weights, mean, var
 
+
 function reduce(i, mat::Matrix)
     loc = deepcopy(mat)
     col = mat[:, i]
