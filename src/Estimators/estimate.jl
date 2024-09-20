@@ -217,7 +217,8 @@ b = most likely estimate
 c = worst case estimate
 ```
 
-```
+
+```math
 H = \frac{a + 4b + c}{6}
 ```
 

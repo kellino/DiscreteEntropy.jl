@@ -94,7 +94,7 @@ Compute a bayesian bootstrap resampling of `samples` for estimation with `estima
 concentration parameter for a Dirichlet distribution.
 
 # Note
-Based on this [link](https://towardsdatascience.com/the-bayesian-bootstrap-6ca4a1d45148
+Based on this [link](https://towardsdatascience.com/the-bayesian-bootstrap-6ca4a1d45148)
 """
 function bayesian_bootstrap(samples::SampleVector, estimator::Type{T}, reps::Int, seed::Int64, concentration::Real) where {T<:AbstractEstimator}
     out = zeros(reps)

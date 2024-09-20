@@ -127,7 +127,7 @@ function unseen(data::CountData)
     objf2[i] = objf2[i] / xLP[i]
   end
 
-  sol2, fval2 = linprog(objf2, A2, b2, Aeq, LP_mass, lb, ub)
+  sol2, _ = linprog(objf2, A2, b2, Aeq, LP_mass, lb, ub)
 
   sol2[1:length(xLP)] .= sol2[1:length(xLP)] ./ xLP
 
@@ -138,7 +138,7 @@ function unseen(data::CountData)
   histx = histx[inds]
   ind = findall(x -> x > 0.0, histx)
 
-  h = histx[ind] 
+  h = histx[ind]
   x = x[ind]
 
   return sum(-h .* (x .* log.(x)))
