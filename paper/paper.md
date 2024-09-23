@@ -6,14 +6,15 @@ tags:
   - information theory
   - mutual information
 authors:
-  - name: David Kelly
+  - name: David A. Kelly
     orcid: 0000-0002-5368-6769
     corresponding: true
     affiliation: 1
   - name: Ilaria Pia La Torre
+    equal-contrib: false
     affiliation: 2
 
-affiliation:
+affiliations:
   - name: King's College London
     index: 1
   - name: University College London
