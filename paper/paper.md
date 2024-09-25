@@ -15,9 +15,9 @@ authors:
     affiliation: 2
 
 affiliations:
-  - name: King's College London
+  - name: King's College London, UK
     index: 1
-  - name: University College London
+  - name: University College London, UK
     index: 2
 data: 20 September 2024
 bibliography: paper.bib
