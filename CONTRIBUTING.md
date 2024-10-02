@@ -60,9 +60,9 @@ To set up `DiscreteEntropy.jl` for local development:
 
 4. Set yourself up for local [development](https://julialang.org/contribute/developing_package/)
 
-5. When you're done making changes run all the tests:
+5. When you're done making changes run all the tests for the project root directory:
 
-   ```julia
+   ```
     julia> ]
     pkg> dev .
     pkg> activate .
@@ -71,9 +71,11 @@ To set up `DiscreteEntropy.jl` for local development:
 
 6. Commit your changes and push your branch to GitHub:
 
+```
    git add .
    git commit -m "detailed description of your changes."
    git push origin name-of-your-bugfix-or-feature
+```
 
 7. Submit a pull request through the GitHub website.
 
