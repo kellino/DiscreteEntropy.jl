@@ -11,6 +11,7 @@ authors:
     corresponding: true
     affiliation: 1
   - name: Ilaria Pia La Torre
+    orcid: 0009-0006-2733-5283
     equal-contrib: false
     affiliation: 2
 
@@ -25,7 +26,7 @@ bibliography: paper.bib
 
 # Summary
 
-`DiscreteEntropy.jl` is Julia package to facilitate entropy estimation of discrete random variables.
+`DiscreteEntropy.jl` is a Julia package to facilitate entropy estimation of discrete random variables.
 The entropy of a random variable, `X`, is the average amount of surprise associated with
 the different outcomes of that variable. When `X` is known completely, calculating the entropy is easy. It is
 given by
@@ -34,9 +35,9 @@ given by
 H(X) = - \sum\_{x \in X} p(x) \log (p(x))
 \end{equation}
 
-However, it is a very hard problem when knowledge of the distribution is incomplete. It is well know that
+However, it is a very hard problem when knowledge of the distribution is incomplete. It is well known that
 the `MaximumLikelihood` (or Plugin) estimator, underestimates the true entropy on average [@basharin].
-This difficulty has lead to a large number of improved estimators. [@Rodriguez2021EntropyEst], for example,
+This difficulty has led to a large number of improved estimators. [@Rodriguez2021EntropyEst], for example,
 evaluate 18 different estimators, among which are _Grassberger_ [@grassberger2008entropy],
 _Chao Shen_ [@chaoshen] , _NSB_ [@nemenman2002entropy], _Zhang_ [@zhang] and _James-Stein_ [@hausser2009entropy].
 These estimators were scattered across 3 different programming languages
@@ -60,7 +61,7 @@ easy to use, with a flexible but type safe interface.
 
 The `DiscreteEntropy.jl` package has native Julia implementations of all of the estimators explored
 in [@Rodriguez2021EntropyEst] and a number of estimators which were not considered.
-`DiscreteEntropy.jl` provides a unified and consistent interface for those who with to estimate entropy and other
+`DiscreteEntropy.jl` provides a unified and consistent interface for those who wish to estimate entropy and other
 Shannon measures for their research, or those who want to research entropy estimation directly.
 
 There is no other open-source software package known to us, in any language, with similiar features or similiar breadth of
