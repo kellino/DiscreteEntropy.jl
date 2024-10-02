@@ -3,20 +3,20 @@
 Please contribute! Contributions are very welcome and greatly appreciated.
 Credit will always be given, and every little helps.
 
-# Bug reports
+## Bug reports
 
-When reporting a bug `<https://github.com/kellino/DiscreteEntropy.jl/issues>` please include:
+When reporting a [bug](https://github.com/kellino/DiscreteEntropy.jl/issues) please include:
 
     * Your operating system name and version.
     * Any details about your local setup that might be helpful in troubleshooting.
     * Detailed steps to reproduce the bug.
 
-# Documentation improvements
+## Documentation improvements
 
 `DiscreteEntropy.jl` could always use more documentation, whether as part of the
 official docs, in docstrings, or even on the web in blog posts, articles, and such.
 
-# Entropy Estimators
+## Entropy Estimators
 
 There are always new estimators being proposed: `DiscreteEntropy.jl` has a lot but is far from exhaustive.
 All suggestions for new (discrete) estimators are welcome, even if they are (conditional) mutual information
@@ -29,9 +29,9 @@ If you are proposing a new estimator:
   providing implementation suggestions, it can also be used to provide ground truth results for testing
 - An implemention in Julia would be a wonderful contribution
 
-# Feature requests and feedback
+## Feature requests and feedback
 
-The best way to send feedback is to file an issue (here)[https://github.com/kellino/DiscreteEntropy.jl/issues]
+The best way to send feedback is to file an issue [here](https://github.com/kellino/DiscreteEntropy.jl/issues)
 
 If you are proposing a feature:
 
@@ -42,7 +42,7 @@ If you are proposing a feature:
 Parts of `DiscreteEntropy.jl` are quite experimental and not based on any existing paper.
 Evaluation and feedback on what works and what does not is always interesting and valuable.
 
-# Development
+## Development
 
 To set up `DiscreteEntropy.jl` for local development:
 
@@ -58,7 +58,7 @@ To set up `DiscreteEntropy.jl` for local development:
 
    Now you can make your changes locally
 
-4. Set yourself up for local development (introduction to Julia development)[https://julialang.org/contribute/developing_package/]
+4. Set yourself up for local [development](https://julialang.org/contribute/developing_package/)
 
 5. When you're done making changes run all the tests:
 
