@@ -83,9 +83,9 @@ function dxi(β, K)::Float64
 end
 
 @doc raw"""
-    nsb(data, K=data.K)
+    nsb(data::CountData, K=data.K; verbose=false)
 
-Returns the Bayesian estimate of Shannon entropy of data, using the Nemenman, Shafee, Bialek algorithm
+Returns the Bayesian estimate of Shannon entropy of `data`, using the Nemenman, Shafee, Bialek algorithm
 
 ```math
 \hat{H}^{\text{NSB}} = \frac{ \int_0^{\ln(K)} d\xi \, \rho(\xi, \textbf{n}) \langle H^m \rangle_{\beta (\xi)}  }
@@ -100,7 +100,15 @@ where
 ```
 
 """
-function nsb(data::CountData, K=data.K)
+function nsb(data::CountData, K=data.K; verbose=false)
+  Δ = coincidences(data)
+  if iszero(Δ)
+    if verbose
+      @warn("no coincidences")
+    end
+    return NaN
+  end
+
   l0 = find_l0(K, data)
 
   numerator = quadgk(β -> exp(-neg_log_rho(data, big(β), K) + l0) * dxi(β, K) * bayes(data, β, K=K), 0, log(K))[1]
@@ -125,7 +133,6 @@ function guess_k(data::CountData, eps=1.e-5)
     k1 = round(k1 * multiplier)
     h1 = nsb(data, k1)
     dh = (h1 - h0) / dk
-    println(dh)
     if dh < eps
       break
     end
