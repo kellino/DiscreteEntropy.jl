@@ -11,3 +11,16 @@ for estimating cross entropy, KL divergence, mutual information, conditional inf
 It supports Jackknife and Bayesian Bootstrap resampling for data poor estimation.
 
 [For more information, see the documentation.](https://kellino.github.io/DiscreteEntropy.jl/dev/)
+
+# Quick Example
+
+```
+julia> using DiscreteEntropy
+julia> data = [1,2,3,4,3,2,1];
+julia> h = estimate_h(from_data(data, Histogram), ChaoShen)
+julia> 2.0775715569320012
+```
+
+# Contributing and Bugs
+
+Please see `CONTRIBUTING.md` for details on how to contribute to the project through pull requests or issues.

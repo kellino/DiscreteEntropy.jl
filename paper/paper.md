@@ -31,9 +31,7 @@ The entropy of a random variable, `X`, is the average amount of surprise associa
 the different outcomes of that variable. When `X` is known completely, calculating the entropy is easy. It is
 given by
 
-```math
-H(X) = - \sum\_{x \in X} p(x) \log (p(x))
-```
+$$H(X) = - \sum\_{x \in X} p(x) \log (p(x))$$
 
 However, it is a very hard problem when knowledge of the distribution is incomplete. It is well known that
 the `MaximumLikelihood` (or Plugin) estimator, underestimates the true entropy on average [@basharin].
