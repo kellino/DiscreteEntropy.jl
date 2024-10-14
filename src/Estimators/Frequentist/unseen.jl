@@ -52,7 +52,7 @@ function unseen(data::CountData)
     xLPmin = min_i / data.K
   end
 
-  x = 0
+  x::Vector{Float32} = [0.0]
   histx = [0]
 
   f_lp = zeros(Int, length(finger))
@@ -61,7 +61,7 @@ function unseen(data::CountData)
     if finger[i] > 0
       wind = [max(1, i - ceil(Int, sqrt(i))), min(i + ceil(Int, sqrt(i)), length(finger))]
       if sum(finger[wind[1]:wind[2]]) < sqrt(i)
-        x = [x, i / data.K]
+        append!(x, i / data.K)
         append!(histx, finger[i])
         f_lp[i] = 0
       else
@@ -70,11 +70,12 @@ function unseen(data::CountData)
     end
   end
 
-
   f_max_list = findall(x -> x > 0, f_lp)
 
   if isempty(f_max_list)
-    return -1
+    x = x[2:end]
+    h = histx[2:end]
+    return abs(sum(-h .* (x .* log.(x))))
   else
     f_max = maximum(f_max_list)
   end
