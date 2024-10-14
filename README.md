@@ -23,4 +23,4 @@ julia> 2.0775715569320012
 
 # Contributing and Bugs
 
-Please see `CONTRIBUTING.md` for details on how to contribute to the project through pull requests or issues.
+Please see [CONTRIBUTING.md](/CONTRIBUTING.md) for details on how to contribute to the project through pull requests or issues.
