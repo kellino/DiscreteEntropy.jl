@@ -22,6 +22,8 @@ $\Delta$ the number of coincidences in the data.
 This is designed for the extremely undersampled regime (K ~ N) and diverges with N when well-sampled. ANSB requires
 that ``N/K → 0``, which we set to be ``N/K < 0.1`` by default
 
+If there are no coincidences in the data, ANSB returns `NaN`
+
 # External Links
 [Asymptotic NSB estimator](https://arxiv.org/pdf/physics/0306063.pdf) (equations 11 and 12)
 """
@@ -99,6 +101,7 @@ where
     \prod_{i=1}^K \frac{\Gamma(n_i + \beta(\xi))}{\Gamma(\beta(\xi))}
 ```
 
+If there are no coincidences in the data, NSB returns `NaN`
 """
 function nsb(data::CountData, K=data.K; verbose=false)
   Δ = coincidences(data)
