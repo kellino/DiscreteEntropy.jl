@@ -58,9 +58,9 @@ CountData is not expected to be called directly, nor is it advised to directly m
 [`from_samples`](@ref) instead.
 """
 mutable struct CountData
-    multiplicities::Matrix{Float64}
-    N::Float64
-    K::Int64
+  multiplicities::Matrix{Float64}
+  N::Float64
+  K::Int64
 end
 
 Base.:(==)(x::CountData, y::CountData) = Base.:(==)(x.multiplicities, y.multiplicities) && x.N == y.N && x.K == y.K
@@ -68,12 +68,12 @@ Base.copy(x::CountData) = CountData(x.multiplicities, x.N, x.K)
 Base.Broadcast.broadcastable(q::CountData) = Ref(q)
 
 function empty_countdata()
-    x::Matrix{Float64} = [;;]
-    CountData(x, 0.0, 0)
+  x::Matrix{Float64} = [;;]
+  CountData(x, 0.0, 0)
 end
 
 function Base.hash(g::CountData, h::UInt)
-    hash(g.multiplicities, hash(g.K, hash(g.N, h)))
+  hash(g.multiplicities, hash(g.K, hash(g.N, h)))
 end
 
 @doc raw"""
@@ -81,7 +81,7 @@ end
 Return the bins (top row) of x.multiplicities
 """
 function bins(x::CountData)
-    return x.multiplicities[1,:]
+  return x.multiplicities[1, :]
 end
 
 @doc raw"""
@@ -89,43 +89,43 @@ end
 Return the bin multiplicities (bottom row) of x.multiplicities
 """
 function multiplicities(x::CountData)
-    return x.multiplicities[2,:]
+  return x.multiplicities[2, :]
 end
 
 function find_col(data::CountData, target)
-    for x in eachcol(data.multiplicities)
-        if x[1] == target
-            return x
-        end
+  for x in eachcol(data.multiplicities)
+    if x[1] == target
+      return x
     end
+  end
 end
 
 function singletons(data::CountData)
-    find_col(data, 1)
+  find_col(data, 1)
 end
 
 function doubletons(data::CountData)
-    find_col(data, 2)
+  find_col(data, 2)
 end
 
 function coincidences(data::CountData)
-    data.N - data.K
+  data.N - data.K
 end
 
 function ratio(data::CountData)::Float64
-    coincidences(data) / data.N
+  coincidences(data) / data.N
 end
 
 function _from_counts(counts::AbstractVector{T}, zeros) where {T<:Real}
-    map = countmap(counts)
-    if zeros
-        delete!(map, 0)
-    end
-    x1 = collect(keys(map))
-    x2 = collect(values(map))
-    mm = [x1 x2]
+  map = countmap(counts)
+  if zeros
+    delete!(map, 0)
+  end
+  x1 = collect(keys(map))
+  x2 = collect(values(map))
+  mm = [x1 x2]
 
-    return CountData(mm', dot(x1, x2), sum(mm[:, 2]))
+  return CountData(mm', dot(x1, x2), sum(mm[:, 2]))
 end
 
 @doc raw"""
@@ -136,47 +136,46 @@ Return a [`CountData`](@ref) object from a vector or CountVector. Many estimator
 cannot handle a histogram with a 0 value bin, so there are filtered out unless remove_zeros is set to false.
 """
 function from_counts(counts::CountVector, remove_zeros::Bool)
-    if isempty(counts)
-        @warn("returning empty CountData object")
-        return empty_countdata()
-    end
-    _from_counts(counts.values, remove_zeros)
+  if isempty(counts)
+    @warn("returning empty CountData object")
+    return empty_countdata()
+  end
+  _from_counts(counts.values, remove_zeros)
 end
 
 function from_counts(counts::AbstractVector; remove_zeros::Bool=true)
-    from_counts(CountVector(counts), remove_zeros)
+  from_counts(CountVector(counts), remove_zeros)
 end
 
 @doc raw"""
-     from_samples(sample::SampleVector, remove_zeros::Bool)
+     from_samples(sample::SampleVector)
 
 Return a [`CountData`](@ref) object from a vector of samples.
 """
-function from_samples(samples::SampleVector; remove_zeros::Bool=false)
-    if isempty(samples)
-        return empty_countdata()
-    end
+function from_samples(samples::SampleVector)
+  # TODO we should not filter 0s here
+  if isempty(samples)
+    return empty_countdata()
+  end
 
-    K = length(unique(samples.values))
+  println(samples)
+  K = length(unique(samples.values))
+  println(K)
 
-    if K == 1
-        N::Float64 = length(samples.values)
-        return CountData([1.0 N]', N, K)
-    end
+  if K == 1
+    N::Float64 = length(samples.values)
+    return CountData([1.0 N]', N, K)
+  end
 
-    counts::Dict{Int64,Int64} = Dict()
-    if remove_zeros
-        for x in filter(!iszero, samples.values)
-            update_dict!(counts, x)
-        end
-    else
-        for x in samples.values
-            update_dict!(counts, x)
-        end
-    end
-    v = collect(values(counts))
+  counts::Dict{Int64,Int64} = Dict()
 
-    _from_counts(v, remove_zeros)
+  for x in samples.values
+    update_dict!(counts, x)
+  end
+  # end
+  v = collect(values(counts))
+
+  from_counts(v)
 end
 
 @doc raw"""
@@ -190,15 +189,15 @@ A 0 value in the histgram causes problems for the estimators, but a 0 value in a
 perfectly legitimate.
 """
 function from_data(data::AbstractVector, t::Type{T}; remove_zeros=true) where {T<:EntropyData}
-    if t == Samples
-        from_samples(svector(data), remove_zeros=remove_zeros)
-    else
-        from_counts(cvector(data), remove_zeros)
-    end
+  if t == Samples
+    from_samples(svector(data), remove_zeros=remove_zeros)
+  else
+    from_counts(cvector(data), remove_zeros)
+  end
 end
 
 function from_data(count_matrix::Matrix, ::Type{Histogram}; remove_zeros=true)
-    from_counts(cvector(vec(count_matrix)), remove_zeros)
+  from_counts(cvector(vec(count_matrix)), remove_zeros)
 end
 
 @doc raw"""
@@ -207,54 +206,54 @@ end
 Simple wrapper around *CSV.File() which returns a [`CountData`](@ref) object. For more complex
 requirements, it is best to call CSV directly.
 """
-function from_csv(file::Union{String, IOBuffer}, field, t::Type{T}; remove_zeros=false, header=false) where {T<:EntropyData}
-    data::Vector{Int64} = []
-    for row in CSV.File(file; header=header)
-        push!(data, row[field])
-    end
+function from_csv(file::Union{String,IOBuffer}, field, t::Type{T}; remove_zeros=false, header=false) where {T<:EntropyData}
+  data::Vector{Int64} = []
+  for row in CSV.File(file; header=header)
+    push!(data, row[field])
+  end
 
-    if t == Samples
-        from_samples(svector(data), remove_zeros=remove_zeros)
-    else
-        from_counts(cvector(data), remove_zeros=remove_zeros)
-    end
+  if t == Samples
+    from_samples(svector(data), remove_zeros=remove_zeros)
+  else
+    from_counts(cvector(data), remove_zeros=remove_zeros)
+  end
 end
 
 function pmf(histogram::CountVector)
-    histogram ./ sum(histogram)
+  histogram ./ sum(histogram)
 end
 
 function pmf(histogram::CountVector, x)
-    if x > length(histogram)
-        @warn("out of bounds")
-        return nothing
-    end
-    normed = histogram ./ sum(histogram)
-    return normed[x]
+  if x > length(histogram)
+    @warn("out of bounds")
+    return nothing
+  end
+  normed = histogram ./ sum(histogram)
+  return normed[x]
 end
 
 function to_csv_string(data::CountData; sep=',')::String
-    dict = []
-    for x in eachcol(data.multiplicities)
-        push!(dict, x[1], x[2])
-    end
+  dict = []
+  for x in eachcol(data.multiplicities)
+    push!(dict, x[1], x[2])
+  end
 
-    return @sprintf("[%s],%d,%d", join(dict, sep), data.N, data.K)
+  return @sprintf("[%s],%d,%d", join(dict, sep), data.N, data.K)
 end
 
 
 function set_K(data::CountData, K::Integer)
-    ret = copy(data)
-    ret.K = K
-    ret
+  ret = copy(data)
+  ret.K = K
+  ret
 end
 
 function set_K!(data::CountData, K::Int64)
-    data.K = K
-    data
+  data.K = K
+  data
 end
 
 function set_N!(data::CountData, N::Float64)
-    data.N = N
-    data
+  data.N = N
+  data
 end
