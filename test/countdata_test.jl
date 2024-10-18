@@ -20,6 +20,14 @@ c = from_data([1, 2, 3, 4, 3, 2, 1], Histogram)
 @test DiscreteEntropy.bins(c) == [4.0, 2.0, 3.0, 1.0]
 @test DiscreteEntropy.multiplicities(c) == [1.0, 2.0, 2.0, 2.0]
 
+@test svector([1, 2, 3, 4]) == SampleVector([1, 2, 3, 4])
+@test svector([1 3; 2 4]) == SampleVector([1, 2, 3, 4])
+@test cvector([1, 2, 0, 2], filter=true) == cvector([1, 2, 2])
+@test cvector([1 3; 2 4]) == cvector([1, 2, 3, 4])
+@test xivector([1, 2, 3, 4]) == XiVector([1, 2, 3, 4])
+@test xivector([1 3; 2 4]) == XiVector([1, 2, 3, 4])
+
+
 d = from_data([1, 2, 3, 4, 0, 3, 2, 1, 0], Histogram)
 @test DiscreteEntropy.bins(d) == [4.0, 2.0, 3.0, 1.0]
 @test DiscreteEntropy.multiplicities(d) == [1.0, 2.0, 2.0, 2.0]
