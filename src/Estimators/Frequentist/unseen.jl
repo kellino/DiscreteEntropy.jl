@@ -28,9 +28,10 @@ Compute the Unseen estimatation of Shannon entropy.
 n = [1,2,3,4,5,4,3,2,1]
 h = unseen(from_counts(n))
 1.4748194918254784
+``
 
 # External Links
-[Estimating the Unseen: Improved Estimators for Entropy and Other Properties](https://drive.google.com/file/d/1mdmbAZm22uH-Shr18YQTtKeMnlwypnpp/view)
+[Estimating the Unseen: Improved Estimators for Entropy and Other Properties](https://theory.stanford.edu/~valiant/papers/unseenJournal.pdf)
 """
 function unseen(data::CountData)
   finger_dict = countmap(data.multiplicities[2, :])

@@ -8,12 +8,12 @@ export CountVector, SampleVector, XiVector, cvector, svector, xivector, EntropyD
 export Histogram, Samples
 
 export CountData, from_data, from_samples, from_counts, singletons, doubletons,
-    marginal_counts, bins, multiplicities, from_csv
+  marginal_counts, bins, multiplicities, from_csv
 
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
 export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger,
-    Schurmann, SchurmannGeneralised, BUB,
-    ChaoShen, Zhang, Bonachela, Shrink, ChaoWangJost, PERT, Unseen
+  Schurmann, SchurmannGeneralised, BUB,
+  ChaoShen, Zhang, Bonachela, Shrink, ChaoWangJost, PERT, Unseen
 export Bootstrap
 
 # convenience function to create a unified interface
@@ -21,9 +21,9 @@ export estimate_h, estimate_h_and_var
 
 # estimators
 export maximum_likelihood, miller_madow, jackknife_mle, grassberger, schurmann, schurmann_generalised,
-    chao_shen, zhang, bonachela, shrink, chao_wang_jost, unseen
+  chao_shen, zhang, bonachela, shrink, chao_wang_jost, unseen
 
-export Bayes, Jeffrey, LaPlace, SchurmannGrassberger, Minimax, NSB, AutoNSB, ANSB, PYM
+export Bayes, Jeffrey, Laplace, SchurmannGrassberger, Minimax, NSB, AutoNSB, ANSB, PYM
 
 # estimators
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym, pert, bayesian_bootstrap, bub
@@ -33,7 +33,7 @@ export mutual_information, uncertainty_coefficient
 
 # export conditional_entropy
 export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_shannon_distance, cross_entropy,
-    conditional_entropy
+  conditional_entropy
 
 # tools for changing the estimators
 export jackknife #, bayesian_bootstrap, bootstrap

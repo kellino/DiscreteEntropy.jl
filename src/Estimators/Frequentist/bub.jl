@@ -4,9 +4,13 @@ using LinearAlgebra: I, dot, diagm
 # Liam Paninski's [homepage](https://www.stat.columbia.edu/~liam/research/code/BUBfunc.m)
 
 @doc raw"""
-     bub(data::CountData; k_max=11, truncate=false, lambda=0.0)
+     bub(data::CountData; k_max=11, truncate=false, lambda_0=0.0)
 
-Compute The Best Upper Bound (BUB) estimation of Shannon entropy.
+Compute The Best Upper Bound (BUB) estimation of Shannon entropy, where
+
+`k_max` is a degree of freedom parameter. Paninski states that k_max ~ 10 is optimal for most applications.
+`lambda_0` is the Lagrange multiplier on a_0 (see paper for details). This can be safely left at 0 for most appllications.
+`truncate` reduces the number of significant digits in intermediate floating point calculates. This exists to bring the output of this function closer to the original Matlab implementation. Leaving it at `false` usually results in a slightly higher entropy estimate.
 
 # Example
 
@@ -18,16 +22,16 @@ n = [1,2,3,4,5,4,3,2,1]
 where h is the estimation of Shannon entropy in `nats` and MM is the upper bound on rms error
 
 # External Links
-[Estimation of Entropy and Mutual Information](https://watermark.silverchair.com/089976603321780272.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAA1wwggNYBgkqhkiG9w0BBwagggNJMIIDRQIBADCCAz4GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM0ehw1kCaNd562GwpAgEQgIIDD_n4g4aLZda9boTVZsgQpyahxo-C4fFpEfzOUj_-iZ1gJh12HjkrpqIqrcBW6r18YwtMei4RRCZu90KuoxLqfvH7P5vdOVfYM-TsChkmzKWl5ajUZADxogTOqKFYMWjovXlOTJMvj8Nj484WOxceGzLwxs-xgE5qawaIpeKR4qqIR_AhmGpKrogKHJ7SHy2feKSCzpw0mdZcAV1BFmSXPiJe4djQ3kGlEEuQLVCXfV3ZzasGUrZ-45rPBsLfn9OX2-qDnGtsmmpvt8AuMe7znggoFMTUQE1B4JL79auno5RUSfu7bXGA0vBOsBopTo86c2ENkayliPTFXDExVp_QB75zmLyBtNKE0it8brZr4HAyDfGQyY956x8a6xtVS1vtZrio9AoG3Jfl52m8heXmvsQr4M51YIBMKx5bP0ext9uaBAMwwW3XEIKlIl22EI50iKsGVV-N8LWCuyrLR9LAAo-raJAOn1mbg268rtvpfGA9_sqHRc7Anal8YgJABRL_b6f7_xzT2tclyaRa60l9-9m3l2WtQpYd7UyrhPrN5-7IYGaGyKZbek4mDys4KwyqIRZDkpcgxSuHxXUZO7jbu1e5ek9Tg4RAGSAz1901aPj6PsF3ttsIeosrfAkK4c8xyrjHBIkxZO-4zBurhgDjGh3Yeo787FaN4j1bdsfTFLUC7cXghxkDMQzO4l_gunR1J7PVnRbHGqdkvZwTveP_xDRRex-D_y2jJ3r7cemZI-WmjT-NIJSflYyI9KUgqQ6y_6rTE696ttVkbrgJ1Sh95J_ISQvLzM4AjUDwCjFqpZxGvqTmK3B4MRbWlriC3QVF_wMfW5-CM2robw3n7HjlEpHDU85k5CYvPrvZG32OVU5Y9wI_PZTe94o2KuoYaC9cShqyk90lZmSN4gBz3bMgyWpGwZLy1-U84xpMphAzUHqsDV4wNQwJhbSRSO6d7G07DrfBm5yQnUXatJOTNZlZrM9UWu5e2pFCVjt79onv1TYbYA6USTsoewkHvlOaOFrXs2P07ESqLC1CIA2HcDYEkw)
+[Estimation of Entropy and Mutual Information](https://www.stat.berkeley.edu/~binyu/summer08/L2P2.pdf)
 """
-function bub(data::CountData; k_max=11, truncate=false, lambda=0.0)
+function bub(data::CountData; k_max=11, truncate=false, lambda_0=0.0)
   if k_max > data.N
     k_max = floor(Int, data.N)
   end
   if data.N < 20.0
     under(data)
   else
-    over(data, k_max, truncate, lambda_0=lambda)
+    over(data, k_max, truncate, lambda_0=lambda_0)
   end
 end
 

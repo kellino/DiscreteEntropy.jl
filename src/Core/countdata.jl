@@ -44,7 +44,7 @@ Given histogram `= [1,2,3,2,1,4]`, the multiplicity representation is
 ```
 
 The top row represents bin contents, and the bottom row the number of bins.
-We have 1 bin with a 4 elements, 2 bins with 2 elements, 1 bin with 3 elements
+We have 1 bin with 4 elements, 2 bins with 2 elements, 1 bin with 3 elements
 and 2 bins with only 1 element.
 
 The advantages of the multiplicity representation are compactness and efficiency.
@@ -78,7 +78,7 @@ end
 
 @doc raw"""
     bins(x::CountData)
-Return the bins (top row) of x.multiplicities
+Return the bins (top row) of `x.multiplicities`
 """
 function bins(x::CountData)
   return x.multiplicities[1, :]
@@ -86,7 +86,7 @@ end
 
 @doc raw"""
     bins(x::CountData)
-Return the bin multiplicities (bottom row) of x.multiplicities
+Return the bin multiplicities (bottom row) of `x.multiplicities`
 """
 function multiplicities(x::CountData)
   return x.multiplicities[2, :]
@@ -184,13 +184,12 @@ end
 Create a CountData object from a vector or matrix. The function is parameterised on whether
 the vector contains samples or the histogram.
 
-While *remove_zeros* defaults to *true*, this might not be the desired behaviour for Samples.
-A 0 value in the histgram causes problems for the estimators, but a 0 value in a vector of samples may be
-perfectly legitimate.
+0 is automatically removed from `data` when `data` is treated as a count vector, but not when
+`data` is a vector of samples.
 """
 function from_data(data::AbstractVector, t::Type{T}; remove_zeros=true) where {T<:EntropyData}
   if t == Samples
-    from_samples(svector(data), remove_zeros=remove_zeros)
+    from_samples(svector(data))
   else
     from_counts(cvector(data), remove_zeros)
   end
@@ -201,14 +200,13 @@ function from_data(count_matrix::Matrix, ::Type{Histogram}; remove_zeros=true)
 end
 
 @doc raw"""
-    from_csv(file::String, field, ::Type{T}; remove_zeros=false, header=nothing) where {T<:EntropyData}
-
+    from_csv(file::String, field, ::Type{T}; remove_zeros=false, header=nothing, kw...) where {T<:EntropyData}
 Simple wrapper around *CSV.File() which returns a [`CountData`](@ref) object. For more complex
 requirements, it is best to call CSV directly.
 """
 function from_csv(file::Union{String,IOBuffer}, field, t::Type{T}; remove_zeros=false, header=false) where {T<:EntropyData}
   data::Vector{Int64} = []
-  for row in CSV.File(file; header=header)
+  for row in CSV.File(file; header=header, kw...)
     push!(data, row[field])
   end
 

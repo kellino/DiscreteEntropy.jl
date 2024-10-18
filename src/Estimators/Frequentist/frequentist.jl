@@ -18,9 +18,9 @@ or equivalently
 ```
 """
 function maximum_likelihood(data::CountData)
-    log(data.N) -
-    (1.0 / data.N) *
-    sum(xlogx(x[1]) * x[2] for x in eachcol(data.multiplicities))
+  log(data.N) -
+  (1.0 / data.N) *
+  sum(xlogx(x[1]) * x[2] for x in eachcol(data.multiplicities))
 end
 
 
@@ -32,13 +32,14 @@ end
 Compute the *jackknifed* [`maximum_likelihood`](@ref) estimate of data and the variance of the
 jackknifing (not the variance of the estimator itself).
 
-If corrected is true, then the variance is scaled with n-1, else it is scaled with n
+If `corrected` is true, then the variance is scaled with $data.N-1$, else it is scaled with $data.N$. `corrected`
+has no effect on the entropy estimation.
 
 # External Links
 [Estimation of the size of a closed population when capture probabilities vary among animals](https://academic.oup.com/biomet/article/65/3/625/234287)
 """
 function jackknife_mle(data::CountData; corrected=false)
-    return jackknife(data, MaximumLikelihood, corrected=corrected)
+  return jackknife(data, MaximumLikelihood, corrected=corrected)
 end
 
 
@@ -55,7 +56,7 @@ on the total number of samples seen (N) and the support size (K).
 ```
 """
 function miller_madow(data::CountData)
-    return maximum_likelihood(data) + ((data.K - 1.0) / (2.0 * data.N))
+  return maximum_likelihood(data) + ((data.K - 1.0) / (2.0 * data.N))
 end
 
 
@@ -70,44 +71,36 @@ Compute the Grassberger (1988) estimation of Shannon entropy of `data` in nats
 \hat{H}_{\tiny{Gr88}} = \sum_i \frac{h_i}{H} \left(\log(N) - \psi(h_i) - \frac{(-1)^{h_i}}{n_i + 1}  \right)
 ```
 Equation 13 from
-[Finite sample corrections to entropy and dimension estimate](https://www.academia.edu/download/47091312/0375-9601_2888_2990193-420160707-16069-1k3ppo7.pdf)
+[Finite sample corrections to entropy and dimension estimate](https://www.academia.edu/10831948/Finite_sample_corrections_to_entropy_and_dimension_estimates)
 """
 function grassberger(data::CountData)
-    log_n = log(data.N)
-    sum((x[1] / data.N * (log_n - digamma(x[1]) - (-1)^x[1] / (x[1] + 1))) * x[2] for x in eachcol(data.multiplicities))
+  log_n = log(data.N)
+  sum((x[1] / data.N * (log_n - digamma(x[1]) - (-1)^x[1] / (x[1] + 1))) * x[2] for x in eachcol(data.multiplicities))
 end
 
-# function grassberger2003(data::CountData)
-#     schurmann(data, 1.0)
-# end
-
-
-# Schurmann Estimator
-
 @doc raw"""
-    schurmann(data::CountData, ξ::Float64 = ℯ^(-1/2))
+     schurmann(data::CountData, ξ::Float64 = ℯ^(-1/2))
 
 Compute the Schurmann estimate of Shannon entropy of `data` in nats.
 
 ```math
 \hat{H}_{SHU} = \psi(N) - \frac{1}{N} \sum_{i=1}^{K} \, h_i \left( \psi(h_i) + (-1)^{h_i} ∫_0^{\frac{1}{\xi} - 1} \frac{t^{h_i}-1}{1+t}dt \right)
-
 ```
-This is no one ideal value for ``\xi``, however the paper suggests ``e^{(-1/2)} \approx 0.6``
+There is no ideal value for ``\xi``, however the paper suggests ``e^{(-1/2)} \approx 0.6``
 
 # External Links
 [schurmann](https://arxiv.org/pdf/cond-mat/0403192.pdf)
 """
 function schurmann(data::CountData, ξ::Float64=exp(-1 / 2))
-    @assert ξ > 0.0
-    return digamma(data.N) -
-           (1.0 / data.N) *
-           sum((_schurmann(x[1], x[2], ξ) for x in eachcol(data.multiplicities)))
+  @assert ξ > 0.0
+  return digamma(data.N) -
+         (1.0 / data.N) *
+         sum((_schurmann(x[1], x[2], ξ) for x in eachcol(data.multiplicities)))
 end
 
 function _schurmann(y, m, ξ=exp(-1 / 2))
-    lim = (1.0 / ξ) - 1.0
-    return (digamma(y) + (-1.0)^y * quadgk(t -> t^(y - 1.0) / (1.0 + t), 0, lim)[1]) * y * m
+  lim = (1.0 / ξ) - 1.0
+  return (digamma(y) + (-1.0)^y * quadgk(t -> t^(y - 1.0) / (1.0 + t), 0, lim)[1]) * y * m
 end
 
 # Schurmann Generalised Estimator
@@ -115,7 +108,6 @@ end
 @doc raw"""
     schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
 
-[schurmann_generalised](https://arxiv.org/pdf/2111.11175.pdf)
 
 ```math
 \hat{H}_{\tiny{SHU}} = \psi(N) - \frac{1}{N} \sum_{i=1}^{K} \, h_i \left( \psi(h_i) + (-1)^{h_i} ∫_0^{\frac{1}{\xi_i} - 1} \frac{t^{h_i}-1}{1+t}dt \right)
@@ -128,33 +120,23 @@ be the same length.
 
     schurmann_generalised(data::CountVector, xis::Distribution, scalar=false)
 
-Computes the generalised Schurmann entropy estimation, given a countvector *data* and a vector of *xi* values.
+Computes the generalised Schurmann entropy estimation, given a countvector `data` and a vector of `xi` values.
+
+## External Links
+[schurmann_generalised](https://arxiv.org/pdf/2111.11175.pdf)
 """
 function schurmann_generalised(data::CountVector, xis::XiVector{T}) where {T<:Real}
-    @assert Base.length(data) == Base.length(xis)
-    N = sum(data)
+  @assert Base.length(data) == Base.length(xis)
+  N = sum(data)
 
 
-    r = 0.0
-    for x in enumerate(data)
-        r += sum(_schurmann(x[2], 1, xis[x[1]]))
-    end
+  r = 0.0
+  for x in enumerate(data)
+    r += sum(_schurmann(x[2], 1, xis[x[1]]))
+  end
 
-    digamma(N) - (1.0 / N) * r
+  digamma(N) - (1.0 / N) * r
 end
-
-# function schurmann_generalised(data::CountVector, xis::T; scalar::Bool=false) where {T<:Distribution}
-#     if scalar
-#         # TODO this doesn't work for some reason.
-#         # if rand(xis) is a scalar, then we sample from it length(data) times
-#         xi_vec = rand(xis, length(data))
-#     else
-#         # some distributions, such as Dirichlet, return a vector when sampled, we
-#         # take this as the default case is it seems more likely to occur
-#         xi_vec = xivector(rand(xis))
-#     end
-#     schurmann_generalised(data, xi_vec)
-# end
 
 
 # Chao Shen Estimator
@@ -174,22 +156,22 @@ where
 ```
 """
 function chao_shen(data::CountData)
-    f1 = 0.0 # number of singletons
-    for x in eachcol(data.multiplicities)
-        if x[1] == 1.0
-            f1 = x[2]
-            break
-        end
+  f1 = 0.0 # number of singletons
+  for x in eachcol(data.multiplicities)
+    if x[1] == 1.0
+      f1 = x[2]
+      break
     end
+  end
 
-    if f1 == data.N
-        f1 = data.N - 1 # avoid C=0
-    end
+  if f1 == data.N
+    f1 = data.N - 1 # avoid C=0
+  end
 
-    C = 1 - f1 / data.N # estimated coverage
+  C = 1 - f1 / data.N # estimated coverage
 
-    # TODO this might suffers from under/overflow when data.N is large
-    -sum(xlogx(C * x[1] / data.N) / (1 - (1 - (x[1] / data.N) * C)^data.N) * x[2] for x in eachcol(data.multiplicities))
+  # TODO this might suffers from under/overflow when data.N is large
+  -sum(xlogx(C * x[1] / data.N) / (1 - (1 - (x[1] / data.N) * C)^data.N) * x[2] for x in eachcol(data.multiplicities))
 end
 
 
@@ -211,17 +193,17 @@ The actual algorithm comes from [Fast Calculation of entropy with Zhang's estima
 [Entropy estimation in turing's perspective](https://dl.acm.org/doi/10.1162/NECO_a_00266)
 """
 function zhang(data::CountData)
-    ent = 0.0
-    for c in eachcol(data.multiplicities)
-        t1 = 1
-        t2 = 0
-        for k in 1:data.N-c[1]
-            t1 *= 1 - ((c[1] - 1.0) / (data.N - k))
-            t2 += t1 / k
-        end
-        ent += t2 * (c[1] / data.N) * c[2]
+  ent = 0.0
+  for c in eachcol(data.multiplicities)
+    t1 = 1
+    t2 = 0
+    for k in 1:data.N-c[1]
+      t1 *= 1 - ((c[1] - 1.0) / (data.N - k))
+      t2 += t1 / k
     end
-    ent
+    ent += t2 * (c[1] / data.N) * c[2]
+  end
+  ent
 end
 
 
@@ -240,16 +222,16 @@ Compute the Bonachela estimator of the Shannon entropy of `data` in nats.
 [Entropy estimates of small data sets](https://arxiv.org/pdf/0804.4561.pdf)
 """
 function bonachela(data::CountData)
-    acc = 0.0
-    for x in eachcol(data.multiplicities)
-        t = 0.0
-        ni = x[1] + 1
-        for j in ni+1:data.N+2
-            t += 1 / j
-        end
-        acc += ni * t * x[2]
+  acc = 0.0
+  for x in eachcol(data.multiplicities)
+    t = 0.0
+    ni = x[1] + 1
+    for j in ni+1:data.N+2
+      t += 1 / j
     end
-    return 1.0 / (data.N + 2) * acc
+    acc += ni * t * x[2]
+  end
+  return 1.0 / (data.N + 2) * acc
 end
 
 
@@ -286,41 +268,41 @@ Based on the implementation in the R package [entropy](https://cran.r-project.or
 [Entropy Inference and the James-Stein Estimator](https://www.jmlr.org/papers/volume10/hausser09a/hausser09a.pdf)
 """
 function shrink(data::CountData)
-    freqs = lambdashrink(data)
-    mm = [freqs data.multiplicities[2, :]]'
-    cd = CountData(mm, dot(mm[1, :], mm[2, :]), data.K)
-    estimate_h(cd, MaximumLikelihood)
+  freqs = lambdashrink(data)
+  mm = [freqs data.multiplicities[2, :]]'
+  cd = CountData(mm, dot(mm[1, :], mm[2, :]), data.K)
+  estimate_h(cd, MaximumLikelihood)
 end
 
 function _lambdashrink(N, u, t)
-    varu = u .* (1 .- u) ./ (N - 1)
-    msp = sum((u .- t) .^ 2)
+  varu = u .* (1 .- u) ./ (N - 1)
+  msp = sum((u .- t) .^ 2)
 
-    if msp == 0
-        return 1
+  if msp == 0
+    return 1
+  else
+    lambda = sum(varu) / msp
+    if lambda > 1
+      return 1
+    elseif lambda < 0
+      return 0
     else
-        lambda = sum(varu) / msp
-        if lambda > 1
-            return 1
-        elseif lambda < 0
-            return 0
-        else
-            return lambda
-        end
+      return lambda
     end
+  end
 end
 
 function lambdashrink(data::CountData)
-    t = 1 / data.K
-    u = data.multiplicities[1, :] ./ data.N
+  t = 1 / data.K
+  u = data.multiplicities[1, :] ./ data.N
 
-    if data.N == 0 || data.N == 1
-        lambda = 1
-    else
-        lambda = _lambdashrink(data.N, u, t)
-    end
+  if data.N == 0 || data.N == 1
+    lambda = 1
+  else
+    lambda = _lambdashrink(data.N, u, t)
+  end
 
-    lambda .* t .+ (1 - lambda) .* u
+  lambda .* t .+ (1 - lambda) .* u
 end
 
 
@@ -352,40 +334,39 @@ where $f_1$ is the number of singletons and $f_2$ the number of doubletons in `d
 The algorithm is slightly modified port of that used in the [entropart](https://github.com/EricMarcon/entropart/blob/master/R/Shannon.R) R library.
 
 # External Links
-[Entropy and the species accumulation curve: a novel entropy estimator
-via discovery rates of new species](https://chao.stat.nthu.edu.tw/wordpress/paper/99.pdf)
+[Entropy and the species accumulation curve](https://www.researchgate.net/publication/263250571_Entropy_and_the_species_accumulation_curve_A_novel_entropy_estimator_via_discovery_rates_of_new_species)
 """
 function chao_wang_jost(data::CountData)
-    singles = singletons(data)
-    doubles = doubletons(data)
+  singles = singletons(data)
+  doubles = doubletons(data)
 
-    if isnothing(singles)
-        f1 = 0
+  if isnothing(singles)
+    f1 = 0
+  else
+    f1 = singles[2]
+  end
+  if isnothing(doubles)
+    f2 = 0
+  else
+    f2 = doubles[2]
+  end
+
+  A =
+    if f2 > 0
+      2 * f2 / ((data.N - 1) * f1 + 2 * f2)
     else
-        f1 = singles[2]
-    end
-    if isnothing(doubles)
-        f2 = 0
-    else
-        f2 = doubles[2]
+      if f1 > 0
+        2 / ((data.N - 1) * (f1 - 1) + 2)
+      else
+        1
+      end
     end
 
-    A =
-        if f2 > 0
-            2 * f2 / ((data.N - 1) * f1 + 2 * f2)
-        else
-            if f1 > 0
-                2 / ((data.N - 1) * (f1 - 1) + 2)
-            else
-                1
-            end
-        end
+  cwj = sum(x[1] / data.N * (digamma(data.N) - digamma(x[1])) * x[2] for x in eachcol(data.multiplicities))
 
-    cwj = sum(x[1] / data.N * (digamma(data.N) - digamma(x[1])) * x[2] for x in eachcol(data.multiplicities))
-
-    if A != 1
-        p2 = sum(1 / r * (1 - A)^r for r in 1:data.N-1)
-        cwj += f1 / data.N * (1 - A)^(1 - data.N) * (-log(A) - p2)
-    end
-    cwj
+  if A != 1
+    p2 = sum(1 / r * (1 - A)^r for r in 1:data.N-1)
+    cwj += f1 / data.N * (1 - A)^(1 - data.N) * (-log(A) - p2)
+  end
+  cwj
 end

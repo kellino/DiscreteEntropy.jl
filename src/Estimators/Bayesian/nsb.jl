@@ -20,7 +20,8 @@ where $C_\gamma$ is Euler's Gamma ($\approx 0.57721...$), $\psi_0$ is the digamm
 $\Delta$ the number of coincidences in the data.
 
 This is designed for the extremely undersampled regime (K ~ N) and diverges with N when well-sampled. ANSB requires
-that ``N/K → 0``, which we set to be ``N/K < 0.1`` by default
+that ``N/K → 0``, which we set to be ``N/K < 0.1`` by default in `undersampled`. You can, of course, experiment
+with this value, but the behaviour might be unpredictable.
 
 If there are no coincidences in the data, ANSB returns `NaN`
 
@@ -101,7 +102,7 @@ where
     \prod_{i=1}^K \frac{\Gamma(n_i + \beta(\xi))}{\Gamma(\beta(\xi))}
 ```
 
-If there are no coincidences in the data, NSB returns `NaN`
+If there are no coincidences in the data, NSB returns `NaN`. If `verbose` is `true`, NSB will warn you of errors.
 """
 function nsb(data::CountData, K=data.K; verbose=false)
   Δ = coincidences(data)
