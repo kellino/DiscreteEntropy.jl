@@ -30,12 +30,12 @@ In addition to setting your own α, we have the following suggested choices
 
 """
 function bayes(data::CountData, α::AbstractFloat; K=nothing)
-    if K === nothing
-        K = data.K
-    end
-    weight = α * K + data.N
+  if K === nothing
+    K = data.K
+  end
+  weight = α * K + data.N
 
-    logx(weight) - (1.0 / weight) * sum(xlogx(x[1] + α) * x[2] for x in eachcol(data.multiplicities))
+  logx(weight) - (1.0 / weight) * sum(xlogx(x[1] + α) * x[2] for x in eachcol(data.multiplicities))
 end
 
 @doc raw"""
@@ -45,7 +45,7 @@ Compute [`bayes`](@ref) estimate of entropy, with $α = 0.5$
 
 """
 function jeffrey(data::CountData; K=nothing)
-    return bayes(data, 0.5, K=K)
+  return bayes(data, 0.5, K=K)
 end
 
 @doc raw"""
@@ -55,7 +55,7 @@ Compute [`bayes`](@ref) estimate of entropy, with $α = 1.0$
 
 """
 function laplace(data::CountData; K=nothing)
-    return bayes(data, 1.0, K=K)
+  return bayes(data, 1.0, K=K)
 end
 
 @doc raw"""
@@ -65,21 +65,21 @@ Compute [`bayes`](@ref) estimate of entropy, with $α = \frac{1}{K}$.
 If K is nothing, then use data.K
 """
 function schurmann_grassberger(data::CountData; K=nothing)
-    if K === nothing
-        K = data.K
-    end
-    return bayes(data, 1.0 / K, K=K)
+  if K === nothing
+    K = data.K
+  end
+  return bayes(data, 1.0 / K, K=K)
 end
 
 @doc raw"""
      minimax(data::CountData; K=nothing)
 
-Compute [`bayes`](@ref) estimate of entropy, with $α = √\frac{data.N}$ where
+Compute [`bayes`](@ref) estimate of entropy, with $α = √\frac{data.N}{K}$ where
 K = data.K if K is nothing.
 """
 function minimax(data::CountData; K=nothing)
-    if K === nothing
-        K = data.K
-    end
-    return bayes(data, sqrt(data.N) / K, K=K)
+  if K === nothing
+    K = data.K
+  end
+  return bayes(data, sqrt(data.N) / K, K=K)
 end

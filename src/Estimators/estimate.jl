@@ -48,7 +48,7 @@ struct PYM <: ParameterisedEstimator end
 struct AutoNSB <: NonParameterisedEstimator end
 struct ANSB <: NonParameterisedEstimator end
 struct Jeffrey <: NonParameterisedEstimator end
-struct LaPlace <: NonParameterisedEstimator end
+struct Laplace <: NonParameterisedEstimator end
 struct SchurmannGrassberger <: NonParameterisedEstimator end
 struct Minimax <: NonParameterisedEstimator end
 
@@ -67,7 +67,7 @@ struct Bootstrap end
     estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=nothing)
     estimate_h(data::CountData, ::Type{NSB}; guess=false, K=nothing)
 
-Return the estimate in nats of Shannon entropy of `data` using `estimator`.
+Return the estimate of Shannon entropy of `data`, in nats, using `estimator`.
 
 
 # Example
@@ -81,8 +81,12 @@ julia> estimate_h(from_data(X, Samples), Schurmann)
 ```
 
 ## Note
-While most calls to estimate_h take a CountData struct, this is not true for every estimator, especially those that
-work directly over samples, or need the original structure of the histogram.
+While most calls to estimate_h take a CountData struct, this is not true for every estimator.
+In particular `schurmann_generalised` has a different method call
+
+  estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::XiVector)
+
+as this works directly over this sample histogram.
 
 For a complete list of methods of the function, try
 
@@ -90,65 +94,67 @@ For a complete list of methods of the function, try
 julia> methods(estimate_h)
 ```
 
+Return the estimate of Shannon entropy of `data`, in nats, using `estimator`.
+
 This function is a wrapper indended to make using the libary easier. For finer control over some of the estimators,
 it is advisable to call them directly, rather than through this function.
 
 """
 function estimate_h(data::CountData, ::Type{MaximumLikelihood})
-    maximum_likelihood(data)
+  maximum_likelihood(data)
 end
 
 function estimate_h(data::CountData, ::Type{JackknifeMLE}; corrected=false)
-    jackknife_mle(data; corrected)[1]
+  jackknife_mle(data; corrected)[1]
 end
 
 function estimate_h_and_var(data::CountData, ::Type{JackknifeMLE}; corrected=false)
-    jackknife_mle(data; corrected)
+  jackknife_mle(data; corrected)
 end
 
 function estimate_h(data::CountData, ::Type{MillerMadow})
-    miller_madow(data)
+  miller_madow(data)
 end
 
 function estimate_h(data::CountData, ::Type{Grassberger})
-    grassberger(data)
+  grassberger(data)
 end
 
 function estimate_h(data::CountData, ::Type{Schurmann}, xi=nothing)
-    if xi === nothing
-        schurmann(data)
-    else
-        schurmann(data, xi)
-    end
+  if xi === nothing
+    schurmann(data)
+  else
+    schurmann(data, xi)
+  end
 end
 
 function estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::XiVector)
-    schurmann_generalised(data, xis)
+  schurmann_generalised(data, xis)
 end
 
 function estimate_h(data::CountData, ::Type{ChaoShen})
-    chao_shen(data)
+  chao_shen(data)
 end
 
 function estimate_h(data::CountData, ::Type{Zhang})
-    zhang(data)
+  zhang(data)
 end
 
 function estimate_h(data::CountData, ::Type{Shrink})
-    shrink(data)
+  shrink(data)
 end
 
 function estimate_h(data::CountData, ::Type{Bonachela})
-    bonachela(data)
+  bonachela(data)
 end
 
 function estimate_h(data::CountData, ::Type{ChaoWangJost})
-    chao_wang_jost(data)
+  chao_wang_jost(data)
 end
 
 function estimate_h(data::CountData, ::Type{BUB}; k_max=11, truncate=false, lambda=0.0)
-    (h, _ ) = bub(data, k_max=k_max, truncate=truncate, lambda=lambda)
-    return h
+  (h, _) = bub(data, k_max=k_max, truncate=truncate, lambda=lambda)
+  return h
 end
 
 function estimate_h(data::CountData, ::Type{Unseen})
@@ -156,94 +162,102 @@ function estimate_h(data::CountData, ::Type{Unseen})
 end
 
 function estimate_h(data::CountData, ::Type{Bayes}, α::AbstractFloat; K=nothing)
-    bayes(data, α, K=K)
+  bayes(data, α, K=K)
 end
 
-function estimate_h(data::CountData, ::Type{LaPlace}; K=nothing)
-    laplace(data, K=K)
+function estimate_h(data::CountData, ::Type{Laplace}; K=nothing)
+  laplace(data, K=K)
 end
 
 function estimate_h(data::CountData, ::Type{Jeffrey}; K=nothing)
-    jeffrey(data, K=K)
+  jeffrey(data, K=K)
 end
 
 function estimate_h(data::CountData, ::Type{SchurmannGrassberger}; K=nothing)
-    schurmann_grassberger(data, K=K)
+  schurmann_grassberger(data, K=K)
 end
 
 function estimate_h(data::CountData, ::Type{Minimax}; K=nothing)
-    minimax(data, K=K)
+  minimax(data, K=K)
 end
 
 function estimate_h(data::CountData, ::Type{PYM}; param=nothing)
-    pym(data; param=param)
+  pym(data; param=param)
 end
 
 function estimate_h(data::CountData, ::Type{NSB}; guess=false, K=nothing)
-    loc_K = K
-    if guess
-        loc_K = guess_k(data)
-    else
-        if loc_K === nothing
-            loc_K = data.K
-        end
+  loc_K = K
+  if guess
+    loc_K = guess_k(data)
+  else
+    if loc_K === nothing
+      loc_K = data.K
     end
-    nsb(data, loc_K)
+  end
+  nsb(data, loc_K)
 end
 
 function estimate_h(data::CountData, ::Type{ANSB})
-    ansb(data)
+  ansb(data)
 end
 
 function estimate_h(data::CountData, ::Type{PERT})
-    # TODO no reason to prefer ChaoShen here
-    pert(data, ChaoShen)
+  # TODO no reason to prefer ChaoShen here
+  pert(data, ChaoShen)
 end
 
 @enum Pert_Type begin
-    Pert
-    Triangular
+  Pert
+  Triangular
 end
 
 @doc raw"""
     pert(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
-    pert(data::CountData, e1::Type{T}, e2::Type{T}) where {T<:AbstractEstimator}
+    pert(data::CountData, b::Type{T}, c::Type{T1}) where {T,T1<:AbstractEstimator}
+    pert(data::CountData, a::Type{T}, b::Type{T1}, c::Type{T2}) where {T,T1,T2<:AbstractEstimator}
 
-A Pert estimate of entropy, where
+A [Pert](https://en.wikipedia.org/wiki/Three-point_estimation) estimate of entropy, where
 
-```
 a = best estimate
 b = most likely estimate
 c = worst case estimate
-```
 
 
 ```math
 H = \frac{a + 4b + c}{6}
 ```
 
-where the default estimators are: a = maximum_likelihood, c = ANSB and $b$ is the most likely value = ChaoShen
+where the default estimators are: $a$ = MaximumLikelihood, $c$ = ANSB and $b$ is the most likely value = ChaoShen.
+The user can, of course, specify any combination of estimators they want.
 """
 function pert(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
-    return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, estimator) + estimate_h(data, ANSB)) / 6.0
+  return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, estimator) + estimate_h(data, ANSB)) / 6.0
 end
 
-function pert(data::CountData, e1::Type{T1}, e2::Type{T2}) where {T1, T2 <:AbstractEstimator}
-    return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, e1) + estimate_h(data, e2)) / 6.0
+function pert(data::CountData, a::Type{T}, b::Type{T1}, c::Type{T2}) where {T,T1,T2<:AbstractEstimator}
+  return (estimate_h(data, MaximumLikelihood) + 4 * estimate_h(data, b) + estimate_h(data, c)) / 6.0
 end
 
 function estimate_h(data::CountData, ::Type{PERT}, e::Type{T}) where {T<:AbstractEstimator}
-    pert(data, e)
+  pert(data, e)
 end
 
-function estimate_h(data::CountData, ::Type{PERT}, e1::Type{T1}, e2::Type{T2}) where {T1, T2<:AbstractEstimator}
-    if typeof(e1) == PERT || typeof(e2) == PERT
-        @warn("argument error")
-        return
-    end
-    pert(data, e1, e2)
+function estimate_h(data::CountData, ::Type{PERT}, b::Type{T1}, c::Type{T2}) where {T1,T2<:AbstractEstimator}
+  if typeof(b) == PERT || typeof(c) == PERT
+    @warn("argument error")
+    return
+  end
+  pert(data, MaximumLikelihood, b, c)
+end
+
+function estimate_h(data::CountData, ::Type{PERT}, a::Type{T}, b::Type{T1}, c::Type{T2}) where {T,T1,T2<:AbstractEstimator}
+  if typeof(a) == PERT || typeof(b) == PERT || typeof(c) == PERT
+    @warn("argument error")
+    return
+  end
+  pert(data, a, b, c)
 end
 
 function estimate_h(data::SampleVector, estimator::Type{T}, ::Type{Bootstrap}; seed=1, reps=1000, concentration=4) where {T<:AbstractEstimator}
-    bayesian_bootstrap(data, estimator, reps, seed, concentration)[1]
+  bayesian_bootstrap(data, estimator, reps, seed, concentration)[1]
 end
