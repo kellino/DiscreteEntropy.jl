@@ -152,8 +152,8 @@ function estimate_h(data::CountData, ::Type{ChaoWangJost})
   chao_wang_jost(data)
 end
 
-function estimate_h(data::CountData, ::Type{BUB}; k_max=11, truncate=false, lambda=0.0)
-  (h, _) = bub(data, k_max=k_max, truncate=truncate, lambda=lambda)
+function estimate_h(data::CountData, ::Type{BUB}; k_max=11, truncate=false, lambda_0=0.0)
+  (h, _) = bub(data, k_max=k_max, truncate=truncate, lambda_0=lambda_0)
   return h
 end
 
@@ -181,8 +181,8 @@ function estimate_h(data::CountData, ::Type{Minimax}; K=nothing)
   minimax(data, K=K)
 end
 
-function estimate_h(data::CountData, ::Type{PYM}; param=nothing)
-  pym(data; param=param)
+function estimate_h(data::CountData, ::Type{PYM})
+  pym(data)
 end
 
 function estimate_h(data::CountData, ::Type{NSB}; guess=false, K=nothing)
@@ -213,7 +213,7 @@ end
 
 @doc raw"""
     pert(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
-    pert(data::CountData, b::Type{T}, c::Type{T1}) where {T,T1<:AbstractEstimator}
+    pert(data::CountData, b::Type{T}, c::Type{T}) where {T<:AbstractEstimator}
     pert(data::CountData, a::Type{T}, b::Type{T1}, c::Type{T2}) where {T,T1,T2<:AbstractEstimator}
 
 A [Pert](https://en.wikipedia.org/wiki/Three-point_estimation) estimate of entropy, where

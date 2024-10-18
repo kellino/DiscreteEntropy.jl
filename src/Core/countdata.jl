@@ -204,14 +204,14 @@ end
 Simple wrapper around *CSV.File() which returns a [`CountData`](@ref) object. For more complex
 requirements, it is best to call CSV directly.
 """
-function from_csv(file::Union{String,IOBuffer}, field, t::Type{T}; remove_zeros=false, header=false) where {T<:EntropyData}
+function from_csv(file::Union{String,IOBuffer}, field, t::Type{T}; remove_zeros=false, header=false, kw...) where {T<:EntropyData}
   data::Vector{Int64} = []
   for row in CSV.File(file; header=header, kw...)
     push!(data, row[field])
   end
 
   if t == Samples
-    from_samples(svector(data), remove_zeros=remove_zeros)
+    from_samples(svector(data))
   else
     from_counts(cvector(data), remove_zeros=remove_zeros)
   end

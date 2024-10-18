@@ -26,6 +26,6 @@ using Test
 @test AutoNSB <: NonParameterisedEstimator
 @test ANSB <: NonParameterisedEstimator
 @test Jeffrey <: NonParameterisedEstimator
-@test LaPlace <: NonParameterisedEstimator
+@test Laplace <: NonParameterisedEstimator
 @test SchurmannGrassberger <: NonParameterisedEstimator
 @test Minimax <: AbstractEstimator
