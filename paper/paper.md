@@ -63,16 +63,14 @@ in [@Rodriguez2021EntropyEst] and a number of estimators which were not consider
 Shannon measures for their research, or those who want to research entropy estimation directly.
 
 There is no other open-source software package known to us, in any language, with similiar features or similiar breadth of
-estimators. The R [entropy](https://cran.r-project.org/web/packages/entropy/index.html) package covers many basic estimators, such as
+estimators. The R entropy[@hausser2009entropy] package covers many basic estimators, such as
 the maximum likelihood, Miller-Madow, Chao Shen and many bayesian estimators.
-The [PYM](https://github.com/pillowlab/PYMentropy/?tab=readme-ov-file), [BUB](http://www.stat.columbia.edu/~liam/research/code/BUBfunc.m) and
-[Unseen](http://theory.stanford.edu/~valiant/papers/nips_full.pdf)
-estimators are found only in the author's Matlab implementions. Other estimators, such as Zhang and Grassberger, can be found in the Python
-[Entropart](https://ericmarcon.r-universe.dev/entropart).
-The NSB estimator exists in multiple different versions, in [C++, Matlab](https://sourceforge.net/projects/nsb-entropy/)
-and [Python](https://github.com/simomarsili/ndd).
-The estimators here were mostly implemented from the original papers, though some (such as BUB and Unseen) are
-idiomatic ports of original Matlab code.
+The PYM[@pym], BUB[@bub] and Unseen[@valiant] estimators are found only in the author's Matlab implementions. 
+Other estimators, such as Zhang and Grassberger, can be found in the R
+Entropart[@entropart] library.
+The NSB estimator exists in multiple different versions, in C++, Matlab[@nsb]
+and Python[@ndd]. The estimators here were mostly implemented from the original papers, 
+though some (such as BUB and Unseen) are idiomatic ports of original Matlab code.
 
 `DiscreteEntropy.jl` is a fast, simple to use, library that fills a gap between the scattered implementations available online.
 It ensures type safety throughout, even preventing confusion between vectors of samples or vectors which represent histograms of samples.
