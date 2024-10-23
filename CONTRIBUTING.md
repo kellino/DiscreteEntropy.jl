@@ -46,7 +46,7 @@ Evaluation and feedback on what works and what does not is always interesting an
 
 To set up `DiscreteEntropy.jl` for local development:
 
-1. Fork `DiscreteEntropy.jl <https://github.com/kellino/DiscreteEntropy.jl>`
+1. Fork [`DiscreteEntropy.jl`](https://github.com/kellino/DiscreteEntropy.jl)
 
 2. Clone your fork locally:
 
