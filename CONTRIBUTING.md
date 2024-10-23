@@ -56,7 +56,9 @@ To set up `DiscreteEntropy.jl` for local development:
 
 3. Create a branch for local development::
 
+   ```
    git checkout -b name-of-your-bugfix-or-feature
+   ```
 
    Now you can make your changes locally
 

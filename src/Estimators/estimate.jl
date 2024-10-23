@@ -81,10 +81,10 @@ julia> estimate_h(from_data(X, Samples), Schurmann)
 ```
 
 ## Note
-While most calls to estimate_h take a CountData struct, this is not true for every estimator.
+While most calls to `estimate_h` take a `CountData` struct, this is not true for every estimator.
 In particular `schurmann_generalised` has a different method call
 
-  estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::XiVector)
+    estimate_h(data::CountVector, ::Type{SchurmannGeneralised}, xis::XiVector)
 
 as this works directly over this sample histogram.
 

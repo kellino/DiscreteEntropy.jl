@@ -32,7 +32,7 @@ end
 Compute the *jackknifed* [`maximum_likelihood`](@ref) estimate of data and the variance of the
 jackknifing (not the variance of the estimator itself).
 
-If `corrected` is true, then the variance is scaled with $data.N-1$, else it is scaled with $data.N$. `corrected`
+If `corrected` is true, then the variance is scaled with `data.N - 1`, else it is scaled with `data.N`. `corrected`
 has no effect on the entropy estimation.
 
 # External Links
