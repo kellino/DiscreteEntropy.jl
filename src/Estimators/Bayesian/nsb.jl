@@ -57,7 +57,7 @@ function dlogrho(K0, K1, N)
   K1 / K0 - digamma(K0 + N) + digamma(K0)
 end
 
-function find_extremum_log_rho(K::Int64, N::Float64)
+function find_extremum_log_rho(K::Int64, N::Int64)
   func(K0) = dlogrho(K0, K, N)
 
   # z = find_zero(func, 1)

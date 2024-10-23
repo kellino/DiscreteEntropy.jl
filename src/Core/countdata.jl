@@ -59,7 +59,7 @@ CountData is not expected to be called directly, nor is it advised to directly m
 """
 mutable struct CountData
   multiplicities::Matrix{Float64}
-  N::Float64
+  N::Int64
   K::Int64
 end
 
