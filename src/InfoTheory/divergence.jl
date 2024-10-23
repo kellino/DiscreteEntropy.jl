@@ -100,9 +100,9 @@ end
 
 
 @doc raw"""
-    jensen_shannon_divergence(countsP::CountVector, countsQ::AbstractVector)
-    jensen_shannon_divergence(countsP::CountVector, countsQ::AbstractVector, estimator::Type{T}) where {T<:NonParamterisedEstimator}
-    jensen_shannon_divergence(countsP::CountVector, countsQ::AbstractVector, estimator::Type{Bayes}, α)
+    jensen_shannon_divergence(countsP::CountVector, countsQ::CountVector)
+    jensen_shannon_divergence(countsP::CountVector, countsQ::CountVector, estimator::Type{T}) where {T<:NonParamterisedEstimator}
+    jensen_shannon_divergence(countsP::CountVector, countsQ::CountVector, estimator::Type{Bayes}, α)
 
 Compute the Jensen Shannon Divergence between discrete distributions $P$ and $Q$, as represented by
 their histograms. If no estimator is specified, it defaults to MaximumLikelihood.
@@ -120,7 +120,7 @@ function jensen_shannon_divergence(P::CountVector, Q::CountVector)
 end
 
 @doc raw"""
-    jensen_shannon_distance(P::AbstractVector, Q::AbstractVector, estimator::Type{T}) where T<:AbstractEstimator
+    jensen_shannon_distance(P::CountVector, Q::CountVector, estimator::Type{T}) where {T<:AbstractEstimator}
 
 Compute the Jensen Shannon Distance
 
