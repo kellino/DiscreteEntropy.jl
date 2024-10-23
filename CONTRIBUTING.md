@@ -50,7 +50,9 @@ To set up `DiscreteEntropy.jl` for local development:
 
 2. Clone your fork locally:
 
-   gh repo clone YOURNAME/DiscreteEntropy.jl
+   ```
+   git clone git@github.com:<YOUR ACCOUNT NAME>/DiscreteEntropy.jl.git
+   ```
 
 3. Create a branch for local development::
 
