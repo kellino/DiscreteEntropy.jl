@@ -18,17 +18,17 @@ function linprog(c, A, b, Aeq, beq, lb, ub)
 end
 
 @doc raw"""
-  unseen(data::CountData)
+    unseen(data::CountData)
 
 Compute the Unseen estimatation of Shannon entropy.
 
 # Example
 
-``@jldoctest
+```@jldoctest
 n = [1,2,3,4,5,4,3,2,1]
 h = unseen(from_counts(n))
 1.4748194918254784
-``
+```
 
 # External Links
 [Estimating the Unseen: Improved Estimators for Entropy and Other Properties](https://theory.stanford.edu/~valiant/papers/unseenJournal.pdf)

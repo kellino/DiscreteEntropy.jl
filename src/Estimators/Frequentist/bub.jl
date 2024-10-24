@@ -8,8 +8,8 @@ using LinearAlgebra: I, dot, diagm
 
 Compute The Best Upper Bound (BUB) estimation of Shannon entropy, where
 
-`k_max` is a degree of freedom parameter. Paninski states that k_max ~ 10 is optimal for most applications.
-`lambda_0` is the Lagrange multiplier on a_0 (see paper for details). This can be safely left at 0 for most appllications.
+`k_max` is a degree of freedom parameter. Paninski states that `k_max` ~ 10 is optimal for most applications.
+`lambda_0` is the Lagrange multiplier on $a_0$ (see paper for details). This can be safely left at 0 for most applications.
 `truncate` reduces the number of significant digits in intermediate floating point calculates. This exists to bring the output of this function closer to the original Matlab implementation. Leaving it at `false` usually results in a slightly higher entropy estimate.
 
 # Example
@@ -19,7 +19,7 @@ n = [1,2,3,4,5,4,3,2,1]
 (h, MM) = bub(from_counts(n))
 (2.475817360451392, 0.6542542616181388)
 ```
-where h is the estimation of Shannon entropy in `nats` and MM is the upper bound on rms error
+where `h` is the estimation of Shannon entropy in `nats` and `MM` is the upper bound on rms error
 
 # External Links
 [Estimation of Entropy and Mutual Information](https://www.stat.berkeley.edu/~binyu/summer08/L2P2.pdf)

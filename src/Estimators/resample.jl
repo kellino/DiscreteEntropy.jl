@@ -67,7 +67,7 @@ end
 
 Compute the jackknifed estimate of `estimator` on `data`.
 
-If `corrected` is true, then the variance is scaled with $data.N-1$, else it is scaled with $data.N$. `corrected`
+If `corrected` is true, then the variance is scaled with `data.N - 1`, else it is scaled with `data.N`. `corrected`
 has no effect on the entropy estimation.
 """
 function jackknife(data::CountData, estimator::Type{T}; corrected=false) where {T<:AbstractEstimator}
