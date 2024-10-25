@@ -16,27 +16,31 @@ DiscreteEntropy implements a large collection of entropy estimators.
 
 At present, we have implementations for:
 
-- [`maximum_likelihood`](@ref) MaximumLikelihood
-- [`jackknife_mle`](@ref) JackknifeMLE
-- [`miller_madow`](@ref) MillerMadow
-- [`grassberger`](@ref) Grassberger
-- [`schurmann`](@ref) Schurmann
-- [`schurmann_generalised`](@ref) SchurmannGeneralised
-- [`bub`](@ref) BUB
-- [`chao_shen`](@ref) ChaoShen
-- [`zhang`](@ref) Zhang
-- [`bonachela`](@ref) Bonachela
-- [`shrink`](@ref) Shrink
-- [`chao_wang_jost`](@ref) ChaoWangJost
-- [`unseen`](@ref) Unseen
-- [`bayes`](@ref) Bayes
-- [`jeffrey`](@ref) Jeffrey
-- [`laplace`](@ref) Laplace
-- [`schurmann_grassberger`](@ref) SchurmannGrassberger
-- [`minimax`](@ref) Minimax
-- [`nsb`](@ref) NSB
-- [`ansb`](@ref) ANSB
-- [`pym`](@ref) PYM
+|Function                       |Type                  |
+|-------------------------------|----------------------|
+|[`maximum_likelihood`](@ref)   | MaximumLikelihood    |
+|[`jackknife_mle`](@ref)        | JackknifeMLE         |
+|[`miller_madow`](@ref)         | MillerMadow          |
+|[`grassberger`](@ref)          | Grassberger          |
+|[`schurmann`](@ref)            | Schurmann            |
+|[`schurmann_generalised`](@ref)| SchurmannGeneralised |
+|[`bub`](@ref)                  | BUB                  |
+|[`chao_shen`](@ref)            | ChaoShen             |
+|[`zhang`](@ref)                | Zhang                |
+|[`bonachela`](@ref)            | Bonachela            |
+|[`shrink`](@ref)               | Shrink               |
+|[`chao_wang_jost`](@ref)       | ChaoWangJost         |
+|[`unseen`](@ref)               | Unseen               |
+|[`bayes`](@ref)                | Bayes                |
+|[`jeffrey`](@ref)              | Jeffrey              |
+|[`laplace`](@ref)              | Laplace              |
+|[`schurmann_grassberger`](@ref)| SchurmannGrassberger |
+|[`minimax`](@ref)              | Minimax              |
+|[`nsb`](@ref)                  | NSB                  |
+|[`ansb`](@ref)                 | ANSB                 |
+|[`pym`](@ref)                  | PYM                  |
+
+The type is mainly used with the function [`estimate_h`](@ref), see below.
 
 We also have some non-traditional mixed estimators, such as [`jackknife`](@ref), which allows jackknife
 resampling to be applied to any estimator, [`bayesian_bootstrap`](@ref)
