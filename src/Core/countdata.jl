@@ -158,9 +158,7 @@ function from_samples(samples::SampleVector)
     return empty_countdata()
   end
 
-  println(samples)
   K = length(unique(samples.values))
-  println(K)
 
   if K == 1
     N::Float64 = length(samples.values)
