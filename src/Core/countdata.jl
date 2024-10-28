@@ -153,7 +153,6 @@ end
 Return a [`CountData`](@ref) object from a vector of samples.
 """
 function from_samples(samples::SampleVector)
-  # TODO we should not filter 0s here
   if isempty(samples)
     return empty_countdata()
   end
@@ -170,7 +169,6 @@ function from_samples(samples::SampleVector)
   for x in samples.values
     update_dict!(counts, x)
   end
-  # end
   v = collect(values(counts))
 
   from_counts(v)

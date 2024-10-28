@@ -20,15 +20,15 @@ A vector of xi values for use with the [`schurmann_generalised`](@ref) estimator
 abstract type AbstractCounts{T<:Real,V<:AbstractVector{T}} <: AbstractVector{T} end
 
 macro counts(name)
-    return quote
-        mutable struct $name{T<:Real,V<:AbstractVector{T}} <: AbstractCounts{T,V}
-            values::V
-            function $(esc(name)){T,V}(values) where {T<:Real,V<:AbstractVector{T}}
-                isinf(Base.sum(values)) ? throw(ArgumentError("this vector cannot contain Inf or NaN")) : new{T,V}(values)
-            end
-        end
-        $(esc(name))(values::AbstractVector{T}) where {T<:Real} = $(esc(name)){T,typeof(values)}(values)
+  return quote
+    mutable struct $name{T<:Real,V<:AbstractVector{T}} <: AbstractCounts{T,V}
+      values::V
+      function $(esc(name)){T,V}(values) where {T<:Real,V<:AbstractVector{T}}
+        isinf(Base.sum(values)) ? throw(ArgumentError("this vector cannot contain Inf or NaN")) : new{T,V}(values)
+      end
     end
+    $(esc(name))(values::AbstractVector{T}) where {T<:Real} = $(esc(name)){T,typeof(values)}(values)
+  end
 end
 
 length(wv::AbstractCounts) = length(wv.values)
@@ -45,14 +45,14 @@ Base.dataids(wv::AbstractCounts) = Base.dataids(wv.values)
 Base.convert(::Type{Vector}, wv::AbstractCounts) = convert(Vector, wv.values)
 
 @propagate_inbounds function Base.getindex(wv::AbstractCounts, i::Integer)
-    @boundscheck checkbounds(wv, i)
-    @inbounds wv.values[i]
+  @boundscheck checkbounds(wv, i)
+  @inbounds wv.values[i]
 end
 
 @propagate_inbounds function Base.getindex(wv::W, i::AbstractArray) where {W<:AbstractCounts}
-    @boundscheck checkbounds(wv, i)
-    @inbounds v = wv.values[i]
-    W(v)
+  @boundscheck checkbounds(wv, i)
+  @inbounds v = wv.values[i]
+  W(v)
 end
 
 Base.getindex(wv::W, ::Colon) where {W<:AbstractCounts} = W(copy(wv.values), sum(wv))
@@ -69,11 +69,11 @@ Convert an AbstractVector into a CountVector. A CountVector represents the frequ
 If filter = true, remove 0 counts
 """
 cvector(vs::AbstractVector; filter=false) =
-    if filter
-        cvector(filter!(p -> !iszero(p), vs))
-    else
-        cvector(vs)
-end
+  if filter
+    cvector(filter!(p -> !iszero(p), vs))
+  else
+    cvector(vs)
+  end
 cvector(vs::AbstractVector{<:Integer}) = CountVector(convert(Vector{Float64}, vs))
 cvector(vs::AbstractVector{<:Real}) = CountVector(vs)
 cvector(vs::AbstractArray{<:Real}) = CountVector(vec(vs))
