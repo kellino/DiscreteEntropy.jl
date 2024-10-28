@@ -22,6 +22,10 @@ c = from_data([1, 2, 3, 2, 1], Histogram)
 
 # tested against authors' matlab code
 @test round(estimate_h(c, Unseen), digits=4) == 0.887
+d = from_data([1, 2, 3, 4, 5, 6, 7, 8, 7, 6, 5], Histogram)
+@test round(estimate_h(d, Unseen), digits=4) == 2.4305
+@test round(estimate_h(from_data([1], Histogram), Unseen), digits=4) == 0.069
+
 
 # jackknife
 estimate_h(c, JackknifeMLE) == 1.477468967581723
