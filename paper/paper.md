@@ -65,7 +65,7 @@ Shannon measures for their research, or those who want to research entropy estim
 There is no other open-source software package known to us, in any language, with similiar features or similiar breadth of
 estimators. The R entropy[@hausser2009entropy] package covers many basic estimators, such as
 the maximum likelihood, Miller-Madow, Chao Shen and many bayesian estimators.
-Code for PYM[@pym], BUB[@bub] and Unseen[@valiant] estimators are found only in the Matlab implementions by the authors of the original papers.
+Code for PYM[@pym], BUB[@bub] and Unseen[@unseenimp] estimators are found only in the Matlab implementions by the authors of the original papers.
 Other estimators, such as Zhang and Grassberger, can be found in the R
 Entropart[@entropart] library. Code for the NSB estimator exists in multiple different versions, in C++[@nsb], Matlab[@nsb]
 and Python[@ndd]. The estimators in `DiscreteEntropy.jl` were mostly implemented from the original papers,
