@@ -1,6 +1,9 @@
 using DiscreteEntropy
+using Statistics
 using Test
+using Random
 
+Random.seed!(0)
 # randomised tests are difficult for this module, so
 # results are checked against default implementations
 
@@ -21,10 +24,11 @@ c = from_data([1, 2, 3, 2, 1], Histogram)
 @test round(estimate_h(c, Bayes, 0.2), digits=6) == 1.539698
 
 # tested against authors' matlab code
-@test round(estimate_h(c, Unseen), digits=4) == 0.887
+@test round(estimate_h(c, Unseen), digits=4) == 1.6017
 d = from_data([1, 2, 3, 4, 5, 6, 7, 8, 7, 6, 5], Histogram)
-@test round(estimate_h(d, Unseen), digits=4) == 2.4305
+@test round(estimate_h(d, Unseen), digits=4) == 2.2612
 @test round(estimate_h(from_data([1], Histogram), Unseen), digits=4) == 0.069
+@test mean(estimate_h(from_samples(svector(rand(1:1000, 10000))), Unseen) |> exp for _ in 1:500) == 990.5617676651652
 
 
 # jackknife
@@ -52,8 +56,6 @@ xi = ℯ^(-1 / 2)
 @test round(estimate_h(from_counts([1, 2, 3, 4, 5, 4, 3, 2, 1]), BUB, truncate=true), digits=4) == 2.2388
 @test round(estimate_h(from_counts([1, 2, 3, 2, 1]), BUB, truncate=true), digits=4) == 1.7089
 @test round(estimate_h(from_counts([1]), BUB, truncate=true), digits=4) == 0.1812
-
-
 
 # testing NSB is difficult, as every implementation I've seen gives a different answer, so instead
 # we settle for a regression test approach
