@@ -70,9 +70,9 @@ Compute the [Kullback-Lebler Divergence](https://en.wikipedia.org/wiki/Kullback%
 between two discrete distributions. ``P`` and ``Q`` must be the same length.
 If the distributions are not normalised, they will be.
 
-If the distributions are not over the same space or the cross entropy is negative, then it returns ``Inf``.
+If the distributions are not over the same space or the cross entropy is negative, then it returns `Inf`.
 
-If truncate is set to some integer value, ```x```, return kl_divergence rounded to ```x``` decimal places.
+If truncate is set to some integer value, `x`, return kl_divergence rounded to `x` decimal places.
 """
 function kl_divergence(P::CountVector, Q::CountVector, estimator::Type{T}; truncate::Union{Nothing,Int}=nothing, α=0.0) where {T<:AbstractEstimator}
   if estimator == Bayes
@@ -100,9 +100,9 @@ end
 
 
 @doc raw"""
-    jensen_shannon_divergence(countsP::CountVector, countsQ::AbstractVector)
-    jensen_shannon_divergence(countsP::CountVector, countsQ::AbstractVector, estimator::Type{T}) where {T<:NonParamterisedEstimator}
-    jensen_shannon_divergence(countsP::CountVector, countsQ::AbstractVector, estimator::Type{Bayes}, α)
+    jensen_shannon_divergence(countsP::CountVector, countsQ::CountVector)
+    jensen_shannon_divergence(countsP::CountVector, countsQ::CountVector, estimator::Type{T}) where {T<:NonParamterisedEstimator}
+    jensen_shannon_divergence(countsP::CountVector, countsQ::CountVector, estimator::Type{Bayes}, α)
 
 Compute the Jensen Shannon Divergence between discrete distributions $P$ and $Q$, as represented by
 their histograms. If no estimator is specified, it defaults to MaximumLikelihood.
@@ -120,7 +120,7 @@ function jensen_shannon_divergence(P::CountVector, Q::CountVector)
 end
 
 @doc raw"""
-    jensen_shannon_distance(P::AbstractVector, Q::AbstractVector, estimator::Type{T}) where T<:AbstractEstimator
+    jensen_shannon_distance(P::CountVector, Q::CountVector, estimator::Type{T}) where {T<:AbstractEstimator}
 
 Compute the Jensen Shannon Distance
 

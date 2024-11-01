@@ -24,9 +24,9 @@ struct Samples <: EntropyData end
     CountData
 
 # Fields
-- multiplicities::Matrix{Float64}  : multiplicity representation of data
-- N::Float64 : total number of samples
-- K::Int64   : observed support size
+- `multiplicities::Matrix{Float64}`: multiplicity representation of data
+- `N::Float64`: total number of samples
+- `K::Int64`: observed support size
 
 
 # Multiplicities
@@ -197,7 +197,7 @@ end
 
 @doc raw"""
     from_csv(file::String, field, ::Type{T}; remove_zeros=false, header=nothing, kw...) where {T<:EntropyData}
-Simple wrapper around *CSV.File() which returns a [`CountData`](@ref) object. For more complex
+Simple wrapper around `CSV.File()` which returns a [`CountData`](@ref) object. For more complex
 requirements, it is best to call CSV directly.
 """
 function from_csv(file::Union{String,IOBuffer}, field, t::Type{T}; remove_zeros=false, header=false, kw...) where {T<:EntropyData}

@@ -2,7 +2,7 @@ using Base: @propagate_inbounds
 
 # using Core: throw_inexacterror
 @doc raw"""
-AbstractCounts{T<:Real,V<:AbstractVector{T}} <: AbstractVector{T}
+    AbstractCounts{T<:Real,V<:AbstractVector{T}} <: AbstractVector{T}
 
 Enforced type incompatibility between vectors of samples, vectors of counts, and
 vectors of xi.
