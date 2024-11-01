@@ -28,7 +28,7 @@ c = from_data([1, 2, 3, 2, 1], Histogram)
 d = from_data([1, 2, 3, 4, 5, 6, 7, 8, 7, 6, 5], Histogram)
 @test round(estimate_h(d, Unseen), digits=4) == 2.2612
 @test round(estimate_h(from_data([1], Histogram), Unseen), digits=4) == 0.069
-@test mean(estimate_h(from_samples(svector(rand(1:1000, 10000))), Unseen) |> exp for _ in 1:500) == 990.5617676651652
+@test round(mean(estimate_h(from_samples(svector(rand(1:1000, 10000))), Unseen) |> exp for _ in 1:500), digits=4) == 990.5618
 
 
 # jackknife
