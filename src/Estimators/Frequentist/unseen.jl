@@ -34,23 +34,29 @@ h = unseen(from_counts(n))
 [Estimating the Unseen: Improved Estimators for Entropy and Other Properties](https://theory.stanford.edu/~valiant/papers/unseenJournal.pdf)
 """
 function unseen(data::CountData)
-  finger_dict = countmap(data.multiplicities[2, :])
-  finger = zeros(convert(Int, findmax(collect(keys(finger_dict)))[1]))
+  max = convert(Int64, maximum(bins(data)))
 
-  for (k, v) in finger_dict
-    finger[convert(Int, k)] = v
+  finger = zeros(Float64, max)
+
+  for col in eachcol(data.multiplicities)
+    finger[convert(Int64, col[1])] = convert(Float64, col[2])
   end
 
+  unseen(finger, data.N)
+end
+
+# this has been separated out to make testing slightly easier by passing in a finger directly
+function unseen(finger::Vector{Float64}, N)
   grid_factor = 1.05
   alpha = 0.5
 
-  xLPmin = 1 / (data.K * max(10, data.K))
+  xLPmin = 1 / (N * max(10, N))
 
   min_i = minimum(findall(x -> x > 0, finger))
 
 
   if min_i > 1
-    xLPmin = min_i / data.K
+    xLPmin = min_i / N
   end
 
   x::Vector{Float32} = [0.0]
@@ -62,7 +68,7 @@ function unseen(data::CountData)
     if finger[i] > 0
       wind = [max(1, i - ceil(Int, sqrt(i))), min(i + ceil(Int, sqrt(i)), length(finger))]
       if sum(finger[wind[1]:wind[2]]) < sqrt(i)
-        append!(x, i / data.K)
+        append!(x, i / N)
         append!(histx, finger[i])
         f_lp[i] = 0
       else
@@ -86,7 +92,7 @@ function unseen(data::CountData)
 
   f_lp = append!(f_lp[1:f_max], zeros(ceil(Int, sqrt(f_max))))
 
-  xLPmax = f_max / data.K
+  xLPmax = f_max / N
 
   xLP = xLPmin * grid_factor .^ (0:ceil(log(xLPmax / xLPmin) / log(grid_factor)))
 
@@ -97,7 +103,7 @@ function unseen(data::CountData)
   A = zeros(2 * length(f_lp), length(xLP) + 2 * length(f_lp))
   b = zeros(2 * length(f_lp))
   for i = 1:length(f_lp)
-    A[2*i-1, 1:length(xLP)] = pdf.(Poisson.(data.K * xLP), i)
+    A[2*i-1, 1:length(xLP)] = pdf.(Poisson.(N * xLP), i)
     A[2*i, 1:length(xLP)] = (-1) .* A[2*i-1, 1:length(xLP)]
     A[2*i-1, length(xLP)+2*i-1] = -1
     A[2*i, length(xLP)+2*i] = -1
