@@ -1,7 +1,7 @@
 name = "DiscreteEntropy"
 uuid = "940648b6-1797-4129-9403-35667d1f6004"
 authors = ["David Kelly <david.a.kelly@kcl.ac.uk> and contributors"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
