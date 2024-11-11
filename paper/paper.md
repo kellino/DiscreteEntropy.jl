@@ -62,10 +62,10 @@ in [@Rodriguez2021EntropyEst] and a number of estimators which were not consider
 `DiscreteEntropy.jl` provides a unified and consistent interface for those who wish to estimate entropy and other
 Shannon measures for their research, or those who want to research entropy estimation directly.
 
-There is no other open-source software package known to us, in any language, with similiar features or similiar breadth of
+There is no other open-source software package known to us, in any language, with similar features or similar breadth of
 estimators. The R entropy[@hausser2009entropy] package covers many basic estimators, such as
 the maximum likelihood, Miller-Madow, Chao Shen and many bayesian estimators.
-Code for PYM[@pym], BUB[@bub] and Unseen[@unseenimp] estimators are found only in the Matlab implementions by the authors of the original papers.
+Code for PYM[@pym], BUB[@bub] and Unseen[@unseenimp] estimators are found only in the Matlab implementations by the authors of the original papers.
 Other estimators, such as Zhang and Grassberger, can be found in the R
 Entropart[@entropart] library. Code for the NSB estimator exists in multiple different versions, in C++[@nsb], Matlab[@nsb]
 and Python[@ndd]. The estimators in `DiscreteEntropy.jl` were mostly implemented from the original papers,
@@ -82,7 +82,7 @@ can be constructed from a vector using either `from_data`, `from_counts` or `fro
 `estimate_h` are parameterised by types, making them both typesafe and allowing for simple autocompletion. All results
 are in `nats`, but `DiscreteEntropy.jl` provides helper functions to convert between units.
 
-```
+```julia
 data = [1,2,3,4,5,4,3,2,1]
 count_data = from_data(data, Histogram)
 
@@ -92,14 +92,14 @@ estimate_h(count_data, MaximumLikelihood)
 
 Unsurprisingly, different estimators give different results, depending on their underlying assumptions:
 
-```
+```julia
 estimate_h(count_data, ChaoShen)
 2.2526294444274044
 ```
 
 These assumptions can have a profound effect on estimations of more complex measures, such as mutual information:
 
-```
+```julia
 to_bits(mutual_information(Matrix([1 0; 0 1]), MaximumLikelihood))
 1.0
 
