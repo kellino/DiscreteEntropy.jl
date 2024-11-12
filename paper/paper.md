@@ -107,4 +107,10 @@ to_bits(mutual_information(Matrix([1 0; 0 1]), ChaoWangJost))
 1.7548875021634693
 ```
 
+# Acknowledgements
+
+David Kelly was funded by UKRI Trustworthy Autonomous Systems Hub (reference EP/V00784X/1)
+and Trustworthy Autonomous Systems Node in Verifiability (reference EP/V026801/2).
+Ilaria La Torre was partially supported by Meta’s Flaky project.
+
 # References
