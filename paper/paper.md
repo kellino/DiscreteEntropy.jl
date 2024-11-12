@@ -37,15 +37,15 @@ However, it is a very hard problem when knowledge of the distribution is incompl
 the `MaximumLikelihood` (or Plugin) estimator underestimates the true entropy on average [@basharin].
 This difficulty has led to a large number of improved estimators. @Rodriguez2021EntropyEst, for example,
 evaluate 18 different estimators, among which are _Grassberger_ [@grassberger2008entropy],
-_Chao Shen_ [@chaoshen] , _NSB_ [@nemenman2002entropy], _Zhang_ [@zhang] and _James-Stein_ [@hausser2009entropy].
+_Chao Shen_ [@chaoshen], _NSB_ [@nemenman2002entropy], _Zhang_ [@zhang], and _James-Stein_ [@hausser2009entropy].
 These estimators were scattered across 3 different programming languages
 and 7 different libraries. Some of these estimators are hard to find or poorly maintained. Each implementation
 calculates and reports entropy to a different number of significant digits, which can lead to difficulties in comparison.
 
 If one can estimate entropy more accurately, then one can also estimate mutual information more accurately. There
 are numerous, cross-domain, applications for entropy and mutual information, such as in telecommunications,
-machine learning [@MacKay2003] and software engineering [@bohme:fse:2020;@blackwell2025hyperfuzzing]. `DiscreteEntropy.jl` makes
-it easy to apply different estimators to the problem of mutual information, cross entropy and Kullback–Leibler divergence[@Cover2006], amongst other
+machine learning [@MacKay2003], and software engineering [@bohme:fse:2020;@blackwell2025hyperfuzzing]. `DiscreteEntropy.jl` makes
+it easy to apply different estimators to the problem of mutual information, cross entropy and Kullback–Leibler divergence [@Cover2006], amongst other
 measures.
 
 `DiscreteEntropy.jl` provides a comprehensive collection of popular entropy estimators and utilities for working with other Shannon measures.
