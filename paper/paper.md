@@ -37,7 +37,7 @@ However, it is a very hard problem when knowledge of the distribution is incompl
 the `MaximumLikelihood` (or Plugin) estimator underestimates the true entropy on average [@basharin].
 This difficulty has led to a large number of improved estimators. @Rodriguez2021EntropyEst, for example,
 evaluate 18 different estimators, among which are _Grassberger_ [@grassberger2008entropy],
-_Chao Shen_ [@chaoshen] , _NSB_ [@nemenman2002entropy], _Zhang_ [@zhang] and _James-Stein_ [@hausser2009entropy].
+_Chao Shen_ [@chaoshen], _NSB_ [@nemenman2002entropy], _Zhang_ [@zhang] and _James-Stein_ [@hausser2009entropy].
 These estimators were scattered across 3 different programming languages
 and 7 different libraries. Some of these estimators are hard to find or poorly maintained. Each implementation
 calculates and reports entropy to a different number of significant digits, which can lead to difficulties in comparison.
