@@ -44,7 +44,7 @@ calculates and reports entropy to a different number of significant digits, whic
 
 If one can estimate entropy more accurately, then one can also estimate mutual information more accurately. There
 are numerous, cross-domain, applications for entropy and mutual information, such as in telecommunications,
-machine learning [@MacKay2003] and software engineering [@bohme:fse:2020;@blackwell2023hyperfuzzing]. `DiscreteEntropy.jl` makes
+machine learning [@MacKay2003] and software engineering [@bohme:fse:2020;@blackwell2025hyperfuzzing]. `DiscreteEntropy.jl` makes
 it easy to apply different estimators to the problem of mutual information, cross entropy and Kullback–Leibler divergence[@Cover2006], amongst other
 measures.
 
