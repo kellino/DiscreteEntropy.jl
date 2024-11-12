@@ -34,8 +34,8 @@ given by
 $$H(X) = - \sum_{x \in X} p(x) \log (p(x))$$
 
 However, it is a very hard problem when knowledge of the distribution is incomplete. It is well known that
-the `MaximumLikelihood` (or Plugin) estimator, underestimates the true entropy on average [@basharin].
-This difficulty has led to a large number of improved estimators. [@Rodriguez2021EntropyEst], for example,
+the `MaximumLikelihood` (or Plugin) estimator underestimates the true entropy on average [@basharin].
+This difficulty has led to a large number of improved estimators. @Rodriguez2021EntropyEst, for example,
 evaluate 18 different estimators, among which are _Grassberger_ [@grassberger2008entropy],
 _Chao Shen_ [@chaoshen] , _NSB_ [@nemenman2002entropy], _Zhang_ [@zhang] and _James-Stein_ [@hausser2009entropy].
 These estimators were scattered across 3 different programming languages
@@ -58,20 +58,20 @@ easy to use, with a flexible but type safe interface.
 # Statement of need
 
 The `DiscreteEntropy.jl` package has native Julia implementations of all of the estimators explored
-in [@Rodriguez2021EntropyEst] and a number of estimators which were not considered.
+in @Rodriguez2021EntropyEst and a number of estimators which were not considered.
 `DiscreteEntropy.jl` provides a unified and consistent interface for those who wish to estimate entropy and other
 Shannon measures for their research, or those who want to research entropy estimation directly.
 
 There is no other open-source software package known to us, in any language, with similar features or similar breadth of
-estimators. The R entropy[@hausser2009entropy] package covers many basic estimators, such as
-the maximum likelihood, Miller-Madow, Chao Shen and many bayesian estimators.
-Code for PYM[@pym], BUB[@bub] and Unseen[@unseenimp] estimators are found only in the Matlab implementations by the authors of the original papers.
+estimators. The R entropy [@hausser2009entropy] package covers many basic estimators, such as
+the maximum likelihood, Miller-Madow, Chao Shen, and many Bayesian estimators.
+Code for PYM [@pym], BUB [@bub], and Unseen [@unseenimp] estimators are found only in the Matlab implementations by the authors of the original papers.
 Other estimators, such as Zhang and Grassberger, can be found in the R
-Entropart[@entropart] library. Code for the NSB estimator exists in multiple different versions, in C++[@nsb], Matlab[@nsb]
-and Python[@ndd]. The estimators in `DiscreteEntropy.jl` were mostly implemented from the original papers,
+Entropart [@entropart] library. Code for the NSB estimator exists in multiple different versions, in C++ [@nsb], Matlab [@nsb],
+and Python [@ndd]. The estimators in `DiscreteEntropy.jl` were mostly implemented from the original papers,
 though some (such as BUB and Unseen) are idiomatic ports of original Matlab code.
 
-`DiscreteEntropy.jl` is a fast, simple to use, library that fills a gap between the scattered implementations available online.
+`DiscreteEntropy.jl` is a fast, simple to use library that fills a gap between the scattered implementations available online.
 It ensures type safety throughout, even preventing confusion between vectors of samples or vectors which represent histograms of samples.
 
 # Example
