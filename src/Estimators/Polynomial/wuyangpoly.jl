@@ -1,5 +1,19 @@
 using JLD2;
 
+@doc raw"""
+  wu_yang_poly(data::CountData; L::Int=0, M::Float64=0.0, N::Int=0)
+
+Compute the Wu Yang Polynomial [`wu_yang_poly`](@ref) estimate of data. This implementation uses the precomputed coefficients 
+found [here](https://github.com/Albuso0/entropy)
+
+# Optional Parameters
+L::Int : polynomial degree, default = floor(1.6 * log(data.K))
+M::Float64 : endpoint of approximation interval, default = 3.5 * log(data.K)
+N::Int : threshold for polynomial estimator application, default = floor(1.6 * log(data.K))
+
+# External Links
+[Minimax Rates of Entropy Estimation on Large Alphabets via Best Polynomial Approximation](https://ieeexplore.ieee.org/document/7444171)
+"""
 function wu_yang_poly(data::CountData; L::Int=0, M::Float64=0.0, N::Int=0)
   if iszero(L)
     degree = convert(Int, floor(1.6 * log(data.K)))

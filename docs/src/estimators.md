@@ -27,6 +27,7 @@ have a few composite estimators that either take an averaging or resampling appr
 - SchurmannGrassberger
 - Minimax
 - PERT
+- WuYang
 
 ## Frequentist Estimators
 
@@ -59,9 +60,10 @@ ansb
 pym
 ```
 
-## Mixed Estimators
+## Other Estimators
 
 ```@docs
+wu_yang_poly
 pert
 jackknife
 bayesian_bootstrap

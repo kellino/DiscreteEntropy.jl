@@ -38,6 +38,9 @@ struct Schurmann <: ParameterisedEstimator end
 struct SchurmannGeneralised <: ParameterisedEstimator end
 struct BUB <: ParameterisedEstimator end
 
+# polynomial with parameter(s)
+struct WuYang <: ParameterisedEstimator end
+
 # Bayesian with Parameter(s)
 struct Bayes <: ParameterisedEstimator end
 
@@ -183,6 +186,11 @@ end
 
 function estimate_h(data::CountData, ::Type{PYM})
   pym(data)
+end
+
+# function wu_yang_poly(data::CountData; L::Int=0, M::Float64=0.0, N::Int=0)
+function estimate_h(data::CountData, ::Type{WuYang}; L::Int=0, M::Float64=0.0, N::Int=0)
+  wu_yang_poly(data; L=L, M=M, N=N)
 end
 
 function estimate_h(data::CountData, ::Type{NSB}; guess=false, K=nothing)

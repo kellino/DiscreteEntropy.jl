@@ -23,7 +23,11 @@ export estimate_h, estimate_h_and_var
 export maximum_likelihood, miller_madow, jackknife_mle, grassberger, schurmann, schurmann_generalised,
   chao_shen, zhang, bonachela, shrink, chao_wang_jost, unseen
 
+export wu_yang_poly
+
 export Bayes, Jeffrey, Laplace, SchurmannGrassberger, Minimax, NSB, AutoNSB, ANSB, PYM
+
+export WuYang
 
 # estimators
 export bayes, jeffrey, laplace, schurmann_grassberger, minimax, nsb, ansb, pym, pert, bayesian_bootstrap, bub
