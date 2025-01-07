@@ -55,6 +55,8 @@ include("Estimators/Bayesian/bayesian.jl")
 include("Estimators/Bayesian/nsb.jl")
 include("Estimators/Bayesian/pym.jl")
 
+include("Estimators/Polynomial/wuyangpoly.jl")
+
 include("Estimators/resample.jl")
 
 include("InfoTheory/mutual_info.jl")
