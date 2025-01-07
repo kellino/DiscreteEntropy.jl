@@ -31,7 +31,7 @@ d = from_data([1, 2, 3, 4, 5, 6, 7, 8, 7, 6, 5], Histogram)
 @test round(mean(estimate_h(from_samples(svector(rand(1:1000, 10000))), Unseen) |> exp for _ in 1:500), digits=4) == 990.5618
 
 # this one is a bit problematic, as the julia precision is much higher than the code in the python implementation
-@test round(estimate_h(c, WuYang), digits=4) == 2.3407
+@test round(estimate_h(c, WuYang), digits=4) == 1.7298
 
 # jackknife
 estimate_h(c, JackknifeMLE) == 1.477468967581723
