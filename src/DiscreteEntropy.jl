@@ -11,6 +11,7 @@ export CountData, from_data, from_samples, from_counts, singletons, doubletons,
   marginal_counts, bins, multiplicities, from_csv
 
 export AbstractEstimator, NonParameterisedEstimator, ParameterisedEstimator
+export Bits, Dits, Nats
 export MaximumLikelihood, JackknifeMLE, MillerMadow, Grassberger,
   Schurmann, SchurmannGeneralised, BUB,
   ChaoShen, Zhang, Bonachela, Shrink, ChaoWangJost, PERT, Unseen
@@ -43,7 +44,7 @@ export kl_divergence, jeffreys_divergence, jensen_shannon_divergence, jensen_sha
 export jackknife #, bayesian_bootstrap, bootstrap
 
 # utilities
-export to_bits, to_bans, xlogx, logx
+export to_bits, to_dits, xlogx, logx, to_nats
 
 include("Core/countvectors.jl")
 include("Core/countdata.jl")

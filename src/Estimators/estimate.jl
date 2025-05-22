@@ -60,6 +60,10 @@ struct Minimax <: NonParameterisedEstimator end
 struct PERT <: AbstractEstimator end
 struct Bootstrap end
 
+abstract type Units end
+struct Bits <: Units end
+struct Dits <: Units end
+struct Nats <: Units end
 
 @doc raw"""
     estimate_h(data::CountData, estimator::Type{T}) where {T<:AbstractEstimator}
@@ -103,9 +107,40 @@ This function is a wrapper indended to make using the libary easier. For finer c
 it is advisable to call them directly, rather than through this function.
 
 """
+function _change_base(h, units::Type{Q}) where {Q<:Units}
+  if units == Bits
+    to_bits(h)
+  elseif units == Dits
+    to_dits(h)
+  elseif units == Nats
+    to_nats(h)
+  end
+end
+
+function estimate_h(data::CountData, estimator::Type{T}, units::Type{Q}; corrected=false, xi=nothing) where {T<:AbstractEstimator,Q<:Units}
+  if estimator == Schurmann
+    if isnothing(xi)
+      println(xi)
+      h = schurmann(data)
+    else
+      println(xi)
+      h = schurmann(data, xi)
+    end
+    return _change_base(h, units)
+  end
+
+  if estimator == JackknifeMLE
+    h = estimate_h(data, JackknifeMLE, corrected=corrected)
+    return _change_base(h, units)
+  end
+end
+
 function estimate_h(data::CountData, ::Type{MaximumLikelihood})
   maximum_likelihood(data)
 end
+# function estimate_h(data::CountData, ::Type{MaximumLikelihood}, ::Type{Bits})
+#   to_bits(maximum_likelihood(data))
+# end
 
 function estimate_h(data::CountData, ::Type{JackknifeMLE}; corrected=false)
   jackknife_mle(data; corrected)[1]
@@ -123,7 +158,7 @@ function estimate_h(data::CountData, ::Type{Grassberger})
   grassberger(data)
 end
 
-function estimate_h(data::CountData, ::Type{Schurmann}, xi=nothing)
+function estimate_h(data::CountData, ::Type{Schurmann}; xi=nothing)
   if xi === nothing
     schurmann(data)
   else

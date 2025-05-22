@@ -53,11 +53,19 @@ function to_bits(h::Float64)
 end
 
 @doc raw"""
-    to_bans(x::Float64)
+    to_dits(x::Float64)
 Return ``\frac{h}{log(10)}`` where `h` is in nats
 """
-function to_bans(h::Float64)
+function to_dits(h::Float64)
   return h / log(10)
+end
+
+@doc raw"""
+    to_nats(x::Float64)
+Return ``\frac{h}{log(\euler)}`` where `h` is in nats
+"""
+function to_nats(h::Float64)
+  return h / log(ℯ)
 end
 
 @doc raw"""
